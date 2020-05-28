@@ -25,7 +25,7 @@
             android:id="@+id/action_ConnectionsListFragment_to_NearbyPlacesFragment"
             app:destination="@id/NearbyPlacesFragment" />
         <argument
-            android:name="ATOCODE"
+            android:name="ATCOCODE"
             app:argType="string" />
     </fragment>
 </navigation>

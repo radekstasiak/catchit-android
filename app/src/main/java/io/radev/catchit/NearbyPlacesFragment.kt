@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -21,11 +20,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
-class NearbyPlacesFragment : Fragment() {
-    val FIRST_FRAGMENT_TAG = "firstFragmentTag"
+class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
+    val TAG = "nearbyPlacesFragment"
     lateinit var itemAdapter: NearbyPlacesItemAdapter
     lateinit var recyclerView: RecyclerView
 
@@ -40,28 +36,15 @@ class NearbyPlacesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        view.findViewById<Button>(R.id.button_first).setOnClickListener {
-            navigateToConnectionList("test")
-        }
         setupNetworkLayer()
         recyclerView = recycler_view
-        itemAdapter = NearbyPlacesItemAdapter()
+        itemAdapter = NearbyPlacesItemAdapter(this)
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
-        button_get_data.setOnClickListener {
-            getNearbyPlaces()
-        }
-
-
+        getNearbyPlaces()
     }
 
-    fun navigateToConnectionList(atocode: String) {
-        val action = NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment(ATOCODE = atocode)
-        findNavController().navigate(action)
-    }
-
-    fun getNearbyPlaces() {
+    private fun getNearbyPlaces() {
         val request = retrofitService.getNearbyPlaces()
         doAsync {
             val response = request.execute()
@@ -91,10 +74,16 @@ class NearbyPlacesFragment : Fragment() {
             .create(ApiService::class.java)
     }
 
+    override fun onPlaceSelected(atcocode: String) {
+        val action =
+            NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment(ATCOCODE = atcocode)
+        findNavController().navigate(action)
+    }
+
 
 }
 
-class NearbyPlacesItemAdapter :
+class NearbyPlacesItemAdapter(val listener: SelectPlaceListener) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var data = arrayListOf<PlaceMember>()
 
@@ -121,6 +110,7 @@ class NearbyPlacesItemAdapter :
         vh.description.text = item.description
         vh.atcocode.text = item.atcocode
         vh.distance.text = item.distance.toString()
+        vh.itemView.setOnClickListener { listener.onPlaceSelected(item.atcocode) }
 
     }
 
@@ -139,4 +129,8 @@ class PlacesNearbyItemViewHolder : RecyclerView.ViewHolder {
         distance = view.findViewById(R.id.tv_distance)
 
     }
+}
+
+interface SelectPlaceListener {
+    fun onPlaceSelected(atcocode: String)
 }
