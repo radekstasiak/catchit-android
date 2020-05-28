@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,15 +24,15 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
-class FirstFragment : Fragment() {
-    val FIRST_FRAGMENT_TAG="firstFragmentTag"
+class NearbyPlacesFragment : Fragment() {
+    val FIRST_FRAGMENT_TAG = "firstFragmentTag"
     lateinit var itemAdapter: NearbyPlacesItemAdapter
     lateinit var recyclerView: RecyclerView
 
     lateinit var retrofitService: ApiService
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_first, container, false)
@@ -43,7 +42,7 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         view.findViewById<Button>(R.id.button_first).setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            navigateToConnectionList("test")
         }
         setupNetworkLayer()
         recyclerView = recycler_view
@@ -57,17 +56,22 @@ class FirstFragment : Fragment() {
 
     }
 
-    fun getNearbyPlaces(){
+    fun navigateToConnectionList(atocode: String) {
+        val action = NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment(ATOCODE = atocode)
+        findNavController().navigate(action)
+    }
+
+    fun getNearbyPlaces() {
         val request = retrofitService.getNearbyPlaces()
         doAsync {
             val response = request.execute()
             uiThread {
-                if(response.body()!=null) itemAdapter.setData(response.body()!!.memberList)
+                if (response.body() != null) itemAdapter.setData(response.body()!!.memberList)
             }
         }
     }
 
-    fun setupNetworkLayer(){
+    fun setupNetworkLayer() {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
@@ -126,7 +130,7 @@ class PlacesNearbyItemViewHolder : RecyclerView.ViewHolder {
     val name: TextView
     val description: TextView
     val atcocode: TextView
-    val distance:TextView
+    val distance: TextView
 
     constructor(view: View) : super(view) {
         name = view.findViewById(R.id.tv_name)
