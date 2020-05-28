@@ -1,13 +1,12 @@
 package io.radev.catchit
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.android.synthetic.main.fragment_second.*
+import kotlinx.android.synthetic.main.fragment_second.recycler_view
+import kotlinx.android.synthetic.main.fragment_second.tv_header
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.doAsync
@@ -32,8 +33,8 @@ class ConnectionsListFragment : Fragment() {
     lateinit var retrofitService: ApiService
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_second, container, false)
@@ -51,19 +52,26 @@ class ConnectionsListFragment : Fragment() {
         itemAdapter = ConnectionListAdapter()
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
+        swiperefresh.setOnRefreshListener {
+            getLiveTimetable()
+        }
         getLiveTimetable()
 
     }
+
     fun getLiveTimetable() {
         val request = retrofitService.getLiveTimetable(atcocode = args.ATCOCODE)
         doAsync {
+            swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
+                swiperefresh.isRefreshing = false
                 tv_header.text = "${response.body()!!.name} - ${response.body()!!.atcocode}"
                 if (response.body() != null) itemAdapter.setData(response.body()!!.departures.get("all")!!)
             }
         }
     }
+
     fun setupNetworkLayer() {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY

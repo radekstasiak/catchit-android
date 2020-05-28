@@ -41,14 +41,19 @@ class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
         itemAdapter = NearbyPlacesItemAdapter(this)
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
+        swiperefresh.setOnRefreshListener {
+            getNearbyPlaces()
+        }
         getNearbyPlaces()
     }
 
     private fun getNearbyPlaces() {
         val request = retrofitService.getNearbyPlaces()
         doAsync {
+            swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
+                swiperefresh.isRefreshing = false
                 if (response.body() != null) itemAdapter.setData(response.body()!!.memberList)
             }
         }
