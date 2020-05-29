@@ -38,8 +38,4 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-object ApiConstants{
-    const val API_BASE_URL="https://transportapi.com/"
-    const val API_APP_ID="68755067"
-    const val API_APP_KEY="1f81945ff77187126de7f9f93c5fab44"
-}
+

@@ -9,10 +9,20 @@ import retrofit2.http.Query
 
 /*
  * Created by radek on 27/05/2020.
- * Pocketworks 2020.
+ * radev.io 2020.
  */
 
 interface ApiService {
+
+
+    @GET("/v3/uk/places.json")
+    fun getPostCodeDetails(
+        @Query("app_id") appId: String = ApiConstants.API_APP_ID,
+        @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
+        @Query("query") query: String,
+        @Query("type") type: String = "postcode"
+    ): Call<PostCodeDetailsResponse>
+
     @GET("/v3/uk/places.json")
     fun getNearbyPlaces(
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
@@ -32,6 +42,37 @@ interface ApiService {
     ): Call<DepartureResponse>
 
 }
+//{
+//    "request_time": "2020-05-29T11:08:42+01:00",
+//    "source": "O.S. (CodePoint)",
+//    "acknowledgements": "Ordance Survey Open Data (CodePoint postcodes)",
+//    "member": [
+//    {
+//        "type": "postcode",
+//        "name": "LS6 4RQ",
+//        "latitude": 53.82896245787713,
+//        "longitude": -1.570304690443911,
+//        "accuracy": 100
+//    }
+//    ]
+//}
+
+@JsonClass(generateAdapter = true)
+data class PostCodeDetailsResponse(
+    @Json(name="request_time") val requestTime: String,
+    @Json(name="source") val source: String,
+    @Json(name="acknowledgements") val acknowledgements: String,
+    @Json(name="member") val memberList:List<PostCodeMember>
+)
+
+@JsonClass(generateAdapter = true)
+data class PostCodeMember(
+    @Json(name="type") val type:String,
+    @Json(name="name") val name:String,
+    @Json(name="latitude") val latitude: Double,
+    @Json(name="longitude") val longitude:Double,
+    @Json(name="accuracy") val accuracy:Int
+)
 
 // EXAMPLE DATA
 //"atcocode": "450010687",
@@ -136,3 +177,9 @@ data class PlaceMember(
     @Json(name = "description") val description: String,
     @Json(name = "distance") val distance: Int
 )
+
+object ApiConstants{
+    const val API_BASE_URL="https://transportapi.com/"
+    const val API_APP_ID="68755067"
+    const val API_APP_KEY="1f81945ff77187126de7f9f93c5fab44"
+}

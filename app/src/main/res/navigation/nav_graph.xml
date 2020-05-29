@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/NearbyPlacesFragment">
+    app:startDestination="@id/locationFragment">
 
     <fragment
         android:id="@+id/NearbyPlacesFragment"
@@ -14,6 +14,20 @@
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/ConnectionsListFragment" />
+        <action
+            android:id="@+id/action_NearbyPlacesFragment_to_locationFragment"
+            app:destination="@id/locationFragment" />
+
+        <argument
+            android:name="postCode"
+            app:argType="string" />
+        <argument
+            android:name="longitude"
+            app:argType="string" />
+
+        <argument
+            android:name="latitude"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/ConnectionsListFragment"
@@ -27,5 +41,14 @@
         <argument
             android:name="ATCOCODE"
             app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/locationFragment"
+        android:name="io.radev.catchit.LocationFragment"
+        android:label="fragment_location"
+        tools:layout="@layout/fragment_location" >
+        <action
+            android:id="@+id/action_locationFragment_to_NearbyPlacesFragment"
+            app:destination="@id/NearbyPlacesFragment" />
     </fragment>
 </navigation>

@@ -11,15 +11,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.android.synthetic.main.fragment_second.*
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 
 
 class ConnectionsListFragment : Fragment() {
@@ -28,7 +22,6 @@ class ConnectionsListFragment : Fragment() {
     val TAG = "connectionsListFragmentTag"
     lateinit var itemAdapter: ConnectionListAdapter
     lateinit var recyclerView: RecyclerView
-    lateinit var retrofitService: ApiService
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +38,6 @@ class ConnectionsListFragment : Fragment() {
             findNavController().navigate(R.id.action_ConnectionsListFragment_to_NearbyPlacesFragment)
         }
 
-        setupNetworkLayer()
         recyclerView = recycler_view
         itemAdapter = ConnectionListAdapter()
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -58,12 +50,12 @@ class ConnectionsListFragment : Fragment() {
     }
 
     fun getLiveTimetable() {
-        val request = retrofitService.getLiveTimetable(atcocode = args.ATCOCODE)
+        val request = CatchItApp.apiService.getLiveTimetable(atcocode = args.ATCOCODE)
         doAsync {
-            if(swiperefresh!=null) swiperefresh.isRefreshing = true
+            if (swiperefresh != null) swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
-                if(swiperefresh!=null) swiperefresh.isRefreshing = false
+                if (swiperefresh != null) swiperefresh.isRefreshing = false
                 tv_header.text = "${response.body()!!.name} - ${response.body()!!.atcocode}"
                 if (response.body() != null && response.body()!!.departures != null) itemAdapter.setData(
                     response.body()!!.departures!!.getValue("all")
@@ -72,25 +64,6 @@ class ConnectionsListFragment : Fragment() {
         }
     }
 
-    fun setupNetworkLayer() {
-        val httpLoggingInterceptor = HttpLoggingInterceptor()
-        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(httpLoggingInterceptor)
-            .build();
-
-        retrofitService = Retrofit.Builder()
-            .baseUrl(ApiConstants.API_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
 
 }
 

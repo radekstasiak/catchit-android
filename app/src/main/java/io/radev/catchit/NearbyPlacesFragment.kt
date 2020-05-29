@@ -7,25 +7,31 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.android.synthetic.main.fragment_first.*
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 
 
 class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
     val TAG = "nearbyPlacesFragment"
-    lateinit var itemAdapter: NearbyPlacesItemAdapter
-    lateinit var recyclerView: RecyclerView
+    private lateinit var itemAdapter: NearbyPlacesItemAdapter
+    private lateinit var recyclerView: RecyclerView
+    private val args: NearbyPlacesFragmentArgs by navArgs()
 
-    lateinit var retrofitService: ApiService
+    //    private var longitude: Double = 0.0
+//    private var latitude: Double = 0.0
+//    private lateinit var postCode: String
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+//
+//        longitude = args.longitude.toDouble()
+//        latitude = args.latitude.toDouble()
+//        postCode = args.postCode
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,48 +42,29 @@ class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupNetworkLayer()
+        tv_header.text = (String.format(requireActivity().resources.getString(R.string.nearby_places_header), args.postCode))
         recyclerView = recycler_view
         itemAdapter = NearbyPlacesItemAdapter(this)
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
         swiperefresh.setOnRefreshListener {
-            getNearbyPlaces()
+            getNearbyPlaces(longitude = args.longitude.toDouble(), latitude = args.latitude.toDouble())
         }
-        getNearbyPlaces()
+        getNearbyPlaces(longitude = args.longitude.toDouble(), latitude = args.latitude.toDouble())
     }
 
-    private fun getNearbyPlaces() {
-        val request = retrofitService.getNearbyPlaces()
+    private fun getNearbyPlaces(longitude: Double, latitude: Double) {
+        val request = CatchItApp.apiService.getNearbyPlaces(lon = longitude, lat = latitude)
         doAsync {
-            if(swiperefresh!=null) swiperefresh.isRefreshing = true
+            if (swiperefresh != null) swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
-                if(swiperefresh!=null) swiperefresh.isRefreshing = false
+                if (swiperefresh != null) swiperefresh.isRefreshing = false
                 if (response.body() != null) itemAdapter.setData(response.body()!!.memberList)
             }
         }
     }
 
-    fun setupNetworkLayer() {
-        val httpLoggingInterceptor = HttpLoggingInterceptor()
-        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-
-        val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(httpLoggingInterceptor)
-            .build();
-
-        retrofitService = Retrofit.Builder()
-            .baseUrl(ApiConstants.API_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
 
     override fun onPlaceSelected(atcocode: String) {
         val action =
@@ -116,7 +103,6 @@ class NearbyPlacesItemAdapter(val listener: SelectPlaceListener) :
         vh.atcocode.text = item.atcocode
         vh.distance.text = item.distance.toString()
         vh.itemView.setOnClickListener { listener.onPlaceSelected(item.atcocode) }
-
     }
 
 }
@@ -132,7 +118,6 @@ class PlacesNearbyItemViewHolder : RecyclerView.ViewHolder {
         description = view.findViewById(R.id.tv_description)
         atcocode = view.findViewById(R.id.tv_atcocode)
         distance = view.findViewById(R.id.tv_distance)
-
     }
 }
 
