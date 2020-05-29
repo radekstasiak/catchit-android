@@ -51,16 +51,16 @@ interface ApiService {
 //},
 @JsonClass(generateAdapter = true)
 data class DepartureResponse(
-    @Json(name = "atcocode") val atcocode: String,
-    @Json(name = "smscode") val smsCode: String,
-    @Json(name = "request_time") val requestTime: String,
-    @Json(name = "name") val name: String,
-    @Json(name = "stop_name") val stopName: String,
-    @Json(name = "bearing") val bearing: String,
-    @Json(name = "indicator") val indicator: String,
-    @Json(name = "locality") val locality: String,
-    @Json(name = "location") val location: StopLocationDetails,
-    @Json(name = "departures") val departures: Map<String, List<DepartureDetails>>
+    @Json(name = "atcocode") val atcocode: String?,
+    @Json(name = "smscode") val smsCode: String?,
+    @Json(name = "request_time") val requestTime: String?,
+    @Json(name = "name") val name: String?,
+    @Json(name = "stop_name") val stopName: String?,
+    @Json(name = "bearing") val bearing: String?,
+    @Json(name = "indicator") val indicator: String?,
+    @Json(name = "locality") val locality: String?,
+    @Json(name = "location") val location: StopLocationDetails?,
+    @Json(name = "departures") val departures: Map<String, List<DepartureDetails>>?
 )
 
 // EXAMPLE DATA
@@ -86,18 +86,18 @@ data class DepartureResponse(
 //"id": "https://transportapi.com/v3/uk/bus/route/FLDS/7/outbound/450010687/2020-05-28/15:20/timetable.json?app_id=68755067&app_key=1f81945ff77187126de7f9f93c5fab44"
 @JsonClass(generateAdapter = true)
 data class DepartureDetails(
-    @Json(name = "mode") val mode: String,
-    @Json(name = "line") val line: String,
-    @Json(name = "line_name") val lineName: String,
-    @Json(name = "direction") val direction: String,
-    @Json(name = "operator") val operator: String,
-    @Json(name = "date") val date: String,
-    @Json(name = "expected_departure_date") val expectedDepartureDate: String,
-    @Json(name = "aimed_departure_time") val aimedDepartureDate: String,
-    @Json(name = "expected_departure_time") val expectedDepartureTime: String,
-    @Json(name = "best_departure_estimate") val bestDepartureEstimate: String,
-    @Json(name = "status") val status: Map<String, DepartureStatus>,
-    @Json(name = "source") val source: String,
+    @Json(name = "mode") val mode: String?,
+    @Json(name = "line") val line: String?,
+    @Json(name = "line_name") val lineName: String?,
+    @Json(name = "direction") val direction: String?,
+    @Json(name = "operator") val operator: String?,
+    @Json(name = "date") val date: String?,
+    @Json(name = "expected_departure_date") val expectedDepartureDate: String?,
+    @Json(name = "aimed_departure_time") val aimedDepartureTime: String?,
+    @Json(name = "expected_departure_time") val expectedDepartureTime: String?,
+    @Json(name = "best_departure_estimate") val bestDepartureEstimate: String?,
+    @Json(name = "status") val status: Map<String, DepartureStatus>?,
+    @Json(name = "source") val source: String?,
     @Json(name = "dir") val dir: String?,
     @Json(name = "operator_name") val operatorName: String?,
     @Json(name = "id") val id: String?
@@ -106,14 +106,14 @@ data class DepartureDetails(
 
 @JsonClass(generateAdapter = true)
 data class DepartureStatus(
-    @Json(name = "value") val value: Boolean,
+    @Json(name = "value") val value: Boolean?,
     @Json(name = "reason") val reason: String?
 )
 
 @JsonClass(generateAdapter = true)
 data class StopLocationDetails(
-    @Json(name = "type") val type: String,
-    @Json(name = "coordinates") val coordinates: List<Double>
+    @Json(name = "type") val type: String?,
+    @Json(name = "coordinates") val coordinates: List<Double>?
 )
 
 

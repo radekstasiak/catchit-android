@@ -14,8 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.android.synthetic.main.fragment_second.*
-import kotlinx.android.synthetic.main.fragment_second.recycler_view
-import kotlinx.android.synthetic.main.fragment_second.tv_header
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.doAsync
@@ -62,12 +60,14 @@ class ConnectionsListFragment : Fragment() {
     fun getLiveTimetable() {
         val request = retrofitService.getLiveTimetable(atcocode = args.ATCOCODE)
         doAsync {
-            swiperefresh.isRefreshing = true
+            if(swiperefresh!=null) swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
-                swiperefresh.isRefreshing = false
+                if(swiperefresh!=null) swiperefresh.isRefreshing = false
                 tv_header.text = "${response.body()!!.name} - ${response.body()!!.atcocode}"
-                if (response.body() != null) itemAdapter.setData(response.body()!!.departures.get("all")!!)
+                if (response.body() != null && response.body()!!.departures != null) itemAdapter.setData(
+                    response.body()!!.departures!!.getValue("all")
+                )
             }
         }
     }
@@ -118,7 +118,9 @@ class ConnectionListAdapter :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vh = holder as ConnectionListViewHolder
         val item = data[position]
-        vh.departureDate.text = "${item.expectedDepartureTime} (${item.expectedDepartureDate})"
+        val departureTime = item.expectedDepartureTime ?: item.aimedDepartureTime
+        val departureDate = item.expectedDepartureDate ?: item.date
+        vh.departureDate.text = "$departureTime ($departureDate)"
         vh.line.text = item.line
         vh.direction.text = item.direction
         vh.operator.text = item.operator

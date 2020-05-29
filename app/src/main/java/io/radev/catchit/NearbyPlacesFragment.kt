@@ -50,10 +50,10 @@ class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
     private fun getNearbyPlaces() {
         val request = retrofitService.getNearbyPlaces()
         doAsync {
-            swiperefresh.isRefreshing = true
+            if(swiperefresh!=null) swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
-                swiperefresh.isRefreshing = false
+                if(swiperefresh!=null) swiperefresh.isRefreshing = false
                 if (response.body() != null) itemAdapter.setData(response.body()!!.memberList)
             }
         }
