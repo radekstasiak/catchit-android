@@ -21,9 +21,9 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
         }
 
-        Intent(this, LiveTimetableService::class.java).also { intent ->
-            startService(intent)
-        }
+//        Intent(this, LiveTimetableService::class.java).also { intent ->
+//            startService(intent)
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

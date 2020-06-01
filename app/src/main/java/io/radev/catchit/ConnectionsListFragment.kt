@@ -1,5 +1,6 @@
 package io.radev.catchit
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -46,6 +47,9 @@ class ConnectionsListFragment : Fragment() {
             getLiveTimetable()
         }
         getLiveTimetable()
+        Intent(activity, LiveTimetableService::class.java).also { intent ->
+            requireActivity().startService(intent)
+        }
 
     }
 

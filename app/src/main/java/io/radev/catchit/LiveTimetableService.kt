@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 
@@ -24,6 +25,12 @@ class LiveTimetableService: Service(){
 
     override fun onCreate() {
         super.onCreate()
+
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d("TEST1234", "Service onStartCommand started")
+
         val pendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
                 PendingIntent.getActivity(this, 0, notificationIntent, 0)
@@ -48,11 +55,7 @@ class LiveTimetableService: Service(){
             .build()
 
         startForeground(1, notification)
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
-
 
     }
 
