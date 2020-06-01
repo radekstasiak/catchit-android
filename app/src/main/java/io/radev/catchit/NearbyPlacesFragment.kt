@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +20,7 @@ class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
     val TAG = "nearbyPlacesFragment"
     private lateinit var itemAdapter: NearbyPlacesItemAdapter
     private lateinit var recyclerView: RecyclerView
-    private val args: NearbyPlacesFragmentArgs by navArgs()
+    private val model: DashboardViewModel by activityViewModels()
 
     //    private var longitude: Double = 0.0
 //    private var latitude: Double = 0.0
@@ -42,21 +43,21 @@ class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tv_header.text = (String.format(requireActivity().resources.getString(R.string.nearby_places_header), args.postCode))
+        tv_header.text = (String.format(requireActivity().resources.getString(R.string.nearby_places_header), model.postCodeMember.value!!.name))
         recyclerView = recycler_view
         itemAdapter = NearbyPlacesItemAdapter(this)
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
         swiperefresh.setOnRefreshListener {
-            getNearbyPlaces(longitude = args.longitude.toDouble(), latitude = args.latitude.toDouble())
+            getNearbyPlaces(longitude = model.postCodeMember.value!!.longitude, latitude = model.postCodeMember.value!!.latitude)
         }
-        getNearbyPlaces(longitude = args.longitude.toDouble(), latitude = args.latitude.toDouble())
+        getNearbyPlaces(longitude = model.postCodeMember.value!!.longitude, latitude = model.postCodeMember.value!!.latitude)
     }
 
     private fun getNearbyPlaces(longitude: Double, latitude: Double) {
         val request = CatchItApp.apiService.getNearbyPlaces(lon = longitude, lat = latitude)
+        if (swiperefresh != null) swiperefresh.isRefreshing = true
         doAsync {
-            if (swiperefresh != null) swiperefresh.isRefreshing = true
             val response = request.execute()
             uiThread {
                 if (swiperefresh != null) swiperefresh.isRefreshing = false

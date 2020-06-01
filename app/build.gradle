@@ -64,4 +64,6 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:0.10.4"
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-rc01"
+    implementation "androidx.fragment:fragment-ktx:1.2.4"
+
 }

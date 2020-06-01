@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import kotlinx.android.synthetic.main.fragment_location.*
 import org.jetbrains.anko.doAsync
@@ -14,7 +15,7 @@ import org.jetbrains.anko.uiThread
 
 
 class LocationFragment : Fragment() {
-
+    private val model: DashboardViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,28 +38,21 @@ class LocationFragment : Fragment() {
 
     }
 
-    fun getPostCodeDetails(postCode: String) {
+    private fun getPostCodeDetails(postCode: String) {
         val request = CatchItApp.apiService.getPostCodeDetails(query = postCode)
         doAsync {
             val response = request.execute()
             uiThread {
-                navigateToNearbyPlaces(
-                    postCode = response.body()!!.memberList[0].name,
-                    longitude = response.body()!!.memberList[0].longitude,
-                    latitude = response.body()!!.memberList[0].latitude
-                )
+                model.selectPostCodeMember(response.body()!!.memberList[0])
+                navigateToNearbyPlaces()
             }
 
         }
     }
 
 
-    private fun navigateToNearbyPlaces(postCode: String, longitude: Double, latitude: Double) {
-        val action = LocationFragmentDirections.actionLocationFragmentToNearbyPlacesFragment(
-            longitude = longitude.toString(),
-            latitude = latitude.toString(),
-            postCode = postCode
-        )
+    private fun navigateToNearbyPlaces() {
+        val action = LocationFragmentDirections.actionLocationFragmentToNearbyPlacesFragment()
         findNavController().navigate(action)
     }
 
