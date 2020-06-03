@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat.getSystemService
 
 /*
  * Created by radek on 01/06/2020.
@@ -16,9 +17,12 @@ import androidx.core.app.NotificationCompat
  */
 
 class LiveTimetableService: Service(){
-    val CHANNEL_ID="liveTimetableService_id"
-    val CHANNEL_NAME="liveTimetableService_name"
 
+    companion object ExampleNotification{
+        val CHANNEL_ID="liveTimetableService_id"
+        val CHANNEL_NAME="liveTimetableService_name"
+
+    }
     override fun onBind(p0: Intent?): IBinder? {
         return null
     }

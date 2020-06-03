@@ -1,6 +1,8 @@
 package io.radev.catchit
 
 import android.app.Application
+import android.util.Log
+import androidx.work.WorkManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -12,7 +14,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
  */
 
 class CatchItApp: Application(){
-
     companion object{
         lateinit var apiService: ApiService
     }
@@ -32,5 +33,8 @@ class CatchItApp: Application(){
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(ApiService::class.java)
+
+        Log.d(UpdateTimetableWorker.TAG,"cancelling all work by this tag")
+        WorkManager.getInstance(applicationContext).cancelAllWorkByTag(UpdateTimetableWorker.TAG)
     }
 }

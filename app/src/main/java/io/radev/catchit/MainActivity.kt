@@ -2,12 +2,13 @@ package io.radev.catchit
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-
+import androidx.appcompat.app.AppCompatActivity
+import androidx.work.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,12 +19,25 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+                .setAction("Action", null).show()
         }
 
-//        Intent(this, LiveTimetableService::class.java).also { intent ->
-//            startService(intent)
-//        }
+
+        val updateLiveTimetableWorkRequest = PeriodicWorkRequestBuilder<UpdateTimetableWorker>(1, TimeUnit.MINUTES)
+            .addTag(UpdateTimetableWorker.TAG)
+            .setInputData(
+                workDataOf(UpdateTimetableWorker.ATCOCODE to "450010441")
+            )
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .build()
+
+        WorkManager.getInstance(this).enqueue(updateLiveTimetableWorkRequest)
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
