@@ -1,8 +1,9 @@
 package io.radev.catchit
 
 import android.app.Application
-import android.util.Log
-import androidx.work.WorkManager
+import io.radev.catchit.network.ApiConstants
+import io.radev.catchit.network.ApiService
+import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -13,9 +14,10 @@ import retrofit2.converter.moshi.MoshiConverterFactory
  * radev.io 2020.
  */
 
-class CatchItApp: Application(){
-    companion object{
+class CatchItApp : Application() {
+    companion object {
         lateinit var apiService: ApiService
+        lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
     }
 
     override fun onCreate() {
@@ -34,7 +36,9 @@ class CatchItApp: Application(){
             .build()
             .create(ApiService::class.java)
 
-        Log.d(UpdateTimetableWorker.TAG,"cancelling all work by this tag")
-        WorkManager.getInstance(applicationContext).cancelAllWorkByTag(UpdateTimetableWorker.TAG)
+        updateTimetableAlarmManager =
+            UpdateTimetableAlarmManager(
+                applicationContext
+            )
     }
 }

@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

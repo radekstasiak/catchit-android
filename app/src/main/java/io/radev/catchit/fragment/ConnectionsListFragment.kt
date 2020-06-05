@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +12,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.radev.catchit.*
+import io.radev.catchit.experimental.LiveTimetableService
+import io.radev.catchit.network.DepartureDetails
 import kotlinx.android.synthetic.main.fragment_second.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -102,7 +105,6 @@ class ConnectionListAdapter :
         vh.direction.text = item.direction
         vh.operator.text = item.operator
         vh.mode.text = item.mode
-
     }
 
 }

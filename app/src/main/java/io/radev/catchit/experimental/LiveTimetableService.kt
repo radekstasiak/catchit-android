@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.experimental
 
 import android.app.*
 import android.content.Context
@@ -9,7 +9,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat.getSystemService
+import io.radev.catchit.R
+import io.radev.catchit.activity.MainActivity
 
 /*
  * Created by radek on 01/06/2020.
@@ -42,7 +43,10 @@ class LiveTimetableService: Service(){
 
         val channelId =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
+                createNotificationChannel(
+                    CHANNEL_ID,
+                    CHANNEL_NAME
+                )
             } else {
                 // If earlier version channel ID is not used
                 // https://developer.android.com/reference/android/support/v4/app/NotificationCompat.Builder.html#NotificationCompat.Builder(android.content.Context)
@@ -51,7 +55,7 @@ class LiveTimetableService: Service(){
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Catch It")
-            .setContentText("Next")
+            .setContentText("Next / TAP TO CANCEL ALARM")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setTicker("Ticker Text")

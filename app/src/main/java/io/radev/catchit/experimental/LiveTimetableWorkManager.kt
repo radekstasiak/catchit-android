@@ -1,14 +1,11 @@
-package io.radev.catchit
+package io.radev.catchit.experimental
 
 import android.content.Context
 import android.util.Log
-import androidx.work.PeriodicWorkRequest
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import kotlinx.android.synthetic.main.fragment_second.*
+import io.radev.catchit.CatchItApp
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
-import retrofit2.Retrofit
 
 /*
  * Created by radek on 03/06/2020.

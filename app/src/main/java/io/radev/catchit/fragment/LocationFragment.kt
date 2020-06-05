@@ -1,6 +1,5 @@
-package io.radev.catchit
+package io.radev.catchit.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +9,10 @@ import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import io.radev.catchit.CatchItApp
+import io.radev.catchit.DashboardViewModel
+import io.radev.catchit.LocationFragmentDirections
+import io.radev.catchit.R
 import kotlinx.android.synthetic.main.fragment_location.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
@@ -53,7 +56,8 @@ class LocationFragment : Fragment() {
 
 
     private fun navigateToNearbyPlaces() {
-        val action = LocationFragmentDirections.actionLocationFragmentToNearbyPlacesFragment()
+        val action =
+            LocationFragmentDirections.actionLocationFragmentToNearbyPlacesFragment()
         findNavController().navigate(action)
     }
 

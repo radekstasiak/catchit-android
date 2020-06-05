@@ -1,6 +1,5 @@
-package io.radev.catchit
+package io.radev.catchit.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,15 +8,17 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.radev.catchit.*
+import io.radev.catchit.network.PlaceMember
 import kotlinx.android.synthetic.main.fragment_first.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
 
-class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
+class NearbyPlacesFragment : Fragment(),
+    SelectPlaceListener {
     val TAG = "nearbyPlacesFragment"
     private lateinit var itemAdapter: NearbyPlacesItemAdapter
     private lateinit var recyclerView: RecyclerView
@@ -70,7 +71,9 @@ class NearbyPlacesFragment : Fragment(), SelectPlaceListener {
 
     override fun onPlaceSelected(atcocode: String) {
         val action =
-            NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment(ATCOCODE = atcocode)
+            NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment(
+                ATCOCODE = atcocode
+            )
         findNavController().navigate(action)
     }
 
@@ -104,7 +107,9 @@ class NearbyPlacesItemAdapter(val listener: SelectPlaceListener) :
         vh.description.text = item.description
         vh.atcocode.text = item.atcocode
         vh.distance.text = item.distance.toString()
-        vh.itemView.setOnClickListener { listener.onPlaceSelected(item.atcocode) }
+        vh.itemView.setOnClickListener {
+            CatchItApp.updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+            listener.onPlaceSelected(item.atcocode) }
     }
 
 }

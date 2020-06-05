@@ -2,6 +2,7 @@ package io.radev.catchit
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import io.radev.catchit.network.PostCodeMember
 
 /*
  * Created by radek on 01/06/2020.

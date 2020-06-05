@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/NearbyPlacesFragment"
-        android:name="io.radev.catchit.NearbyPlacesFragment"
+        android:name="io.radev.catchit.fragment.NearbyPlacesFragment"
         android:label="@string/first_fragment_label"
         tools:layout="@layout/fragment_first">
 
@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/ConnectionsListFragment"
-        android:name="io.radev.catchit.ConnectionsListFragment"
+        android:name="io.radev.catchit.fragment.ConnectionsListFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/fragment_second">
 
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/locationFragment"
-        android:name="io.radev.catchit.LocationFragment"
+        android:name="io.radev.catchit.fragment.LocationFragment"
         android:label="fragment_location"
         tools:layout="@layout/fragment_location" >
         <action
