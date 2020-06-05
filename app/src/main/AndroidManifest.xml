@@ -17,6 +17,9 @@
         <service
             android:name=".LiveTimetableService"
             android:exported="false" />
+        <receiver
+            android:name=".UpdateLiveTimetableReceiver"
+            android:enabled="true" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

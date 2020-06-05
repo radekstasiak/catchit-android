@@ -1,14 +1,16 @@
 package io.radev.catchit
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.*
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.concurrent.TimeUnit
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,21 +25,38 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        val updateLiveTimetableWorkRequest = PeriodicWorkRequestBuilder<UpdateTimetableWorker>(1, TimeUnit.MINUTES)
-            .addTag(UpdateTimetableWorker.TAG)
-            .setInputData(
-                workDataOf(UpdateTimetableWorker.ATCOCODE to "450010441")
-            )
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .build()
+//        val updateLiveTimetableWorkRequest = PeriodicWorkRequestBuilder<UpdateTimetableWorker>(1, TimeUnit.MINUTES)
+//            .addTag(UpdateTimetableWorker.TAG)
+//            .setInputData(
+//                workDataOf(UpdateTimetableWorker.ATCOCODE to "450010441")
+//            )
+//            .setConstraints(
+//                Constraints.Builder()
+//                    .setRequiredNetworkType(NetworkType.CONNECTED)
+//                    .build()
+//            )
+//            .build()
+//
+//        WorkManager.getInstance(this).enqueue(updateLiveTimetableWorkRequest)
 
-        WorkManager.getInstance(this).enqueue(updateLiveTimetableWorkRequest)
+        val alarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmIntent = Intent(this, UpdateLiveTimetableReceiver::class.java)
+        alarmIntent.putExtra(UpdateLiveTimetableReceiver.ATCOCODE_DATA,"450010441")
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0)
 
 
+        // Set the alarm to start after 1 minute.
+        val calendar: Calendar = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            set(Calendar.MINUTE, 1)
+        }
+        // setRepeating() lets you specify a precise custom interval--in this case, 1 minute
+        alarmMgr.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            1000 * 60,
+            pendingIntent
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
