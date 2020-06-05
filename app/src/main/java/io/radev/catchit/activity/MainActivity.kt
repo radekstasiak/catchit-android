@@ -43,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         Intent(this, LiveTimetableService::class.java).also { intent ->
             stopService(intent)
         }
+
+        CatchItApp.updateTimetableAlarmManager.cancelTimetableUpdates()
     }
 }
 
