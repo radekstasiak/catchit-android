@@ -1,6 +1,7 @@
 package io.radev.catchit
 
 import android.app.Application
+import com.jakewharton.threetenabp.AndroidThreeTen
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
@@ -23,6 +24,7 @@ class CatchItApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AndroidThreeTen.init(this);
         val httpLoggingInterceptor = HttpLoggingInterceptor()
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
