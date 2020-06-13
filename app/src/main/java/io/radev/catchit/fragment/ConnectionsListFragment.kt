@@ -50,9 +50,11 @@ class ConnectionsListFragment : Fragment() {
             getLiveTimetable()
         }
         getLiveTimetable()
-        Intent(activity, LiveTimetableService::class.java).also { intent ->
-            requireActivity().startService(intent)
-        }
+
+        //disable notification from service
+//        Intent(activity, LiveTimetableService::class.java).also { intent ->
+//            requireActivity().startService(intent)
+//        }
 
     }
 

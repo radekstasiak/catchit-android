@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import io.radev.catchit.CatchItApp
 import io.radev.catchit.DashboardViewModel
-import io.radev.catchit.LocationFragmentDirections
 import io.radev.catchit.R
 import kotlinx.android.synthetic.main.fragment_location.*
 import org.jetbrains.anko.doAsync

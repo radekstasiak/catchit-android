@@ -8,7 +8,7 @@ import io.radev.catchit.CatchItApp
 import org.jetbrains.anko.doAsync
 
 /*
- * Created by radek on 05/06/2020.
+ * Created by radoslaw on 05/06/2020.
  * radev.io 2020.
  */
 
@@ -24,10 +24,12 @@ class UpdateLiveTimetableReceiver: BroadcastReceiver() {
             val request = CatchItApp.apiService.getLiveTimetable(atcocode = atcocode!!)
             doAsync {
                 val response = request.execute()
-                Log.d(TAG,"received data for atcocode ${atcocode}: ${response.body()!!.stopName} ${response.body()!!.requestTime}")
+                val msg = "received data for atcocode ${atcocode}: ${response.body()!!.stopName} ${response.body()!!.requestTime}"
+                CatchItApp.notificationController.displayNotification(subject = "received data for atcocode ${atcocode}",
+                snippet = msg)
+                Log.d(TAG,msg)
             }
         }
-
     }
 
 }

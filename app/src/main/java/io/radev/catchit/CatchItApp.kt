@@ -18,6 +18,7 @@ class CatchItApp : Application() {
     companion object {
         lateinit var apiService: ApiService
         lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
+        lateinit var notificationController: NotificationController
     }
 
     override fun onCreate() {
@@ -40,5 +41,8 @@ class CatchItApp : Application() {
             UpdateTimetableAlarmManager(
                 applicationContext
             )
+
+        notificationController = NotificationController(context = applicationContext)
+        notificationController.createNotificationChannel()
     }
 }
