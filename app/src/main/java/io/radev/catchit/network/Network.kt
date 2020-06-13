@@ -2,6 +2,8 @@ package io.radev.catchit.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.SingleBusNotificationModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -59,19 +61,19 @@ interface ApiService {
 
 @JsonClass(generateAdapter = true)
 data class PostCodeDetailsResponse(
-    @Json(name="request_time") val requestTime: String,
-    @Json(name="source") val source: String,
-    @Json(name="acknowledgements") val acknowledgements: String,
-    @Json(name="member") val memberList:List<PostCodeMember>
+    @Json(name = "request_time") val requestTime: String,
+    @Json(name = "source") val source: String,
+    @Json(name = "acknowledgements") val acknowledgements: String,
+    @Json(name = "member") val memberList: List<PostCodeMember>
 )
 
 @JsonClass(generateAdapter = true)
 data class PostCodeMember(
-    @Json(name="type") val type:String,
-    @Json(name="name") val name:String,
-    @Json(name="latitude") val latitude: Double,
-    @Json(name="longitude") val longitude:Double,
-    @Json(name="accuracy") val accuracy:Int
+    @Json(name = "type") val type: String,
+    @Json(name = "name") val name: String,
+    @Json(name = "latitude") val latitude: Double,
+    @Json(name = "longitude") val longitude: Double,
+    @Json(name = "accuracy") val accuracy: Int
 )
 
 // EXAMPLE DATA
@@ -144,6 +146,22 @@ data class DepartureDetails(
     @Json(name = "id") val id: String?
 )
 
+fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeConverter): SingleBusNotificationModel {
+    val waitTime = dateTimeConverter.getWaitTime(
+        startTime = dateTimeConverter.getNowInMillis(),
+        endTime = dateTimeConverter.convertDateAndTimeToMillis(
+            date = this.expectedDepartureDate ?: this.date!!,
+            time = this.expectedDepartureTime ?: this.aimedDepartureTime!!
+        )
+    )
+    return     SingleBusNotificationModel(
+        line = this.line ?: "",
+        direction = this.direction ?: "",
+        waitTime = if(waitTime > 0) "${waitTime}m" else "DUE"
+    )
+}
+
+
 
 @JsonClass(generateAdapter = true)
 data class DepartureStatus(
@@ -178,8 +196,8 @@ data class PlaceMember(
     @Json(name = "distance") val distance: Int
 )
 
-object ApiConstants{
-    const val API_BASE_URL="https://transportapi.com/"
-    const val API_APP_ID="68755067"
-    const val API_APP_KEY="1f81945ff77187126de7f9f93c5fab44"
+object ApiConstants {
+    const val API_BASE_URL = "https://transportapi.com/"
+    const val API_APP_ID = "68755067"
+    const val API_APP_KEY = "1f81945ff77187126de7f9f93c5fab44"
 }

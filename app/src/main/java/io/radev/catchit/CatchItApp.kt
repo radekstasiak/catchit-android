@@ -20,6 +20,7 @@ class CatchItApp : Application() {
         lateinit var apiService: ApiService
         lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
         lateinit var notificationController: NotificationController
+        lateinit var dateTimeConverter: DateTimeConverter
     }
 
     override fun onCreate() {
@@ -44,6 +45,7 @@ class CatchItApp : Application() {
                 applicationContext
             )
 
+        dateTimeConverter = DateTimeConverter()
         notificationController = NotificationController(context = applicationContext)
         notificationController.createNotificationChannel()
     }

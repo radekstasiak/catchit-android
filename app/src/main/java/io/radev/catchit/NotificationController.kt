@@ -38,7 +38,7 @@ class NotificationController(val context: Context) {
         }
     }
 
-    fun displayNotification(subject: String, snippet: String) {
+    fun displayNotification(data:SingleBusNotificationModel) {
         // Create an explicit intent for an Activity in your app
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -48,9 +48,9 @@ class NotificationController(val context: Context) {
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setVisibility(VISIBILITY_PUBLIC)
             .setContentTitle("Catch It")
-            .setContentText(subject)
+            .setContentText("Bus ${data.line} in ${data.waitTime} towards ${data.direction}")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(snippet))
+//            .setStyle(NotificationCompat.BigTextStyle().bigText("Next ${data.line} in ${data.waitTime}m\ntowards ${data.direction}"))
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 

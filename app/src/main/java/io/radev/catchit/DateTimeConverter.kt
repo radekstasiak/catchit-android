@@ -42,7 +42,7 @@ class DateTimeConverter {
         ).toInstant().toEpochMilli()
     }
 
-    fun getWaitingTime(startTime: Long, endTime: Long): Long {
+    fun getWaitTime(startTime: Long, endTime: Long): Long {
         val nowZonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTime), getZoneId())
         val expectedZoneDateTime =
             ZonedDateTime.ofInstant(Instant.ofEpochMilli(endTime), getZoneId())

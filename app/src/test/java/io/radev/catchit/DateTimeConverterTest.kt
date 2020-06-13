@@ -3,11 +3,9 @@ package io.radev.catchit
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
 import org.mockito.Spy
-import org.mockito.runners.MockitoJUnitRunner
 import org.threeten.bp.ZoneId
 
 /*
@@ -46,7 +44,7 @@ class DateTimeConverterTest {
     @Test
     fun getWaitingTimeTest(){
         val expectedTime = 1592052900000
-        val result = converter.getWaitingTime(startTime = nowInMillis, endTime = expectedTime)
+        val result = converter.getWaitTime(startTime = nowInMillis, endTime = expectedTime)
         Assert.assertEquals(4,result)
     }
 }
