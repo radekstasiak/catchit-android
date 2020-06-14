@@ -10,16 +10,22 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.radev.catchit.*
+import dagger.hilt.android.AndroidEntryPoint
+import io.radev.catchit.CatchItApp
+import io.radev.catchit.DashboardViewModel
+import io.radev.catchit.R
+import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.PlaceMember
+import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.fragment_first.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import javax.inject.Inject
 
-
-class NearbyPlacesFragment : Fragment(),
+class NearbyPlacesFragment constructor(private val updateTimetableAlarmManager: UpdateTimetableAlarmManager) : Fragment(),
     SelectPlaceListener {
     val TAG = "nearbyPlacesFragment"
+
     private lateinit var itemAdapter: NearbyPlacesItemAdapter
     private lateinit var recyclerView: RecyclerView
     private val model: DashboardViewModel by activityViewModels()
@@ -45,15 +51,24 @@ class NearbyPlacesFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tv_header.text = (String.format(requireActivity().resources.getString(R.string.nearby_places_header), model.postCodeMember.value!!.name))
+        tv_header.text = (String.format(
+            requireActivity().resources.getString(R.string.nearby_places_header),
+            model.postCodeMember.value!!.name
+        ))
         recyclerView = recycler_view
-        itemAdapter = NearbyPlacesItemAdapter(this)
+        itemAdapter = NearbyPlacesItemAdapter(this, updateTimetableAlarmManager)
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
         swiperefresh.setOnRefreshListener {
-            getNearbyPlaces(longitude = model.postCodeMember.value!!.longitude, latitude = model.postCodeMember.value!!.latitude)
+            getNearbyPlaces(
+                longitude = model.postCodeMember.value!!.longitude,
+                latitude = model.postCodeMember.value!!.latitude
+            )
         }
-        getNearbyPlaces(longitude = model.postCodeMember.value!!.longitude, latitude = model.postCodeMember.value!!.latitude)
+        getNearbyPlaces(
+            longitude = model.postCodeMember.value!!.longitude,
+            latitude = model.postCodeMember.value!!.latitude
+        )
     }
 
     private fun getNearbyPlaces(longitude: Double, latitude: Double) {
@@ -80,7 +95,10 @@ class NearbyPlacesFragment : Fragment(),
 
 }
 
-class NearbyPlacesItemAdapter(val listener: SelectPlaceListener) :
+class NearbyPlacesItemAdapter(
+    private val listener: SelectPlaceListener,
+    private val updateTimetableAlarmManager: UpdateTimetableAlarmManager
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var data = arrayListOf<PlaceMember>()
 
@@ -108,8 +126,9 @@ class NearbyPlacesItemAdapter(val listener: SelectPlaceListener) :
         vh.atcocode.text = item.atcocode
         vh.distance.text = item.distance.toString()
         vh.itemView.setOnClickListener {
-            CatchItApp.updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
-            listener.onPlaceSelected(item.atcocode) }
+            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+            listener.onPlaceSelected(item.atcocode)
+        }
     }
 
 }

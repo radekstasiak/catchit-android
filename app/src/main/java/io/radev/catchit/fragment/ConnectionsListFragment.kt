@@ -14,13 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.radev.catchit.*
 import io.radev.catchit.experimental.LiveTimetableService
+import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.DepartureDetails
 import kotlinx.android.synthetic.main.fragment_second.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
 
-class ConnectionsListFragment : Fragment() {
+class ConnectionsListFragment constructor(): Fragment() {
     val args: ConnectionsListFragmentArgs by navArgs()
 
     val TAG = "connectionsListFragmentTag"

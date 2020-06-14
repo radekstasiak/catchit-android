@@ -5,14 +5,16 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import dagger.hilt.android.qualifiers.ActivityContext
 import java.util.*
+import javax.inject.Inject
 
 /*
  * Created by radek on 05/06/2020.
  * radev.io 2020.
  */
 
-class UpdateTimetableAlarmManager(val context: Context) {
+class UpdateTimetableAlarmManager @Inject constructor(@ActivityContext val context: Context) {
 
     private val alarmMgr: AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

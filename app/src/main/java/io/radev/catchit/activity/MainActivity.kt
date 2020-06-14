@@ -5,20 +5,27 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.CatchItApp
 import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.R
+import io.radev.catchit.network.ApiService
+import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    @Inject lateinit var updateTimetableAlarmManager:UpdateTimetableAlarmManager
+//    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         
         fab.setOnClickListener { view ->
-            CatchItApp.updateTimetableAlarmManager.cancelTimetableUpdates()
+            updateTimetableAlarmManager.cancelTimetableUpdates()
         }
     }
 
@@ -44,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             stopService(intent)
         }
 
-        CatchItApp.updateTimetableAlarmManager.cancelTimetableUpdates()
+        updateTimetableAlarmManager.cancelTimetableUpdates()
     }
 }
 

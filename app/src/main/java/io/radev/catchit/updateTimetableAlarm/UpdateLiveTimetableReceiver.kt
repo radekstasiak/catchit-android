@@ -6,8 +6,10 @@ import android.content.Intent
 import android.util.Log
 import io.radev.catchit.CatchItApp
 import io.radev.catchit.SingleBusNotificationModel
+import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.toSingleBusNotificationModel
 import org.jetbrains.anko.doAsync
+import javax.inject.Inject
 
 /*
  * Created by radoslaw on 05/06/2020.
@@ -19,7 +21,8 @@ class UpdateLiveTimetableReceiver : BroadcastReceiver() {
         val TAG = "updTimetableReceiver"
         val ATCOCODE_DATA = "atcocode_data"
     }
-
+    @Inject lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
+//    @Inject lateinit var apiService: ApiService
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d(TAG, "alarm executed")
         if (intent != null) {

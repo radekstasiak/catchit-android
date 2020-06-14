@@ -2,6 +2,7 @@ package io.radev.catchit
 
 import android.app.Application
 import com.jakewharton.threetenabp.AndroidThreeTen
+import dagger.hilt.android.HiltAndroidApp
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
@@ -14,11 +15,11 @@ import retrofit2.converter.moshi.MoshiConverterFactory
  * Created by radek on 29/05/2020.
  * radev.io 2020.
  */
-
+@HiltAndroidApp
 class CatchItApp : Application() {
     companion object {
         lateinit var apiService: ApiService
-        lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
+//        lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
         lateinit var notificationController: NotificationController
         lateinit var dateTimeConverter: DateTimeConverter
     }
@@ -40,10 +41,10 @@ class CatchItApp : Application() {
             .build()
             .create(ApiService::class.java)
 
-        updateTimetableAlarmManager =
-            UpdateTimetableAlarmManager(
-                applicationContext
-            )
+//        updateTimetableAlarmManager =
+//            UpdateTimetableAlarmManager(
+//                applicationContext
+//            )
 
         dateTimeConverter = DateTimeConverter()
         notificationController = NotificationController(context = applicationContext)
