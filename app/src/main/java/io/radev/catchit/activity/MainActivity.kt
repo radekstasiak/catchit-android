@@ -7,6 +7,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.CatchItApp
+import io.radev.catchit.NotificationController
 import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.R
 import io.radev.catchit.network.ApiService
@@ -18,12 +19,14 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var updateTimetableAlarmManager:UpdateTimetableAlarmManager
+    @Inject lateinit var notificationController: NotificationController
 //    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        
+        notificationController.createNotificationChannel(this)
+
         fab.setOnClickListener { view ->
             updateTimetableAlarmManager.cancelTimetableUpdates()
         }

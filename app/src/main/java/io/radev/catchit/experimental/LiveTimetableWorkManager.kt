@@ -18,12 +18,12 @@ class UpdateTimetableWorker(appContext: Context, workerParameters: WorkerParamet
         val ATCOCODE = "atcocode"
     }
     override fun doWork(): Result {
-        val atcocode = inputData.getString(ATCOCODE)
-        val request = CatchItApp.apiService.getLiveTimetable(atcocode = atcocode!!)
-        doAsync {
-            val response = request.execute()
-            Log.d(TAG,"received data: ${response.body()!!.requestTime}")
-        }
+//        val atcocode = inputData.getString(ATCOCODE)
+//        val request = CatchItApp.apiService.getLiveTimetable(atcocode = atcocode!!)
+//        doAsync {
+//            val response = request.execute()
+//            Log.d(TAG,"received data: ${response.body()!!.requestTime}")
+//        }
 
         return Result.success()
     }

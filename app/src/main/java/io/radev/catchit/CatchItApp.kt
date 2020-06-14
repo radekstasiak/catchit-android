@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Inject
 
 /*
  * Created by radek on 29/05/2020.
@@ -17,37 +18,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory
  */
 @HiltAndroidApp
 class CatchItApp : Application() {
-    companion object {
-        lateinit var apiService: ApiService
-//        lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
-        lateinit var notificationController: NotificationController
-        lateinit var dateTimeConverter: DateTimeConverter
-    }
-
     override fun onCreate() {
         super.onCreate()
         AndroidThreeTen.init(this);
-        val httpLoggingInterceptor = HttpLoggingInterceptor()
-        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(httpLoggingInterceptor)
-            .build()
-
-        apiService = Retrofit.Builder()
-            .baseUrl(ApiConstants.API_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-
-//        updateTimetableAlarmManager =
-//            UpdateTimetableAlarmManager(
-//                applicationContext
-//            )
-
-        dateTimeConverter = DateTimeConverter()
-        notificationController = NotificationController(context = applicationContext)
-        notificationController.createNotificationChannel()
     }
 }

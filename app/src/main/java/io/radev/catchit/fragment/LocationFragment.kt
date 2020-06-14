@@ -9,15 +9,19 @@ import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import io.radev.catchit.CatchItApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.R
+import io.radev.catchit.network.ApiService
 import kotlinx.android.synthetic.main.fragment_location.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class LocationFragment : Fragment() {
+
+    @Inject lateinit var apiService: ApiService
     private val model: DashboardViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +46,7 @@ class LocationFragment : Fragment() {
     }
 
     private fun getPostCodeDetails(postCode: String) {
-        val request = CatchItApp.apiService.getPostCodeDetails(query = postCode)
+        val request = apiService.getPostCodeDetails(query = postCode)
         doAsync {
             val response = request.execute()
             uiThread {

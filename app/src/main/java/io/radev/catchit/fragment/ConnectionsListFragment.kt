@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.*
 import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.network.ApiService
@@ -19,15 +20,19 @@ import io.radev.catchit.network.DepartureDetails
 import kotlinx.android.synthetic.main.fragment_second.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import javax.inject.Inject
 
 
-class ConnectionsListFragment constructor(): Fragment() {
+@AndroidEntryPoint
+class ConnectionsListFragment: Fragment() {
     val args: ConnectionsListFragmentArgs by navArgs()
 
     val TAG = "connectionsListFragmentTag"
     lateinit var itemAdapter: ConnectionListAdapter
     lateinit var recyclerView: RecyclerView
 
+    @Inject
+    lateinit var apiService: ApiService
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,7 +65,7 @@ class ConnectionsListFragment constructor(): Fragment() {
     }
 
     fun getLiveTimetable() {
-        val request = CatchItApp.apiService.getLiveTimetable(atcocode = args.ATCOCODE)
+        val request = apiService.getLiveTimetable(atcocode = args.ATCOCODE)
         doAsync {
             if (swiperefresh != null) swiperefresh.isRefreshing = true
             val response = request.execute()

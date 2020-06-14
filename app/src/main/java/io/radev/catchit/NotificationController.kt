@@ -9,20 +9,23 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.radev.catchit.activity.MainActivity
+import javax.inject.Inject
 
 /*
  * Created by radoslaw on 13/06/2020.
  * radev.io 2020.
  */
 
-class NotificationController(val context: Context) {
+class NotificationController @Inject constructor() {
     val CHANNEL_ID = "liveTimetableService_id"
     val CHANNEL_NAME = "liveTimetableService_name"
     val CHANNEL_DESCRIPTION = "channel_description"
 
 
-    fun createNotificationChannel() {
+    fun createNotificationChannel(context: Context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
 
@@ -38,7 +41,7 @@ class NotificationController(val context: Context) {
         }
     }
 
-    fun displayNotification(data:SingleBusNotificationModel) {
+    fun displayNotification(data:SingleBusNotificationModel, context: Context) {
         // Create an explicit intent for an Activity in your app
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

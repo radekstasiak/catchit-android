@@ -22,7 +22,8 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import javax.inject.Inject
 
-class NearbyPlacesFragment constructor(private val updateTimetableAlarmManager: UpdateTimetableAlarmManager) : Fragment(),
+@AndroidEntryPoint
+class NearbyPlacesFragment : Fragment(),
     SelectPlaceListener {
     val TAG = "nearbyPlacesFragment"
 
@@ -30,6 +31,8 @@ class NearbyPlacesFragment constructor(private val updateTimetableAlarmManager: 
     private lateinit var recyclerView: RecyclerView
     private val model: DashboardViewModel by activityViewModels()
 
+    @Inject lateinit var apiService: ApiService
+    @Inject lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
     //    private var longitude: Double = 0.0
 //    private var latitude: Double = 0.0
 //    private lateinit var postCode: String
@@ -72,7 +75,7 @@ class NearbyPlacesFragment constructor(private val updateTimetableAlarmManager: 
     }
 
     private fun getNearbyPlaces(longitude: Double, latitude: Double) {
-        val request = CatchItApp.apiService.getNearbyPlaces(lon = longitude, lat = latitude)
+        val request = apiService.getNearbyPlaces(lon = longitude, lat = latitude)
         if (swiperefresh != null) swiperefresh.isRefreshing = true
         doAsync {
             val response = request.execute()

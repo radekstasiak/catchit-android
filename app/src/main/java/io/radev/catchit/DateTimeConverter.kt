@@ -4,13 +4,14 @@ import org.threeten.bp.Duration
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
+import javax.inject.Inject
 
 /*
  * Created by radoslaw on 13/06/2020.
  * radev.io 2020.
  */
 
-class DateTimeConverter {
+class DateTimeConverter @Inject constructor() {
 
     fun getZoneId(): ZoneId {
         return ZoneId.systemDefault()
