@@ -7,19 +7,16 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
-import io.radev.catchit.CatchItApp
 import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.R
-import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.PlaceMember
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.fragment_first.*
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,17 +28,11 @@ class NearbyPlacesFragment : Fragment(),
     private lateinit var recyclerView: RecyclerView
     private val model: DashboardViewModel by activityViewModels()
 
-    @Inject lateinit var apiService: ApiService
-    @Inject lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
-    //    private var longitude: Double = 0.0
-//    private var latitude: Double = 0.0
-//    private lateinit var postCode: String
+    @Inject
+    lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//
-//        longitude = args.longitude.toDouble()
-//        latitude = args.latitude.toDouble()
-//        postCode = args.postCode
     }
 
     override fun onCreateView(
@@ -63,35 +54,21 @@ class NearbyPlacesFragment : Fragment(),
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
         swiperefresh.setOnRefreshListener {
-            getNearbyPlaces(
-                longitude = model.postCodeMember.value!!.longitude,
-                latitude = model.postCodeMember.value!!.latitude
-            )
+            if (swiperefresh != null) swiperefresh.isRefreshing = true
+            model.getNearbyPlaces()
         }
-        getNearbyPlaces(
-            longitude = model.postCodeMember.value!!.longitude,
-            latitude = model.postCodeMember.value!!.latitude
-        )
-    }
-
-    private fun getNearbyPlaces(longitude: Double, latitude: Double) {
-        val request = apiService.getNearbyPlaces(lon = longitude, lat = latitude)
         if (swiperefresh != null) swiperefresh.isRefreshing = true
-        doAsync {
-            val response = request.execute()
-            uiThread {
-                if (swiperefresh != null) swiperefresh.isRefreshing = false
-                if (response.body() != null) itemAdapter.setData(response.body()!!.memberList)
-            }
-        }
-    }
+        model.getNearbyPlaces()
 
+        model.placeMemberList.observe(viewLifecycleOwner, Observer<List<PlaceMember>> {
+            if (swiperefresh != null) swiperefresh.isRefreshing = false
+            itemAdapter.setData(it)
+        })
+    }
 
     override fun onPlaceSelected(atcocode: String) {
-        val action =
-            NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment(
-                ATCOCODE = atcocode
-            )
+        val action = NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment()
+        model.selectAtcoCode(atcocode)
         findNavController().navigate(action)
     }
 

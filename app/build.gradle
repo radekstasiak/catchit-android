@@ -80,8 +80,12 @@ dependencies {
     testImplementation 'org.threeten:threetenbp:1.4.4'
 
     //Hilt
+    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hilt_view_model"
+    kapt "androidx.hilt:hilt-compiler:$hilt_view_model"
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-android-compiler:$hilt_version"
+
+
 
     //Room
     implementation "androidx.room:room-runtime:$room_version"

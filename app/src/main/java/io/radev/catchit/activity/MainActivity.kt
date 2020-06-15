@@ -5,9 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.activityViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.CatchItApp
+import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.NotificationController
 import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.R
@@ -24,6 +27,8 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var updateTimetableAlarmManager:UpdateTimetableAlarmManager
     @Inject lateinit var notificationController: NotificationController
     @Inject lateinit var database: CatchItDatabase
+
+    private val model: DashboardViewModel by viewModels()
 //    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             //test database injection works
             Log.d(TAG,database.favouriteLineDao().getAll().size.toString())
         }
-
+        Log.d(TAG,"test")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
