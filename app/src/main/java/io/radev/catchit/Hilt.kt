@@ -1,10 +1,14 @@
 package io.radev.catchit
 
+import android.content.Context
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
+import io.radev.catchit.db.CatchItDatabase
+import io.radev.catchit.db.DatabaseConstants
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import okhttp3.OkHttpClient
@@ -31,9 +35,10 @@ object NetworkModule {
     }
 
     @Provides
-    fun provideOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient = OkHttpClient.Builder()
-        .addNetworkInterceptor(httpLoggingInterceptor)
-        .build()
+    fun provideOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient =
+        OkHttpClient.Builder()
+            .addNetworkInterceptor(httpLoggingInterceptor)
+            .build()
 
     @Provides
     fun provideApiService(okHttpClient: OkHttpClient): ApiService = Retrofit.Builder()
@@ -42,5 +47,16 @@ object NetworkModule {
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
         .create(ApiService::class.java)
+}
 
+@Module
+@InstallIn(ApplicationComponent::class)
+object DatabaseModule {
+
+    @Provides
+    fun provideCatchItDatabase(@ApplicationContext context: Context): CatchItDatabase =
+        Room.databaseBuilder(
+            context,
+            CatchItDatabase::class.java, DatabaseConstants.DATABASE_NAME
+        ).build()
 }

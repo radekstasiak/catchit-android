@@ -2,6 +2,7 @@ package io.radev.catchit.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -10,16 +11,19 @@ import io.radev.catchit.CatchItApp
 import io.radev.catchit.NotificationController
 import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.R
+import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
+    val TAG = "main_activity"
     @Inject lateinit var updateTimetableAlarmManager:UpdateTimetableAlarmManager
     @Inject lateinit var notificationController: NotificationController
+    @Inject lateinit var database: CatchItDatabase
 //    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +34,11 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener { view ->
             updateTimetableAlarmManager.cancelTimetableUpdates()
         }
+        doAsync {
+            //test database injection works
+            Log.d(TAG,database.favouriteLineDao().getAll().size.toString())
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
