@@ -15,5 +15,10 @@ class DashboardViewModel : ViewModel(){
     fun selectPostCodeMember(item: PostCodeMember){
         this.postCodeMember.value = item
     }
-    
 }
+
+data class PlaceMemberModel(val name:String,
+val description:String,
+val atcocode:String,
+val distance: String,
+val isFavourite:Boolean)

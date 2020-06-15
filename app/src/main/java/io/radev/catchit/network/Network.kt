@@ -3,6 +3,7 @@ package io.radev.catchit.network
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.SingleBusNotificationModel
 import retrofit2.Call
 import retrofit2.http.GET
@@ -154,13 +155,12 @@ fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeCon
             time = this.expectedDepartureTime ?: this.aimedDepartureTime!!
         )
     )
-    return     SingleBusNotificationModel(
+    return SingleBusNotificationModel(
         line = this.line ?: "",
         direction = this.direction ?: "",
-        waitTime = if(waitTime > 0) "${waitTime}m" else "DUE"
+        waitTime = if (waitTime > 0) "${waitTime}m" else "DUE"
     )
 }
-
 
 
 @JsonClass(generateAdapter = true)
@@ -195,6 +195,18 @@ data class PlaceMember(
     @Json(name = "description") val description: String,
     @Json(name = "distance") val distance: Int
 )
+
+
+fun PlaceMember.toPlaceMemberModel(favourite: Boolean): PlaceMemberModel {
+    return PlaceMemberModel(
+        name = this.name,
+        atcocode = this.atcocode,
+        description = this.description,
+        distance = this.distance.toString(),
+        isFavourite = favourite
+    )
+
+}
 
 object ApiConstants {
     const val API_BASE_URL = "https://transportapi.com/"
