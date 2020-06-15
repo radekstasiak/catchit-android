@@ -1,9 +1,6 @@
 package io.radev.catchit.db
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 
 /*
  * Created by radoslaw on 15/06/2020.
@@ -24,7 +21,7 @@ interface FavouriteStopDao {
     )
     fun findByAtcocode(atcocode: String): FavouriteStop
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg favouriteStop: FavouriteStop)
 
     @Delete
@@ -46,7 +43,7 @@ interface FavouriteLineDao {
     )
     fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg favouriteLines: FavouriteLine)
 
     @Delete

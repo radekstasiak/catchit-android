@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = DatabaseConstants.FAVOURITE_LINE)
 data class FavouriteLine(
-    @PrimaryKey @ColumnInfo(name = DatabaseConstants.ID) val id: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long=0,
     @ColumnInfo(name = DatabaseConstants.CREATED_AT) val createdAt: Long,
     @ColumnInfo(name = DatabaseConstants.MODIFIED_AT) val modifiedAt: Long,
     @ColumnInfo(name = DatabaseConstants.LINE_NAME) val lineName: String,
@@ -26,7 +26,7 @@ data class FavouriteLine(
     ]
 )
 data class FavouriteStop(
-    @PrimaryKey @ColumnInfo(name = DatabaseConstants.ID) val id: Long,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long=0,
     @ColumnInfo(name = DatabaseConstants.CREATED_AT) val createdAt: Long,
     @ColumnInfo(name = DatabaseConstants.MODIFIED_AT) val modifiedAt: Long,
     @ColumnInfo(name = DatabaseConstants.ATCOCODE) val atcocode: String

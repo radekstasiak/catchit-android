@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         notificationController.createNotificationChannel(this)
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener {
             updateTimetableAlarmManager.cancelTimetableUpdates()
         }
         doAsync {
