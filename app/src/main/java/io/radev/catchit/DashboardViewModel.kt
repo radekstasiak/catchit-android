@@ -32,7 +32,7 @@ class DashboardViewModel @ViewModelInject constructor(
         this.postCodeMember.value = item
     }
 
-    fun selectAtcoCode(value: String){
+    fun selectAtcocode(value: String){
         this.atcocode.value = value
     }
 
@@ -59,8 +59,6 @@ class DashboardViewModel @ViewModelInject constructor(
             }
         }
     }
-
-
 
 }
 

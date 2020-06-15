@@ -61,10 +61,7 @@ class ConnectionsListFragment : Fragment() {
             tv_header.text = it
         })
     }
-
-
 }
-
 
 class ConnectionListAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {

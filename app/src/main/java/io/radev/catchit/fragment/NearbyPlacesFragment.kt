@@ -68,7 +68,7 @@ class NearbyPlacesFragment : Fragment(),
 
     override fun onPlaceSelected(atcocode: String) {
         val action = NearbyPlacesFragmentDirections.actionFirstFragmentToSecondFragment()
-        model.selectAtcoCode(atcocode)
+        model.selectAtcocode(atcocode)
         findNavController().navigate(action)
     }
 
