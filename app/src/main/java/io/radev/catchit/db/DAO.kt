@@ -26,6 +26,15 @@ interface FavouriteStopDao {
 
     @Delete
     fun delete(favouriteStop: FavouriteStop)
+
+    @Query(
+        """
+        DELETE FROM ${DatabaseConstants.FAVOURITE_STOP}
+        WHERE ${DatabaseConstants.ATCOCODE} = :atcocode
+    """
+    )
+
+    fun deleteByAtcocode(atcocode: String)
 }
 
 @Dao
@@ -48,4 +57,15 @@ interface FavouriteLineDao {
 
     @Delete
     fun delete(favouriteLine: FavouriteLine)
+
+    @Query(
+        """
+        DELETE FROM ${DatabaseConstants.FAVOURITE_LINE}
+        WHERE ${DatabaseConstants.ATCOCODE}=:atcocode
+        AND ${DatabaseConstants.LINE_NAME} = :lineName
+    """
+    )
+    fun deleteByAtcocodeAndLineName(atcocode: String, lineName: String)
+
+
 }

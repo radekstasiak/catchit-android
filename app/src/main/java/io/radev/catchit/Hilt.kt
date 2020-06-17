@@ -2,11 +2,14 @@ package io.radev.catchit
 
 import android.content.Context
 import androidx.room.Room
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.radev.catchit.data.DataRepository
+import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.DatabaseConstants
 import io.radev.catchit.network.ApiConstants
@@ -59,4 +62,14 @@ object DatabaseModule {
             context,
             CatchItDatabase::class.java, DatabaseConstants.DATABASE_NAME
         ).build()
+}
+
+@Module
+@InstallIn(ApplicationComponent::class)
+abstract class DataRepositoryModule {
+
+    @Binds
+    abstract fun bindDataRepository(
+        dataRepositoryImpl: DataRepositoryImpl
+    ): DataRepository
 }

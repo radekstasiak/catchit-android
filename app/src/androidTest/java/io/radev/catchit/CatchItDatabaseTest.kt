@@ -24,10 +24,11 @@ class CatchItDatabaseTest {
     private lateinit var db: CatchItDatabase
 
     @Before
-    fun createDb(){
+    fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, CatchItDatabase::class.java).build()
+            context, CatchItDatabase::class.java
+        ).build()
         favouriteLineDao = db.favouriteLineDao()
         favouriteStopDao = db.favouriteStopDao()
     }
@@ -37,10 +38,8 @@ class CatchItDatabaseTest {
     fun closeDb() {
         db.close()
     }
-    //FavouriteLineDao test
-    @Test
-    @Throws(Exception::class)
-    fun writeFavouriteLineAndReadList() {
+
+    private fun populatedDb() {
         val entity1 = FavouriteLine(
             createdAt = 1L,
             modifiedAt = 1L,
@@ -54,7 +53,28 @@ class CatchItDatabaseTest {
             atcocode = "450010439",
             lineName = "52"
         )
-        db.favouriteLineDao().insertAll(entity1,entity2)
+
+        db.favouriteLineDao().insertAll(entity1, entity2)
+
+        val favouriteStop = FavouriteStop(
+            createdAt = 1L,
+            modifiedAt = 1L,
+            atcocode = "450012351"
+        )
+
+        val favouriteStop2 = FavouriteStop(
+            createdAt = 1L,
+            modifiedAt = 1L,
+            atcocode = "450010439"
+        )
+        db.favouriteStopDao().insertAll(favouriteStop, favouriteStop2)
+    }
+
+    //FavouriteLineDao test
+    @Test
+    @Throws(Exception::class)
+    fun writeFavouriteLineAndReadList() {
+        populatedDb()
         val result = db.favouriteLineDao().getAll()
         Assert.assertEquals(2, result.size)
     }
@@ -62,20 +82,7 @@ class CatchItDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun deleteFavouriteLine_test() {
-        val entity1 = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351",
-            lineName = "51"
-        )
-
-        val entity2 = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439",
-            lineName = "52"
-        )
-        db.favouriteLineDao().insertAll(entity1,entity2)
+        populatedDb()
         val result = db.favouriteLineDao().getAll()
         db.favouriteLineDao().delete(result[0])
         val updatedResult = db.favouriteLineDao().getAll()
@@ -85,99 +92,64 @@ class CatchItDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun findByAtcocodeAndLine_no_result_test_test() {
-        val entity1 = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351",
-            lineName = "51"
-        )
-
-        val entity2 = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439",
-            lineName = "52"
-        )
-        db.favouriteLineDao().insertAll(entity1,entity2)
-        val result = db.favouriteLineDao().findByAtcocodeAndLine("4500104319","52")
+        populatedDb()
+        val result = db.favouriteLineDao().findByAtcocodeAndLine("4500104319", "52")
         Assert.assertEquals(null, result)
     }
 
     @Test
     @Throws(Exception::class)
     fun findByAtcocodeAndLine_result_exist_test() {
-        val entity1 = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351",
-            lineName = "51"
-        )
+        populatedDb()
+        val result = db.favouriteLineDao().findByAtcocodeAndLine("450010439", "52")
+        Assert.assertEquals(result.atcocode, "450010439")
+    }
 
-        val entity2 = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439",
-            lineName = "52"
-        )
-        db.favouriteLineDao().insertAll(entity1,entity2)
-        val result = db.favouriteLineDao().findByAtcocodeAndLine("450010439","52")
-        Assert.assertEquals(result.atcocode,"450010439")
+    @Test
+    @Throws(Exception::class)
+    fun deleteFavouriteLine_with_atcocode_and_lineName_test() {
+        populatedDb()
+        Assert.assertEquals(2, db.favouriteLineDao().getAll().size)
+        db.favouriteLineDao().deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+        Assert.assertEquals(1, db.favouriteLineDao().getAll().size)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun deleteFavouriteLine_with_atcocode_and_lineName_not_exists_test() {
+        populatedDb()
+        Assert.assertEquals(2, db.favouriteLineDao().getAll().size)
+        db.favouriteLineDao().deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "52")
+        Assert.assertEquals(2, db.favouriteLineDao().getAll().size)
     }
 
     //FavouriteStopDao test
     @Test
     @Throws(Exception::class)
     fun writeFavouriteStopAndReadList() {
-        val favouriteStop = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351"
-        )
-
-        val favouriteStop2 = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439"
-        )
-        db.favouriteStopDao().insertAll(favouriteStop,favouriteStop2)
+        populatedDb()
         val result = db.favouriteStopDao().getAll()
         Assert.assertEquals(2, result.size)
     }
 
     @Test
     @Throws(Exception::class)
-    fun writeFavourietStop_duplicateAtcocode_test() {
+    fun writeFavouriteStop_duplicateAtcocode_test() {
+        populatedDb()
         val favouriteStop = FavouriteStop(
             createdAt = 1L,
             modifiedAt = 1L,
             atcocode = "450012351"
         )
-
-        val favouriteStop2 = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351"
-        )
-        db.favouriteStopDao().insertAll(favouriteStop,favouriteStop2)
+        db.favouriteStopDao().insertAll(favouriteStop)
         val result = db.favouriteStopDao().getAll()
-        Assert.assertEquals(1, result.size)
+        Assert.assertEquals(2, result.size)
     }
 
     @Test
     @Throws(Exception::class)
     fun deleteFavouriteStop_test() {
-        val favouriteStop = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351"
-        )
-
-        val favouriteStop2 = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439"
-        )
-        db.favouriteStopDao().insertAll(favouriteStop,favouriteStop2)
+        populatedDb()
         val result = db.favouriteStopDao().getAll()
         db.favouriteStopDao().delete(result[0])
         val updatedResult = db.favouriteStopDao().getAll()
@@ -187,18 +159,7 @@ class CatchItDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun findByAtcocode_no_result_test_test() {
-        val favouriteStop = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351"
-        )
-
-        val favouriteStop2 = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439"
-        )
-        db.favouriteStopDao().insertAll(favouriteStop,favouriteStop2)
+        populatedDb()
         val result = db.favouriteStopDao().findByAtcocode("4500104319")
         Assert.assertEquals(null, result)
     }
@@ -206,25 +167,19 @@ class CatchItDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun findByAtcocode_result_exist_test() {
-        val favouriteStop = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351"
-        )
-
-        val favouriteStop2 = FavouriteStop(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450010439"
-        )
-        db.favouriteStopDao().insertAll(favouriteStop,favouriteStop2)
+        populatedDb()
         val result = db.favouriteStopDao().findByAtcocode("450010439")
-        Assert.assertEquals(result.atcocode,"450010439")
+        Assert.assertEquals(result.atcocode, "450010439")
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun deleteFavouriteStop_withAtcocode_test() {
+        populatedDb()
+        Assert.assertEquals(2, db.favouriteStopDao().getAll().size)
+        db.favouriteStopDao().deleteByAtcocode(atcocode = "450012351")
+        Assert.assertEquals(1, db.favouriteStopDao().getAll().size)
+    }
 
-}
-
-class TestUtil{
 
 }
