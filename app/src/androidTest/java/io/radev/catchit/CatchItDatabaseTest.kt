@@ -161,7 +161,7 @@ class CatchItDatabaseTest {
     fun findByAtcocode_no_result_test_test() {
         populatedDb()
         val result = db.favouriteStopDao().findByAtcocode("4500104319")
-        Assert.assertEquals(null, result)
+        Assert.assertEquals(0, result.size)
     }
 
     @Test
@@ -169,7 +169,8 @@ class CatchItDatabaseTest {
     fun findByAtcocode_result_exist_test() {
         populatedDb()
         val result = db.favouriteStopDao().findByAtcocode("450010439")
-        Assert.assertEquals(result.atcocode, "450010439")
+        Assert.assertEquals(1, result.size)
+        Assert.assertEquals("450010439",result[0].atcocode )
     }
 
     @Test

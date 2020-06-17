@@ -1,10 +1,13 @@
 package io.radev.catchit.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -13,8 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.DashboardViewModel
+import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.R
-import io.radev.catchit.network.PlaceMember
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.fragment_first.*
 import javax.inject.Inject
@@ -50,7 +53,11 @@ class NearbyPlacesFragment : Fragment(),
             model.postCodeMember.value!!.name
         ))
         recyclerView = recycler_view
-        itemAdapter = NearbyPlacesItemAdapter(this, updateTimetableAlarmManager)
+        itemAdapter = NearbyPlacesItemAdapter(
+            context = requireActivity(),
+            listener = this,
+            updateTimetableAlarmManager = updateTimetableAlarmManager
+        )
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
         swiperefresh.setOnRefreshListener {
@@ -60,7 +67,7 @@ class NearbyPlacesFragment : Fragment(),
         if (swiperefresh != null) swiperefresh.isRefreshing = true
         model.getNearbyPlaces()
 
-        model.placeMemberList.observe(viewLifecycleOwner, Observer<List<PlaceMember>> {
+        model.placeMemberList.observe(viewLifecycleOwner, Observer<List<PlaceMemberModel>> {
             if (swiperefresh != null) swiperefresh.isRefreshing = false
             itemAdapter.setData(it)
         })
@@ -72,15 +79,20 @@ class NearbyPlacesFragment : Fragment(),
         findNavController().navigate(action)
     }
 
+    override fun updateFavouriteStop(atcocode: String, favourite: Boolean) {
+        model.updateFavouriteStop(atcocode = atcocode, favourite = favourite)
+    }
+
 
 }
 
 class NearbyPlacesItemAdapter(
     private val listener: SelectPlaceListener,
-    private val updateTimetableAlarmManager: UpdateTimetableAlarmManager
+    private val updateTimetableAlarmManager: UpdateTimetableAlarmManager,
+    private val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var data = arrayListOf<PlaceMember>()
+    var data = arrayListOf<PlaceMemberModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         PlacesNearbyItemViewHolder(
@@ -91,7 +103,7 @@ class NearbyPlacesItemAdapter(
             )
         )
 
-    fun setData(list: List<PlaceMember>) {
+    fun setData(list: List<PlaceMemberModel>) {
         data = ArrayList(list)
         notifyDataSetChanged()
     }
@@ -105,11 +117,23 @@ class NearbyPlacesItemAdapter(
         vh.description.text = item.description
         vh.atcocode.text = item.atcocode
         vh.distance.text = item.distance.toString()
+
         vh.itemView.setOnClickListener {
-            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
             listener.onPlaceSelected(item.atcocode)
         }
+        vh.favIv.setImageDrawable(
+            if (item.isFavourite) ContextCompat.getDrawable(
+                context,
+                R.drawable.baseline_favorite_24
+            ) else ContextCompat.getDrawable(context, R.drawable.baseline_favorite_border_24)
+        )
+        vh.favIv.setOnClickListener {
+            listener.updateFavouriteStop(atcocode = item.atcocode, favourite = !item.isFavourite)
+            //todo needs to handle this in view model
+            //updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+        }
     }
+
 
 }
 
@@ -118,15 +142,18 @@ class PlacesNearbyItemViewHolder : RecyclerView.ViewHolder {
     val description: TextView
     val atcocode: TextView
     val distance: TextView
+    val favIv: ImageView
 
     constructor(view: View) : super(view) {
         name = view.findViewById(R.id.tv_name)
         description = view.findViewById(R.id.tv_description)
         atcocode = view.findViewById(R.id.tv_atcocode)
         distance = view.findViewById(R.id.tv_distance)
+        favIv = view.findViewById(R.id.fav_iv)
     }
 }
 
 interface SelectPlaceListener {
     fun onPlaceSelected(atcocode: String)
+    fun updateFavouriteStop(atcocode: String, favourite: Boolean)
 }

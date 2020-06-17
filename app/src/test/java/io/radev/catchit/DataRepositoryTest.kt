@@ -3,6 +3,7 @@ package io.radev.catchit
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.*
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -51,6 +52,29 @@ class DataRepositoryTest {
     }
 
     @Test
+    fun findFavouriteLineByAtcocode_result_exists_test() {
+        Mockito.`when`(db.favouriteStopDao().findByAtcocode(atcocode = "450012351")).thenReturn(
+            arrayListOf(
+                FavouriteStop(
+                    createdAt = 1L,
+                    modifiedAt = 1L,
+                    atcocode = "450012351"
+                )
+            )
+        )
+        val result = repository.findFavouriteLineByAtcocode(atcocode = "450012351")
+        Assert.assertEquals(1, result.size)
+    }
+
+    @Test
+    fun findFavouriteLineByAtcocode_result_not_exists_test() {
+        Mockito.`when`(db.favouriteStopDao().findByAtcocode(atcocode = "450012351"))
+            .thenReturn(emptyList())
+        val result = repository.findFavouriteLineByAtcocode(atcocode = "450012351")
+        Assert.assertEquals(0, result.size)
+    }
+
+    @Test
     fun addFavouriteLine_test() {
         val entity = FavouriteLine(
             createdAt = 1L,
@@ -65,7 +89,8 @@ class DataRepositoryTest {
     @Test
     fun removeFavouriteLine_by_atcocode_and_lineName_test() {
         repository.removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
-        Mockito.verify(favouriteLineDao).deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+        Mockito.verify(favouriteLineDao)
+            .deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
     }
 
 

@@ -9,8 +9,8 @@ import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteStop
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.DepartureDetails
-import io.radev.catchit.network.PlaceMember
 import io.radev.catchit.network.PostCodeMember
+import io.radev.catchit.network.toPlaceMemberModel
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
@@ -26,7 +26,7 @@ class DashboardViewModel @ViewModelInject constructor(
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val postCodeMember = MutableLiveData<PostCodeMember>()
-    val placeMemberList = MutableLiveData<List<PlaceMember>>()
+    val placeMemberList = MutableLiveData<List<PlaceMemberModel>>()
     val departureDetails = MutableLiveData<List<DepartureDetails>>()
     val atcocode = MutableLiveData<String>()
     val stopHeaderText = MutableLiveData<String>()
@@ -46,8 +46,21 @@ class DashboardViewModel @ViewModelInject constructor(
         )
         doAsync {
             val response = request.execute()
-            uiThread {
-                if (response.body() != null) placeMemberList.value = response.body()!!.memberList
+            if (response.body() != null) {
+                val memberList = response.body()!!.memberList
+                val result = arrayListOf<PlaceMemberModel>()
+                for (member in memberList) {
+                    result.add(
+                        member.toPlaceMemberModel(
+                            favourite = dataRepository.findFavouriteLineByAtcocode(
+                                atcocode = member.atcocode
+                            ).isNotEmpty()
+                        )
+                    )
+                }
+                uiThread {
+                    placeMemberList.value = result
+                }
             }
         }
     }
@@ -68,6 +81,7 @@ class DashboardViewModel @ViewModelInject constructor(
     //https://google-developer-training.github.io/android-developer-advanced-course-practicals/unit-6-working-with-architecture-components/lesson-14-room,-livedata,-viewmodel/14-1-a-room-livedata-viewmodel/14-1-a-room-livedata-viewmodel.html
     //https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
     //https://medium.com/androiddevelopers/viewmodels-and-livedata-patterns-antipatterns-21efaef74a54
+    //https://medium.com/androiddevelopers/livedata-beyond-the-viewmodel-reactive-patterns-using-transformations-and-mediatorlivedata-fda520ba00b7
     fun updateFavouriteStop(atcocode: String, favourite: Boolean) {
         if (favourite) {
             val entity = FavouriteStop(
@@ -75,9 +89,10 @@ class DashboardViewModel @ViewModelInject constructor(
                 modifiedAt = converter.getNowInMillis(),
                 atcocode = atcocode
             )
-            dataRepository.addFavouriteStop(favouriteStop = entity)
+            doAsync { dataRepository.addFavouriteStop(favouriteStop = entity) }
+
         } else {
-            dataRepository.removeFavouriteStopByAtcocode(atcocode = atcocode)
+            doAsync { dataRepository.removeFavouriteStopByAtcocode(atcocode = atcocode) }
         }
     }
 

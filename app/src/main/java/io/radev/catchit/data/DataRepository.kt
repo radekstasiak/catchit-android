@@ -28,6 +28,9 @@ class DataRepositoryImpl @Inject constructor(val db: CatchItDatabase) : DataRepo
         db.favouriteStopDao().deleteByAtcocode(atcocode = atcocode)
     }
 
+    override fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop> =
+        db.favouriteStopDao().findByAtcocode(atcocode = atcocode)
+
 }
 
 
@@ -37,5 +40,7 @@ interface DataRepository {
 
     fun addFavouriteStop(favouriteStop: FavouriteStop)
     fun removeFavouriteStopByAtcocode(atcocode: String)
+    fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop>
+
 
 }

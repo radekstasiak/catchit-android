@@ -19,7 +19,7 @@ interface FavouriteStopDao {
         LIMIT 1
     """
     )
-    fun findByAtcocode(atcocode: String): FavouriteStop
+    fun findByAtcocode(atcocode: String): List<FavouriteStop>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg favouriteStop: FavouriteStop)
