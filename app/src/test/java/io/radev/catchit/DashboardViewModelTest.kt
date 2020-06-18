@@ -3,7 +3,13 @@ package io.radev.catchit
 import androidx.lifecycle.SavedStateHandle
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.network.ApiService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -16,6 +22,7 @@ import org.mockito.MockitoAnnotations
  */
 
 class DashboardViewModelTest() {
+    private val mainThreadSurrogate = newSingleThreadContext("db thread")
 
     lateinit var viewModel: DashboardViewModel
 
@@ -34,6 +41,7 @@ class DashboardViewModelTest() {
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
+        Dispatchers.setMain(mainThreadSurrogate)
         viewModel = DashboardViewModel(
             apiService = apiService,
             dataRepository = dataRepository,
@@ -42,11 +50,21 @@ class DashboardViewModelTest() {
         )
     }
 
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
+        mainThreadSurrogate.close()
+    }
+
     @Test
     fun updateFavouriteStop_adds_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
         viewModel.updateFavouriteStop(favourite = true, atcocode = "450012351")
-        runBlocking { Mockito.verify(dataRepository).addFavouriteStop(TestUtils.any()) }
+        runBlocking {
+            launch(Dispatchers.Main) {
+                Mockito.verify(dataRepository).addFavouriteStop(TestUtils.any())
+            }
+        }
     }
 
     @Test
@@ -54,7 +72,9 @@ class DashboardViewModelTest() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
         viewModel.updateFavouriteStop(favourite = false, atcocode = "450012351")
         runBlocking {
-            Mockito.verify(dataRepository).removeFavouriteStopByAtcocode(atcocode = "450012351")
+            launch {
+                Mockito.verify(dataRepository).removeFavouriteStopByAtcocode(atcocode = "450012351")
+            }
         }
 
     }
