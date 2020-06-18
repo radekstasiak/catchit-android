@@ -5,13 +5,8 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteStop
-import io.radev.catchit.network.ApiService
-import io.radev.catchit.network.DepartureDetails
-import io.radev.catchit.network.PostCodeMember
-import io.radev.catchit.network.toPlaceMemberModel
-import kotlinx.coroutines.Dispatchers
+import io.radev.catchit.network.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /*
  * Created by radek on 01/06/2020.
@@ -52,49 +47,59 @@ class DashboardViewModel @ViewModelInject constructor(
     }
 
     fun getNearbyPlaces() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.getNearbyPlaces(
-                lon = postCodeMember.value!!.longitude,
-                lat = postCodeMember.value!!.latitude
+        viewModelScope.launch {
+            val response = dataRepository.getNearbyPlaces(
+                longitude = postCodeMember.value!!.longitude,
+                latitude = postCodeMember.value!!.latitude
             )
             val result = arrayListOf<PlaceMemberModel>()
-            for (member in response.memberList) {
-                val isFavourite = dataRepository.findFavouriteLineByAtcocode(
-                    atcocode = member.atcocode
-                ).isNotEmpty()
-                result.add(member.toPlaceMemberModel(favourite = isFavourite))
+            when (response.status) {
+                Status.SUCCESS -> {
+                    for (member in response.data!!.memberList) {
+                        val isFavourite = dataRepository.findFavouriteLineByAtcocode(
+                            atcocode = member.atcocode
+                        ).isNotEmpty()
+                        result.add(member.toPlaceMemberModel(favourite = isFavourite))
+                    }
+                    _placeMemberList.value = result
+                }
             }
-            withContext(Dispatchers.Main) { _placeMemberList.value = result }
+
         }
     }
 
     fun getLiveTimetable() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.getLiveTimetable(atcocode.value!!)
-            withContext(Dispatchers.Main) {
-                if (response.departures != null) _departureDetails.value =
-                    response.departures.getValue("all")
-                _stopHeaderText.value = "${response.name} - ${response.atcocode}"
+        viewModelScope.launch {
+            val response = dataRepository.getLiveTimetable(atcocode = atcocode.value!!)
+            when (response.status) {
+                Status.SUCCESS -> {
+                    if (response.data!!.departures != null) {
+                        _departureDetails.value = response.data.departures?.getValue("all")
+                    }
+                    _stopHeaderText.value = "${response.data.name} - ${response.data.atcocode}"
+                }
             }
 
         }
     }
 
     fun getPostCodeDetails(postCode: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = apiService.getPostCodeDetails(query = postCode)
-            withContext(Dispatchers.Main) {
-                _postCodeMember.value = response.memberList[0]
+        viewModelScope.launch {
+            val result = dataRepository.getPostCodeDetails(postCode = postCode)
+            when (result.status) {
+                Status.SUCCESS -> {
+                    _postCodeMember.value = result.data!!.memberList[0]
+                }
             }
         }
     }
 
 
     //continue with
-//https://google-developer-training.github.io/android-developer-advanced-course-practicals/unit-6-working-with-architecture-components/lesson-14-room,-livedata,-viewmodel/14-1-a-room-livedata-viewmodel/14-1-a-room-livedata-viewmodel.html
-//https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
-//https://medium.com/androiddevelopers/viewmodels-and-livedata-patterns-antipatterns-21efaef74a54
-//https://medium.com/androiddevelopers/livedata-beyond-the-viewmodel-reactive-patterns-using-transformations-and-mediatorlivedata-fda520ba00b7
+    //https://google-developer-training.github.io/android-developer-advanced-course-practicals/unit-6-working-with-architecture-components/lesson-14-room,-livedata,-viewmodel/14-1-a-room-livedata-viewmodel/14-1-a-room-livedata-viewmodel.html
+    //https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
+    //https://medium.com/androiddevelopers/viewmodels-and-livedata-patterns-antipatterns-21efaef74a54
+    //https://medium.com/androiddevelopers/livedata-beyond-the-viewmodel-reactive-patterns-using-transformations-and-mediatorlivedata-fda520ba00b7
     fun updateFavouriteStop(atcocode: String, favourite: Boolean) {
         if (favourite) {
             val entity = FavouriteStop(
@@ -103,12 +108,9 @@ class DashboardViewModel @ViewModelInject constructor(
                 atcocode = atcocode
             )
             viewModelScope.launch { dataRepository.addFavouriteStop(favouriteStop = entity) }
-
         } else {
             viewModelScope.launch { dataRepository.removeFavouriteStopByAtcocode(atcocode = atcocode) }
         }
-
-
     }
 
 }

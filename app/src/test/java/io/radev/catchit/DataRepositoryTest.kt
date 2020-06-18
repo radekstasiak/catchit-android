@@ -3,6 +3,7 @@ package io.radev.catchit
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.*
+import io.radev.catchit.network.ApiService
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
@@ -25,12 +26,16 @@ class DataRepositoryTest {
 
     @Mock
     lateinit var favouriteStopDao: FavouriteStopDao
+
+    @Mock
+    lateinit var apiService: ApiService
+
     lateinit var repository: DataRepository
 
     @Before
     fun before() {
         MockitoAnnotations.initMocks(this)
-        repository = DataRepositoryImpl(db = db)
+        repository = DataRepositoryImpl(db = db, apiService = apiService)
         Mockito.`when`(db.favouriteLineDao()).thenReturn(favouriteLineDao)
         Mockito.`when`(db.favouriteStopDao()).thenReturn(favouriteStopDao)
     }
