@@ -7,29 +7,32 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import io.radev.catchit.CatchItApp
 import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.NotificationController
-import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.R
 import io.radev.catchit.db.CatchItDatabase
-import io.radev.catchit.network.ApiService
+import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.doAsync
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     val TAG = "main_activity"
-    @Inject lateinit var updateTimetableAlarmManager:UpdateTimetableAlarmManager
-    @Inject lateinit var notificationController: NotificationController
-    @Inject lateinit var database: CatchItDatabase
+    @Inject
+    lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
+    @Inject
+    lateinit var notificationController: NotificationController
+    @Inject
+    lateinit var database: CatchItDatabase
 
     private val model: DashboardViewModel by viewModels()
-//    @Inject lateinit var apiService: ApiService
+
+    //    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,11 +42,11 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             updateTimetableAlarmManager.cancelTimetableUpdates()
         }
-        doAsync {
+        lifecycleScope.launch(Dispatchers.IO) {
             //test database injection works
-            Log.d(TAG,database.favouriteLineDao().getAll().size.toString())
+            Log.d(TAG, database.favouriteLineDao().getAll().size.toString())
         }
-        Log.d(TAG,"test")
+        Log.d(TAG, "test")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

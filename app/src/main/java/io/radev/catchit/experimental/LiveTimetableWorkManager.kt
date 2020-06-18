@@ -1,22 +1,21 @@
 package io.radev.catchit.experimental
 
 import android.content.Context
-import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import io.radev.catchit.CatchItApp
-import org.jetbrains.anko.doAsync
 
 /*
  * Created by radek on 03/06/2020.
  * radev.io 2020.
  */
 
-class UpdateTimetableWorker(appContext: Context, workerParameters: WorkerParameters): Worker(appContext, workerParameters){
-    companion object{
+class UpdateTimetableWorker(appContext: Context, workerParameters: WorkerParameters) :
+    Worker(appContext, workerParameters) {
+    companion object {
         val TAG = "updateTimetableWorker"
         val ATCOCODE = "atcocode"
     }
+
     override fun doWork(): Result {
 //        val atcocode = inputData.getString(ATCOCODE)
 //        val request = CatchItApp.apiService.getLiveTimetable(atcocode = atcocode!!)
@@ -27,7 +26,6 @@ class UpdateTimetableWorker(appContext: Context, workerParameters: WorkerParamet
 
         return Result.success()
     }
-
 
 
 }

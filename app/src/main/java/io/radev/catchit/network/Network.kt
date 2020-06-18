@@ -5,7 +5,6 @@ import com.squareup.moshi.JsonClass
 import io.radev.catchit.DateTimeConverter
 import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.SingleBusNotificationModel
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -19,30 +18,31 @@ interface ApiService {
 
 
     @GET("/v3/uk/places.json")
-    fun getPostCodeDetails(
+    suspend fun getPostCodeDetails(
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("query") query: String,
         @Query("type") type: String = "postcode"
-    ): Call<PostCodeDetailsResponse>
+    ): PostCodeDetailsResponse
 
     @GET("/v3/uk/places.json")
-    fun getNearbyPlaces(
+    suspend fun getNearbyPlaces(
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("lat") lat: Double = 53.8288722,
         @Query("lon") lon: Double = -1.5729408,
         @Query("type") type: String = "bus_stop"
-    ): Call<PlacesResponse>
+    ): PlacesResponse
 
     @GET("/v3/uk/bus/stop/{atcocode}/live.json")
-    fun getLiveTimetable(
+    suspend fun getLiveTimetable(
         @Path("atcocode") atcocode: String,
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("group") group: String = "no",
         @Query("nextbuses") nextbuses: String = "no"
-    ): Call<DepartureResponse>
+    ): DepartureResponse
+
 
 }
 //{

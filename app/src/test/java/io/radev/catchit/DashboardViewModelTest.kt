@@ -57,6 +57,10 @@ class DashboardViewModelTest() {
     }
 
     @Test
+    fun getPostcodeDetails_test(){
+
+    }
+    @Test
     fun updateFavouriteStop_adds_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
         viewModel.updateFavouriteStop(favourite = true, atcocode = "450012351")
