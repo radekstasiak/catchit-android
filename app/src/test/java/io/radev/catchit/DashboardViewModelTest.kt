@@ -3,6 +3,7 @@ package io.radev.catchit
 import androidx.lifecycle.SavedStateHandle
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.network.ApiService
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -45,14 +46,17 @@ class DashboardViewModelTest() {
     fun updateFavouriteStop_adds_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
         viewModel.updateFavouriteStop(favourite = true, atcocode = "450012351")
-        Mockito.verify(dataRepository).addFavouriteStop(TestUtils.any())
+        runBlocking { Mockito.verify(dataRepository).addFavouriteStop(TestUtils.any()) }
     }
 
     @Test
-    fun updateFavouriteStop_removes_favourite_stop_test(){
+    fun updateFavouriteStop_removes_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
         viewModel.updateFavouriteStop(favourite = false, atcocode = "450012351")
-        Mockito.verify(dataRepository).removeFavouriteStopByAtcocode(atcocode = "450012351")
+        runBlocking {
+            Mockito.verify(dataRepository).removeFavouriteStopByAtcocode(atcocode = "450012351")
+        }
+
     }
 
 }

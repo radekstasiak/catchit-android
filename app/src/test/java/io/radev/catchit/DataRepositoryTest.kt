@@ -3,6 +3,7 @@ package io.radev.catchit
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -35,13 +36,13 @@ class DataRepositoryTest {
     }
 
     @Test
-    fun removeFavouriteStop_by_atcocode_test() {
+    fun removeFavouriteStop_by_atcocode_test() = runBlocking {
         repository.removeFavouriteStopByAtcocode(atcocode = "450012351")
         Mockito.verify(favouriteStopDao).deleteByAtcocode(atcocode = "450012351")
     }
 
     @Test
-    fun addFavouriteStop_test() {
+    fun addFavouriteStop_test() = runBlocking {
         val entity = FavouriteStop(
             createdAt = 1L,
             modifiedAt = 1L,
@@ -52,7 +53,7 @@ class DataRepositoryTest {
     }
 
     @Test
-    fun findFavouriteLineByAtcocode_result_exists_test() {
+    fun findFavouriteLineByAtcocode_result_exists_test() = runBlocking {
         Mockito.`when`(db.favouriteStopDao().findByAtcocode(atcocode = "450012351")).thenReturn(
             arrayListOf(
                 FavouriteStop(
@@ -67,7 +68,7 @@ class DataRepositoryTest {
     }
 
     @Test
-    fun findFavouriteLineByAtcocode_result_not_exists_test() {
+    fun findFavouriteLineByAtcocode_result_not_exists_test() = runBlocking {
         Mockito.`when`(db.favouriteStopDao().findByAtcocode(atcocode = "450012351"))
             .thenReturn(emptyList())
         val result = repository.findFavouriteLineByAtcocode(atcocode = "450012351")
@@ -75,7 +76,7 @@ class DataRepositoryTest {
     }
 
     @Test
-    fun addFavouriteLine_test() {
+    fun addFavouriteLine_test() = runBlocking {
         val entity = FavouriteLine(
             createdAt = 1L,
             modifiedAt = 1L,
@@ -87,7 +88,7 @@ class DataRepositoryTest {
     }
 
     @Test
-    fun removeFavouriteLine_by_atcocode_and_lineName_test() {
+    fun removeFavouriteLine_by_atcocode_and_lineName_test() = runBlocking {
         repository.removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
         Mockito.verify(favouriteLineDao)
             .deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")

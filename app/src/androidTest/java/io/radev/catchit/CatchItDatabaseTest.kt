@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.radev.catchit.db.*
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -39,7 +40,7 @@ class CatchItDatabaseTest {
         db.close()
     }
 
-    private fun populatedDb() {
+    private fun populatedDb() = runBlocking {
         val entity1 = FavouriteLine(
             createdAt = 1L,
             modifiedAt = 1L,
@@ -73,7 +74,7 @@ class CatchItDatabaseTest {
     //FavouriteLineDao test
     @Test
     @Throws(Exception::class)
-    fun writeFavouriteLineAndReadList() {
+    fun writeFavouriteLineAndReadList() = runBlocking {
         populatedDb()
         val result = db.favouriteLineDao().getAll()
         Assert.assertEquals(2, result.size)
@@ -81,7 +82,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteFavouriteLine_test() {
+    fun deleteFavouriteLine_test() = runBlocking {
         populatedDb()
         val result = db.favouriteLineDao().getAll()
         db.favouriteLineDao().delete(result[0])
@@ -91,7 +92,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun findByAtcocodeAndLine_no_result_test_test() {
+    fun findByAtcocodeAndLine_no_result_test_test() = runBlocking {
         populatedDb()
         val result = db.favouriteLineDao().findByAtcocodeAndLine("4500104319", "52")
         Assert.assertEquals(null, result)
@@ -99,7 +100,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun findByAtcocodeAndLine_result_exist_test() {
+    fun findByAtcocodeAndLine_result_exist_test() = runBlocking {
         populatedDb()
         val result = db.favouriteLineDao().findByAtcocodeAndLine("450010439", "52")
         Assert.assertEquals(result.atcocode, "450010439")
@@ -107,7 +108,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteFavouriteLine_with_atcocode_and_lineName_test() {
+    fun deleteFavouriteLine_with_atcocode_and_lineName_test() = runBlocking {
         populatedDb()
         Assert.assertEquals(2, db.favouriteLineDao().getAll().size)
         db.favouriteLineDao().deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
@@ -116,7 +117,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteFavouriteLine_with_atcocode_and_lineName_not_exists_test() {
+    fun deleteFavouriteLine_with_atcocode_and_lineName_not_exists_test() = runBlocking {
         populatedDb()
         Assert.assertEquals(2, db.favouriteLineDao().getAll().size)
         db.favouriteLineDao().deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "52")
@@ -126,7 +127,7 @@ class CatchItDatabaseTest {
     //FavouriteStopDao test
     @Test
     @Throws(Exception::class)
-    fun writeFavouriteStopAndReadList() {
+    fun writeFavouriteStopAndReadList() = runBlocking {
         populatedDb()
         val result = db.favouriteStopDao().getAll()
         Assert.assertEquals(2, result.size)
@@ -134,7 +135,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeFavouriteStop_duplicateAtcocode_test() {
+    fun writeFavouriteStop_duplicateAtcocode_test() = runBlocking {
         populatedDb()
         val favouriteStop = FavouriteStop(
             createdAt = 1L,
@@ -148,7 +149,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun deleteFavouriteStop_test() {
+    fun deleteFavouriteStop_test() = runBlocking {
         populatedDb()
         val result = db.favouriteStopDao().getAll()
         db.favouriteStopDao().delete(result[0])
@@ -158,7 +159,7 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun findByAtcocode_no_result_test_test() {
+    fun findByAtcocode_no_result_test_test() = runBlocking {
         populatedDb()
         val result = db.favouriteStopDao().findByAtcocode("4500104319")
         Assert.assertEquals(0, result.size)
@@ -166,16 +167,16 @@ class CatchItDatabaseTest {
 
     @Test
     @Throws(Exception::class)
-    fun findByAtcocode_result_exist_test() {
+    fun findByAtcocode_result_exist_test() = runBlocking {
         populatedDb()
         val result = db.favouriteStopDao().findByAtcocode("450010439")
         Assert.assertEquals(1, result.size)
-        Assert.assertEquals("450010439",result[0].atcocode )
+        Assert.assertEquals("450010439", result[0].atcocode)
     }
 
     @Test
     @Throws(Exception::class)
-    fun deleteFavouriteStop_withAtcocode_test() {
+    fun deleteFavouriteStop_withAtcocode_test() = runBlocking {
         populatedDb()
         Assert.assertEquals(2, db.favouriteStopDao().getAll().size)
         db.favouriteStopDao().deleteByAtcocode(atcocode = "450012351")

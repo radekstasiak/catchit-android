@@ -10,7 +10,7 @@ import androidx.room.*
 @Dao
 interface FavouriteStopDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_STOP}")
-    fun getAll(): List<FavouriteStop>
+    suspend fun getAll(): List<FavouriteStop>
 
     @Query(
         """
@@ -19,13 +19,13 @@ interface FavouriteStopDao {
         LIMIT 1
     """
     )
-    fun findByAtcocode(atcocode: String): List<FavouriteStop>
+    suspend fun findByAtcocode(atcocode: String): List<FavouriteStop>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(vararg favouriteStop: FavouriteStop)
+    suspend fun insertAll(vararg favouriteStop: FavouriteStop)
 
     @Delete
-    fun delete(favouriteStop: FavouriteStop)
+    suspend fun delete(favouriteStop: FavouriteStop)
 
     @Query(
         """
@@ -34,7 +34,7 @@ interface FavouriteStopDao {
     """
     )
 
-    fun deleteByAtcocode(atcocode: String)
+    suspend fun deleteByAtcocode(atcocode: String)
 }
 
 @Dao
@@ -50,13 +50,13 @@ interface FavouriteLineDao {
         LIMIT 1
     """
     )
-    fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
+    suspend fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(vararg favouriteLines: FavouriteLine)
+    suspend fun insertAll(vararg favouriteLines: FavouriteLine)
 
     @Delete
-    fun delete(favouriteLine: FavouriteLine)
+    suspend fun delete(favouriteLine: FavouriteLine)
 
     @Query(
         """
@@ -65,7 +65,7 @@ interface FavouriteLineDao {
         AND ${DatabaseConstants.LINE_NAME} = :lineName
     """
     )
-    fun deleteByAtcocodeAndLineName(atcocode: String, lineName: String)
+    suspend fun deleteByAtcocodeAndLineName(atcocode: String, lineName: String)
 
 
 }

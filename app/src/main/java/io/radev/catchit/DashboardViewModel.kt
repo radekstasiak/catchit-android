@@ -5,12 +5,14 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteStop
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.DepartureDetails
 import io.radev.catchit.network.PostCodeMember
 import io.radev.catchit.network.toPlaceMemberModel
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 
@@ -50,16 +52,18 @@ class DashboardViewModel @ViewModelInject constructor(
                 val memberList = response.body()!!.memberList
                 val result = arrayListOf<PlaceMemberModel>()
                 for (member in memberList) {
-                    result.add(
-                        member.toPlaceMemberModel(
-                            favourite = dataRepository.findFavouriteLineByAtcocode(
-                                atcocode = member.atcocode
-                            ).isNotEmpty()
-                        )
-                    )
+                    viewModelScope.launch {
+                        val isFavourite = dataRepository.findFavouriteLineByAtcocode(
+                            atcocode = member.atcocode
+                        ).isNotEmpty()
+
+                        result.add(member.toPlaceMemberModel(favourite = isFavourite))
+                        placeMemberList.value = result
+                        //TODO move out network calls
+                    }
                 }
                 uiThread {
-                    placeMemberList.value = result
+//                    placeMemberList.value = result
                 }
             }
         }
@@ -89,11 +93,13 @@ class DashboardViewModel @ViewModelInject constructor(
                 modifiedAt = converter.getNowInMillis(),
                 atcocode = atcocode
             )
-            doAsync { dataRepository.addFavouriteStop(favouriteStop = entity) }
+            viewModelScope.launch { dataRepository.addFavouriteStop(favouriteStop = entity) }
 
         } else {
-            doAsync { dataRepository.removeFavouriteStopByAtcocode(atcocode = atcocode) }
+            viewModelScope.launch { dataRepository.removeFavouriteStopByAtcocode(atcocode = atcocode) }
         }
+
+
     }
 
 }
