@@ -26,8 +26,6 @@ class DashboardViewModelTest() {
 
     lateinit var viewModel: DashboardViewModel
 
-    @Mock
-    lateinit var apiService: ApiService
 
     @Mock
     lateinit var dataRepository: DataRepository
@@ -43,7 +41,6 @@ class DashboardViewModelTest() {
         MockitoAnnotations.initMocks(this)
         Dispatchers.setMain(mainThreadSurrogate)
         viewModel = DashboardViewModel(
-            apiService = apiService,
             dataRepository = dataRepository,
             converter = converter,
             savedStateHandle = savedStateHandle
