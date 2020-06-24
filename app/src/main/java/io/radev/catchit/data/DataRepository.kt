@@ -4,10 +4,7 @@ import androidx.lifecycle.LiveData
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
-import io.radev.catchit.network.ApiService
-import io.radev.catchit.network.DepartureResponse
-import io.radev.catchit.network.PlacesResponse
-import io.radev.catchit.network.PostCodeDetailsResponse
+import io.radev.catchit.network.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -17,9 +14,6 @@ import javax.inject.Inject
  * radev.io 2020.
  */
 
-// TODO
-// update error handling with
-// https://proandroiddev.com/create-retrofit-calladapter-for-coroutines-to-handle-response-as-states-c102440de37a
 class DataRepositoryImpl @Inject constructor(
     val db: CatchItDatabase,
     val apiService: ApiService
@@ -48,7 +42,7 @@ class DataRepositoryImpl @Inject constructor(
     override suspend fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop> =
         db.favouriteStopDao().findByAtcocode(atcocode = atcocode)
 
-    override suspend fun getPostCodeDetails(postCode: String): PostCodeDetailsResponse =
+    override suspend fun getPostCodeDetails(postCode: String): NetworkResponse<PostCodeDetailsResponse, ErrorResponse> =
         withContext(Dispatchers.IO) {
             val result = apiService.getPostCodeDetails(query = postCode)
             withContext(Dispatchers.Main) {
@@ -57,7 +51,7 @@ class DataRepositoryImpl @Inject constructor(
 
         }
 
-    override suspend fun getLiveTimetable(atcocode: String): DepartureResponse =
+    override suspend fun getLiveTimetable(atcocode: String): NetworkResponse<DepartureResponse, ErrorResponse> =
         withContext(Dispatchers.IO) {
             val result = apiService.getLiveTimetable(atcocode = atcocode)
             withContext(Dispatchers.Main) {
@@ -68,7 +62,7 @@ class DataRepositoryImpl @Inject constructor(
     override suspend fun getNearbyPlaces(
         longitude: Double,
         latitude: Double
-    ): PlacesResponse =
+    ): NetworkResponse<PlacesResponse, ErrorResponse> =
         withContext(Dispatchers.IO) {
             val result =
                 apiService.getNearbyPlaces(
@@ -98,9 +92,12 @@ interface DataRepository {
     suspend fun removeFavouriteStopByAtcocode(atcocode: String)
     suspend fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop>
 
-    suspend fun getPostCodeDetails(postCode: String): PostCodeDetailsResponse
-    suspend fun getLiveTimetable(atcocode: String): DepartureResponse
-    suspend fun getNearbyPlaces(longitude: Double, latitude: Double): PlacesResponse
+    suspend fun getPostCodeDetails(postCode: String): NetworkResponse<PostCodeDetailsResponse, ErrorResponse>
+    suspend fun getLiveTimetable(atcocode: String): NetworkResponse<DepartureResponse, ErrorResponse>
+    suspend fun getNearbyPlaces(
+        longitude: Double,
+        latitude: Double
+    ): NetworkResponse<PlacesResponse, ErrorResponse>
 
     fun getAllFavouriteStops(): LiveData<List<FavouriteStop>>
     fun getAllFavouriteLines(): LiveData<List<FavouriteLine>>

@@ -14,6 +14,7 @@ import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.DatabaseConstants
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
+import io.radev.catchit.network.errorhandling.NetworkResponseAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -46,8 +47,9 @@ object NetworkModule {
     @Provides
     fun provideApiService(okHttpClient: OkHttpClient): ApiService = Retrofit.Builder()
         .baseUrl(ApiConstants.API_BASE_URL)
-        .client(okHttpClient)
+        .addCallAdapterFactory(NetworkResponseAdapterFactory())
         .addConverterFactory(MoshiConverterFactory.create())
+        .client(okHttpClient)
         .build()
         .create(ApiService::class.java)
 }

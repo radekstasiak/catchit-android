@@ -120,12 +120,15 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getNearbyPlaces() {
         viewModelScope.launch {
-            val response = dataRepository.getNearbyPlaces(
+            when (val result = dataRepository.getNearbyPlaces(
                 longitude = postCodeMember.value!!.longitude,
                 latitude = postCodeMember.value!!.latitude
-            )
-            val result = arrayListOf<PlaceMemberModel>()
-            _placeMemberList.value = response.memberList
+            )) {
+                is NetworkResponse.Success -> _placeMemberList.value = result.body.memberList
+                is NetworkResponse.ApiError -> TODO()
+                is NetworkResponse.NetworkError -> TODO()
+                is NetworkResponse.UnknownError -> TODO()
+            }
         }
 
     }
@@ -133,19 +136,28 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getLiveTimetable() {
         viewModelScope.launch {
-            val response = dataRepository.getLiveTimetable(atcocode = atcocode.value!!)
+            when (val result = dataRepository.getLiveTimetable(atcocode = atcocode.value!!)) {
+                is NetworkResponse.Success -> {
+                    _departureDetails.value = result.body.departures?.getValue("all")
+                    _stopHeaderText.value = "${result.body.name} - ${result.body.atcocode}"
+                }
+                is NetworkResponse.ApiError -> TODO()
+                is NetworkResponse.NetworkError -> TODO()
+                is NetworkResponse.UnknownError -> TODO()
+            }
 
-            _departureDetails.value = response.departures?.getValue("all")
-
-            _stopHeaderText.value = "${response.name} - ${response.atcocode}"
         }
     }
 
 
     fun getPostCodeDetails(postCode: String) {
         viewModelScope.launch {
-            val result = dataRepository.getPostCodeDetails(postCode = postCode)
-            _postCodeMember.value = result.memberList[0]
+            when (val result = dataRepository.getPostCodeDetails(postCode = postCode)) {
+                is NetworkResponse.Success -> _postCodeMember.value = result.body.memberList[0]
+                is NetworkResponse.ApiError -> TODO()
+                is NetworkResponse.NetworkError -> TODO()
+                is NetworkResponse.UnknownError -> TODO()
+            }
         }
     }
 

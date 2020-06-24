@@ -24,7 +24,7 @@ interface ApiService {
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("query") query: String,
         @Query("type") type: String = "postcode"
-    ): PostCodeDetailsResponse
+    ): NetworkResponse<PostCodeDetailsResponse, ErrorResponse>
 
     @GET("/v3/uk/places.json")
     suspend fun getNearbyPlaces(
@@ -33,7 +33,7 @@ interface ApiService {
         @Query("lat") lat: Double = 53.8288722,
         @Query("lon") lon: Double = -1.5729408,
         @Query("type") type: String = "bus_stop"
-    ): PlacesResponse
+    ): NetworkResponse<PlacesResponse, ErrorResponse>
 
     @GET("/v3/uk/bus/stop/{atcocode}/live.json")
     suspend fun getLiveTimetable(
@@ -42,7 +42,7 @@ interface ApiService {
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("group") group: String = "no",
         @Query("nextbuses") nextbuses: String = "no"
-    ): DepartureResponse
+    ): NetworkResponse<DepartureResponse, ErrorResponse>
 
 
 }
@@ -77,6 +77,9 @@ data class PostCodeMember(
     @Json(name = "longitude") val longitude: Double,
     @Json(name = "accuracy") val accuracy: Int
 )
+
+//@JsonClass(generateAdapter = true)
+//object ErrorResponse
 
 // EXAMPLE DATA
 //"atcocode": "450010687",
@@ -209,6 +212,12 @@ data class PlaceMember(
     @Json(name = "distance") val distance: Int
 )
 
+@JsonClass(generateAdapter = true)
+data class ErrorResponse(
+    @Json(name = "error") val error: Int?,
+    @Json(name = "message") val message: String?
+)
+
 
 fun PlaceMember.toPlaceMemberModel(favourite: Boolean): PlaceMemberModel {
     return PlaceMemberModel(
@@ -226,3 +235,4 @@ object ApiConstants {
     const val API_APP_ID = "68755067"
     const val API_APP_KEY = "1f81945ff77187126de7f9f93c5fab44"
 }
+
