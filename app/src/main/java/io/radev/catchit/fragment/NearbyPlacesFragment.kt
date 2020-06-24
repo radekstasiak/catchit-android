@@ -130,7 +130,7 @@ class NearbyPlacesItemAdapter(
         vh.favIv.setOnClickListener {
             listener.updateFavouriteStop(atcocode = item.atcocode, favourite = !item.isFavourite)
             //todo needs to handle this in view model
-//            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
         }
     }
 

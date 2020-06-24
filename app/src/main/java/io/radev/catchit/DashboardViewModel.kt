@@ -125,47 +125,36 @@ class DashboardViewModel @ViewModelInject constructor(
                 latitude = postCodeMember.value!!.latitude
             )
             val result = arrayListOf<PlaceMemberModel>()
-            when (response.status) {
-                Status.SUCCESS -> {
-                    _placeMemberList.value = response.data!!.memberList
-                }
-            }
-
+            _placeMemberList.value = response.memberList
         }
+
     }
+
 
     fun getLiveTimetable() {
         viewModelScope.launch {
             val response = dataRepository.getLiveTimetable(atcocode = atcocode.value!!)
-            when (response.status) {
-                Status.SUCCESS -> {
-                    if (response.data!!.departures != null) {
-                        _departureDetails.value = response.data.departures?.getValue("all")
-                    }
-                    _stopHeaderText.value = "${response.data.name} - ${response.data.atcocode}"
-                }
-            }
 
+            _departureDetails.value = response.departures?.getValue("all")
+
+            _stopHeaderText.value = "${response.name} - ${response.atcocode}"
         }
     }
+
 
     fun getPostCodeDetails(postCode: String) {
         viewModelScope.launch {
             val result = dataRepository.getPostCodeDetails(postCode = postCode)
-            when (result.status) {
-                Status.SUCCESS -> {
-                    _postCodeMember.value = result.data!!.memberList[0]
-                }
-            }
+            _postCodeMember.value = result.memberList[0]
         }
     }
 
 
     //continue with
-    //https://google-developer-training.github.io/android-developer-advanced-course-practicals/unit-6-working-with-architecture-components/lesson-14-room,-livedata,-viewmodel/14-1-a-room-livedata-viewmodel/14-1-a-room-livedata-viewmodel.html
-    //https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
-    //https://medium.com/androiddevelopers/viewmodels-and-livedata-patterns-antipatterns-21efaef74a54
-    //https://medium.com/androiddevelopers/livedata-beyond-the-viewmodel-reactive-patterns-using-transformations-and-mediatorlivedata-fda520ba00b7
+//https://google-developer-training.github.io/android-developer-advanced-course-practicals/unit-6-working-with-architecture-components/lesson-14-room,-livedata,-viewmodel/14-1-a-room-livedata-viewmodel/14-1-a-room-livedata-viewmodel.html
+//https://medium.com/androiddevelopers/viewmodels-persistence-onsaveinstancestate-restoring-ui-state-and-loaders-fc7cc4a6c090
+//https://medium.com/androiddevelopers/viewmodels-and-livedata-patterns-antipatterns-21efaef74a54
+//https://medium.com/androiddevelopers/livedata-beyond-the-viewmodel-reactive-patterns-using-transformations-and-mediatorlivedata-fda520ba00b7
     fun updateFavouriteStop(atcocode: String, favourite: Boolean) {
         viewModelScope.launch {
             if (favourite) {
