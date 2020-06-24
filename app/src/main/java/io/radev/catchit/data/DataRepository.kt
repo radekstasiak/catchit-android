@@ -5,8 +5,6 @@ import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
 import io.radev.catchit.network.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /*
@@ -42,44 +40,29 @@ class DataRepositoryImpl @Inject constructor(
     override suspend fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop> =
         db.favouriteStopDao().findByAtcocode(atcocode = atcocode)
 
-    override suspend fun getPostCodeDetails(postCode: String): NetworkResponse<PostCodeDetailsResponse, ErrorResponse> =
-        withContext(Dispatchers.IO) {
-            val result = apiService.getPostCodeDetails(query = postCode)
-            withContext(Dispatchers.Main) {
-                result
-            }
-
-        }
-
-    override suspend fun getLiveTimetable(atcocode: String): NetworkResponse<DepartureResponse, ErrorResponse> =
-        withContext(Dispatchers.IO) {
-            val result = apiService.getLiveTimetable(atcocode = atcocode)
-            withContext(Dispatchers.Main) {
-                result
-            }
-        }
-
-    override suspend fun getNearbyPlaces(
-        longitude: Double,
-        latitude: Double
-    ): NetworkResponse<PlacesResponse, ErrorResponse> =
-        withContext(Dispatchers.IO) {
-            val result =
-                apiService.getNearbyPlaces(
-                    lon = longitude,
-                    lat = latitude
-                )
-
-            withContext(Dispatchers.Main) {
-                result
-            }
-        }
-
     override fun getAllFavouriteStops(): LiveData<List<FavouriteStop>> =
         db.favouriteStopDao().getAll()
 
     override fun getAllFavouriteLines(): LiveData<List<FavouriteLine>> =
         db.favouriteLineDao().getAll()
+
+    //Retrofit takes care of the main-safety - no need to switch between threads
+    //https://proandroiddev.com/do-i-need-to-call-suspend-functions-of-retrofit-and-room-on-a-background-thread-26650dac762d
+    override suspend fun getPostCodeDetails(postCode: String): NetworkResponse<PostCodeDetailsResponse, ErrorResponse> =
+        apiService.getPostCodeDetails(query = postCode)
+
+
+    override suspend fun getLiveTimetable(atcocode: String): NetworkResponse<DepartureResponse, ErrorResponse> =
+        apiService.getLiveTimetable(atcocode = atcocode)
+
+    override suspend fun getNearbyPlaces(
+        longitude: Double,
+        latitude: Double
+    ): NetworkResponse<PlacesResponse, ErrorResponse> = apiService.getNearbyPlaces(
+        lon = longitude,
+        lat = latitude
+    )
+
 
 }
 
