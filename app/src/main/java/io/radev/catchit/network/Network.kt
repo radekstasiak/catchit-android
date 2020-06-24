@@ -3,6 +3,7 @@ package io.radev.catchit.network
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.DepartureDetailsModel
 import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.SingleBusNotificationModel
 import retrofit2.http.GET
@@ -16,7 +17,7 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-
+    //TODO app id and api key add to the header interceptor
     @GET("/v3/uk/places.json")
     suspend fun getPostCodeDetails(
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
@@ -146,6 +147,18 @@ data class DepartureDetails(
     @Json(name = "operator_name") val operatorName: String?,
     @Json(name = "id") val id: String?
 )
+
+fun DepartureDetails.toDepartureDetailsModel(atcocode: String, favourite: Boolean) =
+    DepartureDetailsModel(
+        departureTime = this.expectedDepartureTime ?: this.aimedDepartureTime!!,
+        departureDate = this.expectedDepartureDate ?: this.date!!,
+        lineName = this.lineName ?: "",
+        direction = this.direction ?: "",
+        operator = this.operator ?: "",
+        mode = this.mode ?: "",
+        atcocode = atcocode,
+        isFavourite = favourite
+    )
 
 fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeConverter): SingleBusNotificationModel {
     val waitTime = dateTimeConverter.getWaitTime(

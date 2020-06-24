@@ -67,7 +67,7 @@ class NearbyPlacesFragment : Fragment(),
         if (swiperefresh != null) swiperefresh.isRefreshing = true
         model.getNearbyPlaces()
 
-        model.placeMemberList.observe(viewLifecycleOwner, Observer<List<PlaceMemberModel>> {
+        model.placeMemberModelList.observe(viewLifecycleOwner, Observer<List<PlaceMemberModel>> {
             if (swiperefresh != null) swiperefresh.isRefreshing = false
             itemAdapter.setData(it)
         })

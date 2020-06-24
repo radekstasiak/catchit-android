@@ -1,5 +1,6 @@
 package io.radev.catchit.data
 
+import androidx.lifecycle.LiveData
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
@@ -13,6 +14,9 @@ import javax.inject.Inject
  * radev.io 2020.
  */
 
+// TODO
+// update error handling with
+// https://proandroiddev.com/create-retrofit-calladapter-for-coroutines-to-handle-response-as-states-c102440de37a
 class DataRepositoryImpl @Inject constructor(
     val db: CatchItDatabase,
     val apiService: ApiService,
@@ -86,6 +90,13 @@ class DataRepositoryImpl @Inject constructor(
                 result
             }
         }
+
+    override fun getAllFavouriteStops(): LiveData<List<FavouriteStop>> =
+        db.favouriteStopDao().getAll()
+
+    override fun getAllFavouriteLines(): LiveData<List<FavouriteLine>> =
+        db.favouriteLineDao().getAll()
+
 }
 
 
@@ -101,5 +112,6 @@ interface DataRepository {
     suspend fun getLiveTimetable(atcocode: String): Resource<DepartureResponse>
     suspend fun getNearbyPlaces(longitude: Double, latitude: Double): Resource<PlacesResponse>
 
-
+    fun getAllFavouriteStops(): LiveData<List<FavouriteStop>>
+    fun getAllFavouriteLines(): LiveData<List<FavouriteLine>>
 }

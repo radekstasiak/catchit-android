@@ -1,5 +1,7 @@
 package io.radev.catchit.db
 
+import androidx.lifecycle.LiveData
+
 import androidx.room.*
 
 /*
@@ -10,8 +12,9 @@ import androidx.room.*
 @Dao
 interface FavouriteStopDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_STOP}")
-    suspend fun getAll(): List<FavouriteStop>
-
+    fun getAll(): LiveData<List<FavouriteStop>>
+    //https://stackoverflow.com/questions/44167111/android-room-simple-select-query-cannot-access-database-on-the-main-thread
+    //Asynchronous queries (queries that return LiveData or RxJava Flowable) are exempt from this rule since they asynchronously run the query on a background thread when needed
     @Query(
         """
         SELECT * FROM  ${DatabaseConstants.FAVOURITE_STOP} 
@@ -19,7 +22,10 @@ interface FavouriteStopDao {
         LIMIT 1
     """
     )
+    //room makes sure that suspend function executes off the main thread
+    //https://medium.com/androiddevelopers/room-coroutines-422b786dc4c5
     suspend fun findByAtcocode(atcocode: String): List<FavouriteStop>
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg favouriteStop: FavouriteStop)
@@ -35,12 +41,13 @@ interface FavouriteStopDao {
     )
 
     suspend fun deleteByAtcocode(atcocode: String)
+
 }
 
 @Dao
 interface FavouriteLineDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_LINE}")
-    fun getAll(): List<FavouriteLine>
+    fun getAll(): LiveData<List<FavouriteLine>>
 
     @Query(
         """

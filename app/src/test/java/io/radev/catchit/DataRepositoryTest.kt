@@ -17,6 +17,8 @@ import org.mockito.MockitoAnnotations
  * radev.io 2020.
  */
 
+//TODO update tests with
+// https://github.com/harmittaa/KoinExample/blob/testing/app/src/test/java/com/github/harmittaa/koinexample/model/WeatherRepositoryTest.kt
 class DataRepositoryTest {
     @Mock
     lateinit var db: CatchItDatabase
