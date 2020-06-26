@@ -8,6 +8,8 @@ import androidx.room.*
  * Created by radoslaw on 15/06/2020.
  * radev.io 2020.
  */
+//TODO read https://medium.com/swlh/kotlin-coroutines-review-53e951c4a0fa
+//TODO watch https://www.youtube.com/watch?v=lh2Vqt4DpHU or https://skillsmatter.com/skillscasts/12727-coroutines-by-example
 
 @Dao
 interface FavouriteStopDao {

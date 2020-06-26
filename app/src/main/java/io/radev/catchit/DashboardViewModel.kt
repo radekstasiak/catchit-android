@@ -21,7 +21,8 @@ class DashboardViewModel @ViewModelInject constructor(
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _postCodeMember = MutableLiveData<PostCodeMember>()
+    //todo update to private
+    val _postCodeMember = MutableLiveData<PostCodeMember>()
     val postCodeMember = Transformations.map(_postCodeMember) { postCodeMember ->
         postCodeMember
     }
@@ -121,8 +122,8 @@ class DashboardViewModel @ViewModelInject constructor(
     fun getNearbyPlaces() {
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
-                longitude = postCodeMember.value!!.longitude,
-                latitude = postCodeMember.value!!.latitude
+                longitude = _postCodeMember.value!!.longitude,
+                latitude = _postCodeMember.value!!.latitude
             )) {
                 is NetworkResponse.Success -> _placeMemberList.value = result.body.memberList
                 is NetworkResponse.ApiError -> TODO()
