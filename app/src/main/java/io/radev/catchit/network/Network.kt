@@ -3,8 +3,9 @@ package io.radev.catchit.network
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.DepartureDetailsModel
+import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.SingleBusNotificationModel
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -16,32 +17,33 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-
+    //TODO app id and api key add to the header interceptor
     @GET("/v3/uk/places.json")
-    fun getPostCodeDetails(
+    suspend fun getPostCodeDetails(
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("query") query: String,
         @Query("type") type: String = "postcode"
-    ): Call<PostCodeDetailsResponse>
+    ): NetworkResponse<PostCodeDetailsResponse, ErrorResponse>
 
     @GET("/v3/uk/places.json")
-    fun getNearbyPlaces(
+    suspend fun getNearbyPlaces(
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("lat") lat: Double = 53.8288722,
         @Query("lon") lon: Double = -1.5729408,
         @Query("type") type: String = "bus_stop"
-    ): Call<PlacesResponse>
+    ): NetworkResponse<PlacesResponse, ErrorResponse>
 
     @GET("/v3/uk/bus/stop/{atcocode}/live.json")
-    fun getLiveTimetable(
+    suspend fun getLiveTimetable(
         @Path("atcocode") atcocode: String,
         @Query("app_id") appId: String = ApiConstants.API_APP_ID,
         @Query("app_key") appKey: String = ApiConstants.API_APP_KEY,
         @Query("group") group: String = "no",
         @Query("nextbuses") nextbuses: String = "no"
-    ): Call<DepartureResponse>
+    ): NetworkResponse<DepartureResponse, ErrorResponse>
+
 
 }
 //{
@@ -75,6 +77,9 @@ data class PostCodeMember(
     @Json(name = "longitude") val longitude: Double,
     @Json(name = "accuracy") val accuracy: Int
 )
+
+//@JsonClass(generateAdapter = true)
+//object ErrorResponse
 
 // EXAMPLE DATA
 //"atcocode": "450010687",
@@ -146,6 +151,18 @@ data class DepartureDetails(
     @Json(name = "id") val id: String?
 )
 
+fun DepartureDetails.toDepartureDetailsModel(atcocode: String, favourite: Boolean) =
+    DepartureDetailsModel(
+        departureTime = this.expectedDepartureTime ?: this.aimedDepartureTime!!,
+        departureDate = this.expectedDepartureDate ?: this.date!!,
+        lineName = this.lineName ?: "",
+        direction = this.direction ?: "",
+        operator = this.operator ?: "",
+        mode = this.mode ?: "",
+        atcocode = atcocode,
+        isFavourite = favourite
+    )
+
 fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeConverter): SingleBusNotificationModel {
     val waitTime = dateTimeConverter.getWaitTime(
         startTime = dateTimeConverter.getNowInMillis(),
@@ -154,13 +171,12 @@ fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeCon
             time = this.expectedDepartureTime ?: this.aimedDepartureTime!!
         )
     )
-    return     SingleBusNotificationModel(
+    return SingleBusNotificationModel(
         line = this.line ?: "",
         direction = this.direction ?: "",
-        waitTime = if(waitTime > 0) "${waitTime}m" else "DUE"
+        waitTime = if (waitTime > 0) "${waitTime}m" else "DUE"
     )
 }
-
 
 
 @JsonClass(generateAdapter = true)
@@ -196,8 +212,27 @@ data class PlaceMember(
     @Json(name = "distance") val distance: Int
 )
 
+@JsonClass(generateAdapter = true)
+data class ErrorResponse(
+    @Json(name = "error") val error: Int?,
+    @Json(name = "message") val message: String?
+)
+
+
+fun PlaceMember.toPlaceMemberModel(favourite: Boolean): PlaceMemberModel {
+    return PlaceMemberModel(
+        name = this.name,
+        atcocode = this.atcocode,
+        description = this.description,
+        distance = this.distance.toString(),
+        isFavourite = favourite
+    )
+
+}
+
 object ApiConstants {
     const val API_BASE_URL = "https://transportapi.com/"
     const val API_APP_ID = "68755067"
     const val API_APP_KEY = "1f81945ff77187126de7f9f93c5fab44"
 }
+

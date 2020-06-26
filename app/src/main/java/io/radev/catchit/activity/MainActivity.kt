@@ -4,30 +4,41 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
-import io.radev.catchit.CatchItApp
+import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.NotificationController
-import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.R
-import io.radev.catchit.network.ApiService
+import io.radev.catchit.db.CatchItDatabase
+import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    val TAG = "main_activity"
 
-    @Inject lateinit var updateTimetableAlarmManager:UpdateTimetableAlarmManager
-    @Inject lateinit var notificationController: NotificationController
-//    @Inject lateinit var apiService: ApiService
+    @Inject
+    lateinit var updateTimetableAlarmManager: UpdateTimetableAlarmManager
+
+    @Inject
+    lateinit var notificationController: NotificationController
+
+    @Inject
+    lateinit var database: CatchItDatabase
+
+    private val model: DashboardViewModel by viewModels()
+
+    //    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         notificationController.createNotificationChannel(this)
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener {
             updateTimetableAlarmManager.cancelTimetableUpdates()
         }
     }
