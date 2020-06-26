@@ -1,17 +1,22 @@
 package io.radev.catchit.db
 
+import androidx.lifecycle.LiveData
+
 import androidx.room.*
 
 /*
  * Created by radoslaw on 15/06/2020.
  * radev.io 2020.
  */
+//TODO read https://medium.com/swlh/kotlin-coroutines-review-53e951c4a0fa
+//TODO watch https://www.youtube.com/watch?v=lh2Vqt4DpHU or https://skillsmatter.com/skillscasts/12727-coroutines-by-example
 
 @Dao
 interface FavouriteStopDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_STOP}")
-    fun getAll(): List<FavouriteStop>
-
+    fun getAll(): LiveData<List<FavouriteStop>>
+    //https://stackoverflow.com/questions/44167111/android-room-simple-select-query-cannot-access-database-on-the-main-thread
+    //Asynchronous queries (queries that return LiveData or RxJava Flowable) are exempt from this rule since they asynchronously run the query on a background thread when needed
     @Query(
         """
         SELECT * FROM  ${DatabaseConstants.FAVOURITE_STOP} 
@@ -19,13 +24,16 @@ interface FavouriteStopDao {
         LIMIT 1
     """
     )
-    fun findByAtcocode(atcocode: String): List<FavouriteStop>
+    //room makes sure that suspend function executes off the main thread
+    //https://medium.com/androiddevelopers/room-coroutines-422b786dc4c5
+    suspend fun findByAtcocode(atcocode: String): List<FavouriteStop>
+
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(vararg favouriteStop: FavouriteStop)
+    suspend fun insertAll(vararg favouriteStop: FavouriteStop)
 
     @Delete
-    fun delete(favouriteStop: FavouriteStop)
+    suspend fun delete(favouriteStop: FavouriteStop)
 
     @Query(
         """
@@ -34,13 +42,14 @@ interface FavouriteStopDao {
     """
     )
 
-    fun deleteByAtcocode(atcocode: String)
+    suspend fun deleteByAtcocode(atcocode: String)
+
 }
 
 @Dao
 interface FavouriteLineDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_LINE}")
-    fun getAll(): List<FavouriteLine>
+    fun getAll(): LiveData<List<FavouriteLine>>
 
     @Query(
         """
@@ -50,13 +59,13 @@ interface FavouriteLineDao {
         LIMIT 1
     """
     )
-    fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
+    suspend fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(vararg favouriteLines: FavouriteLine)
+    suspend fun insertAll(vararg favouriteLines: FavouriteLine)
 
     @Delete
-    fun delete(favouriteLine: FavouriteLine)
+    suspend fun delete(favouriteLine: FavouriteLine)
 
     @Query(
         """
@@ -65,7 +74,7 @@ interface FavouriteLineDao {
         AND ${DatabaseConstants.LINE_NAME} = :lineName
     """
     )
-    fun deleteByAtcocodeAndLineName(atcocode: String, lineName: String)
+    suspend fun deleteByAtcocodeAndLineName(atcocode: String, lineName: String)
 
 
 }

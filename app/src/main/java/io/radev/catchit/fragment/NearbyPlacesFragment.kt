@@ -67,7 +67,7 @@ class NearbyPlacesFragment : Fragment(),
         if (swiperefresh != null) swiperefresh.isRefreshing = true
         model.getNearbyPlaces()
 
-        model.placeMemberList.observe(viewLifecycleOwner, Observer<List<PlaceMemberModel>> {
+        model.placeMemberModelList.observe(viewLifecycleOwner, Observer<List<PlaceMemberModel>> {
             if (swiperefresh != null) swiperefresh.isRefreshing = false
             itemAdapter.setData(it)
         })
@@ -130,7 +130,7 @@ class NearbyPlacesItemAdapter(
         vh.favIv.setOnClickListener {
             listener.updateFavouriteStop(atcocode = item.atcocode, favourite = !item.isFavourite)
             //todo needs to handle this in view model
-            //updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
         }
     }
 

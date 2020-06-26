@@ -1,10 +1,23 @@
 package io.radev.catchit
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateHandle
 import io.radev.catchit.data.DataRepository
-import io.radev.catchit.network.ApiService
+import io.radev.catchit.network.DepartureResponse
+import io.radev.catchit.network.NetworkResponse
+import io.radev.catchit.network.PostCodeMember
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
@@ -15,11 +28,14 @@ import org.mockito.MockitoAnnotations
  */
 
 class DashboardViewModelTest() {
+    private val mainThreadSurrogate = TestCoroutineDispatcher()
 
     lateinit var viewModel: DashboardViewModel
 
-    @Mock
-    lateinit var apiService: ApiService
+    private lateinit var lifeCycleTestOwner: LifeCycleTestOwner
+
+    @get:Rule
+    var rule: TestRule = InstantTaskExecutorRule()
 
     @Mock
     lateinit var dataRepository: DataRepository
@@ -30,40 +46,122 @@ class DashboardViewModelTest() {
     @Mock
     lateinit var savedStateHandle: SavedStateHandle
 
+    @Mock
+    lateinit var placeMemberModelObserver: Observer<List<PlaceMemberModel>>
+
+    @Mock
+    lateinit var departureDetailsObserver: Observer<List<DepartureDetailsModel>>
+
+    @Mock
+    lateinit var postCodeMemberObserver: Observer<PostCodeMember>
+
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
+        Dispatchers.setMain(mainThreadSurrogate)
+
+        val favStopLiveData = TestHelper.favouriteStopLiveData
+        val favLineLiveData = TestHelper.favouriteLineLiveData
+
+        Mockito.`when`(dataRepository.getAllFavouriteStops()).thenReturn(favStopLiveData)
+        Mockito.`when`(dataRepository.getAllFavouriteLines()).thenReturn(favLineLiveData)
+
+        lifeCycleTestOwner = LifeCycleTestOwner()
+        lifeCycleTestOwner.onCreate()
+
         viewModel = DashboardViewModel(
-            apiService = apiService,
             dataRepository = dataRepository,
             converter = converter,
             savedStateHandle = savedStateHandle
         )
     }
 
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
+        mainThreadSurrogate.cleanupTestCoroutines()
+        lifeCycleTestOwner.onDestroy()
+    }
+
     @Test
-    fun updateFavouriteStop_adds_favourite_stop_test() {
+    fun getLiveTimetableTest_onSuccess() = runBlocking {
+        viewModel.departureDetailsModelList.observe(lifeCycleTestOwner, departureDetailsObserver)
+        lifeCycleTestOwner.onResume()
+        viewModel.atcocode.value = "450012351"
+
+        val result = NetworkResponse.Success<DepartureResponse>(body = TestHelper.departureResponse)
+
+        Mockito.`when`(dataRepository.getLiveTimetable(atcocode = "450012351"))
+            .thenReturn(result)
+        viewModel.getLiveTimetable()
+
+        Mockito.verify(departureDetailsObserver).onChanged(Mockito.any())
+
+    }
+
+    @Test
+    fun getPostCodeDetailsTest_onSuccess() = runBlocking {
+        val response = NetworkResponse.Success(TestHelper.postCodeDetailsResponse)
+        viewModel.postCodeMember.observe(lifeCycleTestOwner, postCodeMemberObserver)
+        lifeCycleTestOwner.onResume()
+        Mockito.`when`(dataRepository.getPostCodeDetails(postCode = "LS71HT")).thenReturn(response)
+        viewModel.getPostCodeDetails(postCode = "LS71HT")
+        Mockito.verify(postCodeMemberObserver).onChanged(response.body.memberList[0])
+    }
+
+    @Test
+    fun getNearbyPlacesTest_onSuccess() = runBlocking {
+        viewModel.placeMemberModelList.observe(lifeCycleTestOwner, placeMemberModelObserver)
+        lifeCycleTestOwner.onResume()
+        viewModel._postCodeMember.value = TestHelper.postCodeMember
+        val response = NetworkResponse.Success(TestHelper.placesResponse)
+        Mockito.`when`(
+            dataRepository.getNearbyPlaces(
+                longitude = viewModel._postCodeMember.value!!.longitude,
+                latitude = viewModel._postCodeMember.value!!.latitude
+            )
+        ).thenReturn(response)
+        viewModel.getNearbyPlaces()
+        Mockito.verify(placeMemberModelObserver).onChanged(Mockito.any())
+    }
+
+    @Test
+    fun updateFavouriteStop_adds_favourite_stop_test() = runBlocking {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
         viewModel.updateFavouriteStop(favourite = true, atcocode = "450012351")
-        Mockito.verify(dataRepository).addFavouriteStop(TestUtils.any())
+        Mockito.verify(dataRepository).addFavouriteStop(TestHelper.any())
+    }
+
+
+    @Test
+    fun updateFavouriteStop_removes_favourite_stop_test() {
+        Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
+        viewModel.updateFavouriteStop(favourite = false, atcocode = "450012351")
+        runBlocking {
+            launch {
+                Mockito.verify(dataRepository).removeFavouriteStopByAtcocode(atcocode = "450012351")
+            }
+        }
     }
 
     @Test
-    fun updateFavouriteStop_removes_favourite_stop_test(){
+    fun updateFavouriteStop_adds_favourite_line_test() = runBlocking {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
-        viewModel.updateFavouriteStop(favourite = false, atcocode = "450012351")
-        Mockito.verify(dataRepository).removeFavouriteStopByAtcocode(atcocode = "450012351")
+        viewModel.updateFavouriteLine(favourite = true, atcocode = "450012351", lineName = "51")
+        Mockito.verify(dataRepository).addFavouriteLine(TestHelper.any())
     }
 
-}
-
-class TestUtils {
-    companion object {
-        fun <T> any(): T {
-            Mockito.any<T>()
-            return uninitialized()
+    @Test
+    fun updateFavouriteLine_removes_favourite_stop_test() {
+        Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
+        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351",lineName = "51")
+        runBlocking {
+            launch {
+                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+            }
         }
-
-        private fun <T> uninitialized(): T = null as T
     }
+
 }
+
+

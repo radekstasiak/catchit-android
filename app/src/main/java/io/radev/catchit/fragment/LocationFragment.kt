@@ -8,21 +8,24 @@ import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.R
 import io.radev.catchit.network.ApiService
+import io.radev.catchit.network.PostCodeMember
 import kotlinx.android.synthetic.main.fragment_location.*
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class LocationFragment : Fragment() {
 
-    @Inject lateinit var apiService: ApiService
+    @Inject
+    lateinit var apiService: ApiService
     private val model: DashboardViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,26 +41,17 @@ class LocationFragment : Fragment() {
         et_post_code.setOnEditorActionListener { textView, actionId, keyEvent ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
 //                navigateToNearbyPlaces(postCode = textView.text.toString())
-                getPostCodeDetails(postCode = textView.text.toString())
+                model.getPostCodeDetails(postCode = textView.text.toString())
                 true
             }
             false
         }
 
+        model.postCodeMember.observe(viewLifecycleOwner, Observer<PostCodeMember> {
+            navigateToNearbyPlaces()
+        })
+
     }
-
-    private fun getPostCodeDetails(postCode: String) {
-        val request = apiService.getPostCodeDetails(query = postCode)
-        doAsync {
-            val response = request.execute()
-            uiThread {
-                model.selectPostCodeMember(response.body()!!.memberList[0])
-                navigateToNearbyPlaces()
-            }
-
-        }
-    }
-
 
     private fun navigateToNearbyPlaces() {
         val action =
