@@ -1,13 +1,17 @@
 package io.radev.catchit
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.*
 import io.radev.catchit.network.ApiService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.*
+import org.junit.rules.TestRule
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
@@ -17,9 +21,8 @@ import org.mockito.MockitoAnnotations
  * radev.io 2020.
  */
 
-//TODO update tests with
-// https://github.com/harmittaa/KoinExample/blob/testing/app/src/test/java/com/github/harmittaa/koinexample/model/WeatherRepositoryTest.kt
 class DataRepositoryTest {
+
     @Mock
     lateinit var db: CatchItDatabase
 
@@ -42,6 +45,8 @@ class DataRepositoryTest {
         Mockito.`when`(db.favouriteStopDao()).thenReturn(favouriteStopDao)
     }
 
+
+
     @Test
     fun removeFavouriteStop_by_atcocode_test() = runBlocking {
         repository.removeFavouriteStopByAtcocode(atcocode = "450012351")
@@ -57,6 +62,18 @@ class DataRepositoryTest {
         )
         repository.addFavouriteStop(favouriteStop = entity)
         Mockito.verify(favouriteStopDao).insertAll(entity)
+    }
+
+    @Test
+    fun addFavouriteLine_test() = runBlocking {
+        val entity = FavouriteLine(
+            createdAt = 1L,
+            modifiedAt = 1L,
+            atcocode = "450012351",
+            lineName = "51"
+        )
+        repository.addFavouriteLine(favouriteLine = entity)
+        Mockito.verify(favouriteLineDao).insertAll(entity)
     }
 
     @Test
@@ -83,22 +100,48 @@ class DataRepositoryTest {
     }
 
     @Test
-    fun addFavouriteLine_test() = runBlocking {
-        val entity = FavouriteLine(
-            createdAt = 1L,
-            modifiedAt = 1L,
-            atcocode = "450012351",
-            lineName = "51"
-        )
-        repository.addFavouriteLine(favouriteLine = entity)
-        Mockito.verify(favouriteLineDao).insertAll(entity)
-    }
-
-    @Test
     fun removeFavouriteLine_by_atcocode_and_lineName_test() = runBlocking {
         repository.removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
         Mockito.verify(favouriteLineDao)
             .deleteByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+    }
+
+    @Test
+    fun getAllFavouriteStops_test() {
+        repository.getAllFavouriteStops()
+        Mockito.verify(favouriteStopDao).getAll()
+    }
+
+    @Test
+    fun getAllFavouriteLines_test() {
+        repository.getAllFavouriteLines()
+        Mockito.verify(favouriteLineDao).getAll()
+    }
+
+    @Test
+    fun getPostCodeDetails_test() {
+        runBlocking {
+            repository.getPostCodeDetails(postCode = "LS71HT")
+            Mockito.verify(apiService).getPostCodeDetails(query = "LS71HT")
+        }
+
+    }
+
+    @Test
+    fun getLiveTimetable_test() {
+        runBlocking {
+            repository.getLiveTimetable(atcocode = "450012351")
+            Mockito.verify(apiService).getLiveTimetable(atcocode = "450012351")
+        }
+
+    }
+
+    @Test
+    fun getNearbyPlaces_test() {
+        runBlocking {
+            repository.getNearbyPlaces(latitude = 53.8288722, longitude = -1.5729408)
+            Mockito.verify(apiService).getNearbyPlaces(lat = 53.8288722, lon = -1.5729408)
+        }
     }
 
 

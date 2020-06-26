@@ -69,11 +69,11 @@ class DataRepositoryImpl @Inject constructor(
 
 interface DataRepository {
     suspend fun addFavouriteLine(favouriteLine: FavouriteLine)
+    suspend fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop>
     suspend fun removeFavouriteLineByAtcocodeAndLineName(atcocode: String, lineName: String)
 
     suspend fun addFavouriteStop(favouriteStop: FavouriteStop)
     suspend fun removeFavouriteStopByAtcocode(atcocode: String)
-    suspend fun findFavouriteLineByAtcocode(atcocode: String): List<FavouriteStop>
 
     suspend fun getPostCodeDetails(postCode: String): NetworkResponse<PostCodeDetailsResponse, ErrorResponse>
     suspend fun getLiveTimetable(atcocode: String): NetworkResponse<DepartureResponse, ErrorResponse>
