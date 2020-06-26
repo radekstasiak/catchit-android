@@ -1,4 +1,4 @@
-package io.radev.catchit.updateTimetableAlarm
+package io.radev.catchit.alarm
 
 import android.app.AlarmManager
 import android.app.PendingIntent

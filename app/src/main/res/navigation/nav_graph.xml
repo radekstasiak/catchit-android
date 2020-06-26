@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/locationFragment">
+    app:startDestination="@id/favouriteListFragment">
 
     <fragment
         android:id="@+id/NearbyPlacesFragment"
@@ -37,4 +37,9 @@
             android:id="@+id/action_locationFragment_to_NearbyPlacesFragment"
             app:destination="@id/NearbyPlacesFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/favouriteListFragment"
+        android:name="io.radev.catchit.fragment.FavouriteListFragment"
+        android:label="fragment_favourite_list"
+        tools:layout="@layout/fragment_favourite_list" />
 </navigation>

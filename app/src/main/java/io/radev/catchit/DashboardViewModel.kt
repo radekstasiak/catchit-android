@@ -28,6 +28,10 @@ class DashboardViewModel @ViewModelInject constructor(
     }
 
     private val _favouriteStopList = dataRepository.getAllFavouriteStops()
+
+    val favouriteStopList = Transformations.map(_favouriteStopList) {favouriteStopList->
+        favouriteStopList
+    }
     private val _placeMemberList = MutableLiveData<List<PlaceMember>>()
     val placeMemberModelList = MediatorLiveData<List<PlaceMemberModel>>()
 
