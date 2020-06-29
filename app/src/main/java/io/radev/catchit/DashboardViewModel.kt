@@ -35,7 +35,7 @@ class DashboardViewModel @ViewModelInject constructor(
         favouriteStopList
     }
     private val _placeMemberList = MutableLiveData<List<PlaceMember>>()
-    val placeMemberModelList = MediatorLiveData<List<PlaceMemberModel>>()
+    val placeMemberModelList = MediatorLiveData<DepartureMapModel>()
 
     private val _favouriteLineList = dataRepository.getAllFavouriteLines()
     private val _departureDetails = MutableLiveData<List<DepartureDetails>>()
@@ -109,7 +109,7 @@ class DashboardViewModel @ViewModelInject constructor(
     private fun combineFavouriteStopData(
         dbFavouriteStopResult: LiveData<List<FavouriteStop>>,
         apiPlaceMemberResult: LiveData<List<PlaceMember>>
-    ): List<PlaceMemberModel> {
+    ): DepartureMapModel {
         val result = arrayListOf<PlaceMemberModel>()
         if (apiPlaceMemberResult.value != null) {
             val dbFavouriteStopList =
@@ -120,7 +120,7 @@ class DashboardViewModel @ViewModelInject constructor(
             }
         }
 
-        return result
+        return result.toDeparturesMap(LatLng(_postCodeMember.value!!.latitude,_postCodeMember.value!!.longitude))
     }
 
     fun selectAtcocode(value: String) {

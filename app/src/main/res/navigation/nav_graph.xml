@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_ConnectionsListFragment_to_NearbyPlacesFragment"
             app:destination="@id/NearbyPlacesFragment" />
+        <action
+            android:id="@+id/action_ConnectionsListFragment_to_departuresMap"
+            app:destination="@id/departuresMap" />
     </fragment>
     <fragment
         android:id="@+id/locationFragment"
@@ -50,5 +53,8 @@
         <action
             android:id="@+id/action_departuresMap_to_locationFragment"
             app:destination="@id/locationFragment" />
+        <action
+            android:id="@+id/action_departuresMap_to_ConnectionsListFragment"
+            app:destination="@id/ConnectionsListFragment" />
     </fragment>
 </navigation>

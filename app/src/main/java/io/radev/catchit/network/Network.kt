@@ -234,8 +234,8 @@ fun List<PlaceMemberModel>.toDeparturesMap(userLatLng: LatLng): DepartureMapMode
     val latList = this.map { it.latitude }
     val lngList = this.map { it.longitude }
 
-    val latLngMax = LatLng(latList.max()!!, lngList.max()!!)
-    val latLngMin = LatLng(latList.min()!!, lngList.min()!!)
+    val latLngMax = LatLng(latList.min()?:userLatLng.latitude, lngList.min()?:userLatLng.longitude)
+    val latLngMin = LatLng(latList.max()?:userLatLng.latitude, lngList.max()?:userLatLng.longitude)
 
     return DepartureMapModel(
         departuresList = this,
