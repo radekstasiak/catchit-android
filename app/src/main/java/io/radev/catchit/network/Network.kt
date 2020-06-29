@@ -1,11 +1,10 @@
 package io.radev.catchit.network
 
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import io.radev.catchit.DateTimeConverter
-import io.radev.catchit.DepartureDetailsModel
-import io.radev.catchit.PlaceMemberModel
-import io.radev.catchit.SingleBusNotificationModel
+import io.radev.catchit.*
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -225,7 +224,23 @@ fun PlaceMember.toPlaceMemberModel(favourite: Boolean): PlaceMemberModel {
         atcocode = this.atcocode,
         description = this.description,
         distance = this.distance.toString(),
-        isFavourite = favourite
+        isFavourite = favourite,
+        longitude = this.longitude,
+        latitude = this.latitude
+    )
+}
+
+fun List<PlaceMemberModel>.toDeparturesMap(userLatLng: LatLng): DepartureMapModel {
+    val latList = this.map { it.latitude }
+    val lngList = this.map { it.longitude }
+
+    val latLngMax = LatLng(latList.max()!!, lngList.max()!!)
+    val latLngMin = LatLng(latList.min()!!, lngList.min()!!)
+
+    return DepartureMapModel(
+        departuresList = this,
+        userLatLng = userLatLng, //select the one with highest accuracy
+        latLngBounds = LatLngBounds(latLngMax, latLngMin)
     )
 
 }

@@ -3,6 +3,8 @@ package io.radev.catchit
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
@@ -99,6 +101,8 @@ class DashboardViewModel @ViewModelInject constructor(
                 )
             }
         }
+
+
         return result
     }
 
@@ -207,11 +211,20 @@ class DashboardViewModel @ViewModelInject constructor(
 
 }
 
+data class DepartureMapModel(
+    val departuresList: List<PlaceMemberModel>,
+    val userLatLng: LatLng,
+    val latLngBounds: LatLngBounds
+)
+
+
 data class PlaceMemberModel(
     val name: String,
     val description: String,
     val atcocode: String,
     val distance: String,
+    val longitude: Double,
+    val latitude: Double,
     val isFavourite: Boolean
 )
 
