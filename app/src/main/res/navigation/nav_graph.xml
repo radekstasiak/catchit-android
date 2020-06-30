@@ -27,9 +27,6 @@
         <action
             android:id="@+id/action_ConnectionsListFragment_to_NearbyPlacesFragment"
             app:destination="@id/NearbyPlacesFragment" />
-        <action
-            android:id="@+id/action_ConnectionsListFragment_to_departuresMap"
-            app:destination="@id/departuresMap" />
     </fragment>
     <fragment
         android:id="@+id/locationFragment"
@@ -54,7 +51,12 @@
             android:id="@+id/action_departuresMap_to_locationFragment"
             app:destination="@id/locationFragment" />
         <action
-            android:id="@+id/action_departuresMap_to_ConnectionsListFragment"
-            app:destination="@id/ConnectionsListFragment" />
+            android:id="@+id/action_departuresMap_to_departureListDialogFragment"
+            app:destination="@id/departureListDialogFragment" />
     </fragment>
+    <dialog
+        android:id="@+id/departureListDialogFragment"
+        android:name="io.radev.catchit.DepartureListDialogFragment"
+        android:label="fragment_item_list_dialog_list_dialog"
+        tools:layout="@layout/fragment_item_list_dialog_list_dialog" />
 </navigation>

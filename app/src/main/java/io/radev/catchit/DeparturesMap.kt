@@ -80,7 +80,7 @@ class DeparturesMap : Fragment() {
     }
 
     fun onPlaceSelected(atcocode: String) {
-        val action = DeparturesMapDirections.actionDeparturesMapToConnectionsListFragment()
+        val action = DeparturesMapDirections.actionDeparturesMapToDepartureListDialogFragment()
         model.selectAtcocode(atcocode)
         findNavController().navigate(action)
     }
