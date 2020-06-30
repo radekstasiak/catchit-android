@@ -9,16 +9,15 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 
 
-class DeparturesMap : Fragment() {
+class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
     private val model: DashboardViewModel by activityViewModels()
-
+    val markerList = arrayListOf<Marker>()
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -35,15 +34,31 @@ class DeparturesMap : Fragment() {
                 viewLifecycleOwner,
                 Observer<DepartureMapModel> {
                     val departuresList = it.departuresList
-                    departuresList.forEach { marker ->
-                        val position = LatLng(marker.latitude, marker.longitude)
-                        val marker = MarkerOptions().position(position).title(marker.atcocode)
-                            .snippet("Click to see departing buses")
-                        googleMap.addMarker(
-                            marker
+                    markerList.forEach { existingMarker -> existingMarker.remove() }
+                    markerList.clear()
+                    departuresList.forEach { departure ->
+                        val position = LatLng(departure.latitude, departure.longitude)
+                        val marker = googleMap.addMarker(
+                            MarkerOptions().position(position).title(departure.atcocode)
+                                .snippet("Click to see departing buses")
                         )
+                        marker.tag = "departure"
+
+                        markerList.add(marker)
 
                     }
+
+                    val userLocationMarker = googleMap.addMarker(
+                        MarkerOptions().position(it.userLatLng).title("You")
+                            .icon(
+                                BitmapDescriptorFactory
+                                    .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
+                            ).draggable(true)
+                    )
+
+                    markerList.add(userLocationMarker)
+
+                    userLocationMarker.tag = "user"
 //                    if(departuresList.isNotEmpty()){
 
 //                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(nearestPosition))
@@ -60,9 +75,12 @@ class DeparturesMap : Fragment() {
                     )
 
                     googleMap.setOnInfoWindowClickListener { marker ->
-                        if (marker != null) onPlaceSelected(marker.title)
-
+                        if (marker != null && (marker.tag as String) == "departure") onPlaceSelected(
+                            marker.title
+                        )
                     }
+
+                    googleMap.setOnMarkerDragListener(this)
 
 //                    googleMap.setLatLngBoundsForCameraTarget(it.latLngBounds)
 //                    val uiSettings = googleMap.uiSettings
@@ -98,6 +116,21 @@ class DeparturesMap : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
         model.getNearbyPlaces()
+    }
+
+    override fun onMarkerDragEnd(marker: Marker?) {
+        if (marker != null && marker.tag == "user") model.getNearbyPlaces(
+            longitude = marker.position.longitude,
+            latitude = marker.position.latitude
+        )
+    }
+
+    override fun onMarkerDragStart(p0: Marker?) {
+
+    }
+
+    override fun onMarkerDrag(p0: Marker?) {
+
     }
 
 

@@ -31,7 +31,7 @@ class DashboardViewModel @ViewModelInject constructor(
 
     private val _favouriteStopList = dataRepository.getAllFavouriteStops()
 
-    val favouriteStopList = Transformations.map(_favouriteStopList) {favouriteStopList->
+    val favouriteStopList = Transformations.map(_favouriteStopList) { favouriteStopList ->
         favouriteStopList
     }
     private val _placeMemberList = MutableLiveData<List<PlaceMember>>()
@@ -120,18 +120,28 @@ class DashboardViewModel @ViewModelInject constructor(
             }
         }
 
-        return result.toDeparturesMap(LatLng(_postCodeMember.value!!.latitude,_postCodeMember.value!!.longitude))
+        return result.toDeparturesMap(
+            LatLng(
+                _postCodeMember.value!!.latitude,
+                _postCodeMember.value!!.longitude
+            )
+        )
     }
 
     fun selectAtcocode(value: String) {
         this.atcocode.value = value
     }
 
-    fun getNearbyPlaces() {
+    fun getNearbyPlaces(longitude: Double? = null, latitude: Double? = null) {
+        if (longitude != null && latitude != null) {
+            val updatedPostCodemember =
+                _postCodeMember.value!!.copy(longitude = longitude, latitude = latitude)
+            _postCodeMember.value = updatedPostCodemember
+        }
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
-                longitude = _postCodeMember.value!!.longitude,
-                latitude = _postCodeMember.value!!.latitude
+                longitude = longitude ?: _postCodeMember.value!!.longitude,
+                latitude = latitude ?: _postCodeMember.value!!.latitude
             )) {
                 is NetworkResponse.Success -> _placeMemberList.value = result.body.memberList
                 is NetworkResponse.ApiError -> TODO()
