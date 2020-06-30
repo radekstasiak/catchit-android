@@ -195,7 +195,7 @@ fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeCon
     return SingleBusNotificationModel(
         line = this.line ?: "",
         direction = this.direction ?: "",
-        waitTime = if (waitTime > 0) "${waitTime}m" else "DUE"
+        waitTime = waitTime
     )
 }
 

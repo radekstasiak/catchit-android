@@ -45,6 +45,6 @@ class DateTimeConverterTest {
     fun getWaitingTimeTest(){
         val expectedTime = 1592052900000
         val result = converter.getWaitTime(startTime = nowInMillis, endTime = expectedTime)
-        Assert.assertEquals(4,result)
+        Assert.assertEquals("4m",result)
     }
 }

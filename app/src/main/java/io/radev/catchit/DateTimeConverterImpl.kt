@@ -43,16 +43,17 @@ class DateTimeConverterImpl @Inject constructor() : DateTimeConverter {
         ).toInstant().toEpochMilli()
     }
 
-    override fun getWaitTime(startTime: Long, endTime: Long): Long {
+    override fun getWaitTime(startTime: Long, endTime: Long): String {
         val nowZonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTime), getZoneId())
         val expectedZoneDateTime =
             ZonedDateTime.ofInstant(Instant.ofEpochMilli(endTime), getZoneId())
-        return Duration.between(nowZonedDateTime, expectedZoneDateTime).toMinutes()
+        val diff = Duration.between(nowZonedDateTime, expectedZoneDateTime).toMinutes()
+        return if (diff > 0) "${diff}m" else "DUE"
     }
 }
 
 interface DateTimeConverter {
-    fun getWaitTime(startTime: Long, endTime: Long): Long
+    fun getWaitTime(startTime: Long, endTime: Long): String
     fun convertDateAndTimeToMillis(date: String, time: String): Long
     fun convertStringToMillis(value: String): Long
     fun getZonedDateTimeNow(): ZonedDateTime
