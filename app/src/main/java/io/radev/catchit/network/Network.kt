@@ -131,7 +131,7 @@ data class DepartureDetails(
     @Json(name = "id") val id: String?
 )
 
-fun DepartureResponse.toDomainModel(dateTimeConverter: DateTimeConverterImpl): DepartureDomainModel =
+fun DepartureResponse.toDomainModel(dateTimeConverter: DateTimeConverter): DepartureDomainModel =
     DepartureDomainModel(
         atcocode = this.atcocode ?: "",
         smsCode = this.smsCode ?: "",
@@ -152,7 +152,7 @@ fun DepartureResponse.toDomainModel(dateTimeConverter: DateTimeConverterImpl): D
             ?: listOf()).toDepartureDetailsDomainModelList(dateTimeConverter = dateTimeConverter) else listOf()
     )
 
-fun List<DepartureDetails>.toDepartureDetailsDomainModelList(dateTimeConverter: DateTimeConverterImpl): List<DepartureDetailsDomainModel> =
+fun List<DepartureDetails>.toDepartureDetailsDomainModelList(dateTimeConverter: DateTimeConverter): List<DepartureDetailsDomainModel> =
     this.map {
         DepartureDetailsDomainModel(
             mode = it.mode ?: "",

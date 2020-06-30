@@ -28,6 +28,13 @@ class DateTimeConverterImpl @Inject constructor() : DateTimeConverter {
     override fun convertStringToMillis(value: String): Long =
         ZonedDateTime.parse(value).toInstant().toEpochMilli()
 
+    override fun convertMillisToHumanFormat(timestamp: Long): String {
+        val date = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), getZoneId())
+
+        return String.format("%s:%s", date.hour, date.minute)
+
+    }
+
     override fun convertDateAndTimeToMillis(date: String, time: String): Long {
         val dateArray = date.split("-").map { it.toInt() }
         val timeArray = time.split(":").map { it.toInt() }
@@ -56,6 +63,7 @@ interface DateTimeConverter {
     fun getWaitTime(startTime: Long, endTime: Long): String
     fun convertDateAndTimeToMillis(date: String, time: String): Long
     fun convertStringToMillis(value: String): Long
+    fun convertMillisToHumanFormat(value: Long): String
     fun getZonedDateTimeNow(): ZonedDateTime
     fun getNowInMillis(): Long
     fun getZoneId(): ZoneId

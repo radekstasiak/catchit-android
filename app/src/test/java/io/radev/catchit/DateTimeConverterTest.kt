@@ -47,4 +47,11 @@ class DateTimeConverterTest {
         val result = converter.getWaitTime(startTime = nowInMillis, endTime = expectedTime)
         Assert.assertEquals("4m",result)
     }
+
+    @Test
+    fun convertMillisToHumanFormatTest(){
+        val timestamp = 1593518220000
+        val result = converter.convertMillisToHumanFormat(1593518220000)
+        Assert.assertEquals("12:57",result)
+    }
 }

@@ -1,6 +1,7 @@
 package io.radev.catchit.domain
 
 import io.radev.catchit.DepartureDetailsModel
+import io.radev.catchit.DepartureDetailsUiModel
 import io.radev.catchit.network.DepartureDetails
 import io.radev.catchit.network.DepartureResponse
 
@@ -23,13 +24,4 @@ class GetDeparturesInteractor: GetDeparturesUseCase {
     }
 }
 
-interface UniqueDepartureListMaper{
-    fun mapDepartureResponseToDepartureList(departureDetailsList: List<DepartureDetails>): List<DepartureDetails>
-}
-class UniqueDepartureListMapperImpl: UniqueDepartureListMaper {
-    override fun mapDepartureResponseToDepartureList(departureDetailsList: List<DepartureDetails>): List<DepartureDetails> {
-        return departureDetailsList.distinctBy { Pair(it.lineName,it.direction) }
-
-    }
-}
 

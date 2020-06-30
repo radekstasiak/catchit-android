@@ -1,5 +1,8 @@
 package io.radev.catchit.domain
 
+import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.DepartureDetailsUiModel
+
 /*
  * Created by radoslaw on 30/06/2020.
  * radev.io 2020.
@@ -32,6 +35,30 @@ data class DepartureDetailsDomainModel(
     val operatorName: String,
     val id: String
 )
+
+fun List<DepartureDetailsDomainModel>.toDepartureDetailsUiModel(
+    atcocode: String,
+    dateTimeConverter: DateTimeConverter
+): List<DepartureDetailsUiModel> =
+    this.sortedBy { it.bestDepartureEstimate }
+        .distinctBy { Pair(it.lineName, it.direction) }
+        .map {
+            DepartureDetailsUiModel(
+                timestamp = it.bestDepartureEstimate,
+                nextDeparture = dateTimeConverter.convertMillisToHumanFormat(it.bestDepartureEstimate),
+                waitTime = dateTimeConverter.getWaitTime(
+                    dateTimeConverter.getNowInMillis(),
+                    it.bestDepartureEstimate
+                ),
+                lineName = it.lineName,
+                operatorName = it.operatorName,
+                direction = it.direction,
+                atcocode = atcocode,
+                isFavourite = false
+            )
+        }
+
+
 
 
 

@@ -7,8 +7,11 @@ import androidx.lifecycle.liveData
 import com.squareup.moshi.Moshi
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
+import io.radev.catchit.domain.DepartureDomainModel
 import io.radev.catchit.network.*
 import org.mockito.Mockito
+import org.threeten.bp.ZoneId
+import org.threeten.bp.ZonedDateTime
 
 /*
  * Created by radoslaw on 26/06/2020.
@@ -16,8 +19,8 @@ import org.mockito.Mockito
  */
 
 open class TestHelper {
-    private val moshi = Moshi.Builder().build();
-
+    private val moshi = Moshi.Builder().build()
+    private val dateTimeConverter = DateTimeConverterTestImpl()
     companion object {
         fun <T> any(): T {
             Mockito.any<T>()
@@ -28,6 +31,7 @@ open class TestHelper {
 
         val favouriteStopLiveData = liveData<List<FavouriteStop>> { }
         val favouriteLineLiveData = liveData<List<FavouriteLine>> { }
+        //todo move outside like DeparturesResponse
         val postCodeMember = PostCodeMember(
             type = "postcode",
             name = "LS6 4RQ",
@@ -79,7 +83,23 @@ open class TestHelper {
         "coordinates": [-1.50967, 53.80841]
     },
         "departures": {
-        "all": [{
+        "all": [
+    {
+        "mode": "bus",
+        "line": "42",
+        "line_name": "42",
+        "direction": "Farnley, Leeds",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:14",
+        "expected_departure_date": null,
+        "eted_departure_time": null,
+        "best_departure_estimate": "13:14",
+        "dir": "inbound ",
+        "id ": "https: //transportapi.com/v3/uk/bus/route/FLDS/42/inbound/450013965/2020-06-30/13:14/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
         "mode": "bus",
         "line": "42",
         "line_name": "42",
@@ -96,18 +116,18 @@ open class TestHelper {
         "source": "tnds timetable (nextbuses disabled)"
     }, {
         "mode": "bus",
-        "line": "4",
-        "line_name": "4",
+        "line": "16",
+        "line_name": "16",
         "direction": "Pudsey",
         "operator": "FLDS",
         "operator_name": "First Leeds",
         "date": "2020-06-30",
-        "aimed_departure_time": "12:54",
+        "aimed_departure_time": "13:21",
         "expected_departure_date": null,
         "expected_departure_time": null,
-        "best_departure_estimate": "12:54",
+        "best_departure_estimate": "13:21",
         "dir": "outbound",
-        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/4/outbound/450013965/2020-06-30/12:54/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/16/outbound/450013965/2020-06-30/13:21/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
         "source": "tnds timetable (nextbuses disabled)"
     }, {
         "mode": "bus",
@@ -186,18 +206,18 @@ open class TestHelper {
         "source": "tnds timetable (nextbuses disabled)"
     }, {
         "mode": "bus",
-        "line": "42",
-        "line_name": "42",
-        "direction": "Farnley, Leeds",
+        "line": "4",
+        "line_name": "4",
+        "direction": "Pudsey",
         "operator": "FLDS",
         "operator_name": "First Leeds",
         "date": "2020-06-30",
-        "aimed_departure_time": "13:14",
+        "aimed_departure_time": "12:54",
         "expected_departure_date": null,
-        "eted_departure_time ": null,
-        "best_departure_estimate ": "13: 14 ",
-        "dir": "inbound ",
-        "id ": "https: //transportapi.com/v3/uk/bus/route/FLDS/42/inbound/450013965/2020-06-30/13:14/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "expected_departure_time": null,
+        "best_departure_estimate": "12:54",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/4/outbound/450013965/2020-06-30/12:54/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
         "source": "tnds timetable (nextbuses disabled)"
     }, {
         "mode": "bus",
@@ -214,21 +234,6 @@ open class TestHelper {
         "dir": "outbound",
         "id": "https://transportapi.com/v3/uk/bus/route/FLDS/4/outbound/450013965/2020-06-30/13:18/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
         "source": "tnds timetable (nextbuses disabled)"
-    }, {
-        "mode": "bus",
-        "line": "16",
-        "line_name": "16",
-        "direction": "Pudsey",
-        "operator": "FLDS",
-        "operator_name": "First Leeds",
-        "date": "2020-06-30",
-        "aimed_departure_time": "13:21",
-        "expected_departure_date": null,
-        "expected_departure_time": null,
-        "best_departure_estimate": "13:21",
-        "dir": "outbound",
-        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/16/outbound/450013965/2020-06-30/13:21/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
-        "source": "tnds timetable (nextbuses disabled)"
     }]
     }
     }
@@ -237,6 +242,8 @@ open class TestHelper {
     fun getDepartureResponse(): DepartureResponse =
         moshi.adapter<DepartureResponse>(DepartureResponse::class.java)
             .fromJson(departureResponse)!!
+
+    fun getDepartureDomainModel(): DepartureDomainModel = getDepartureResponse().toDomainModel(dateTimeConverter)
 }
 
 class LifeCycleTestOwner : LifecycleOwner {
@@ -258,4 +265,46 @@ class LifeCycleTestOwner : LifecycleOwner {
     fun onDestroy() {
         registry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     }
+}
+
+class DateTimeConverterTestImpl: DateTimeConverter{
+    override fun getWaitTime(startTime: Long, endTime: Long): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun convertDateAndTimeToMillis(date: String, time: String): Long {
+        val dateArray = date.split("-").map { it.toInt() }
+        val timeArray = time.split(":").map { it.toInt() }
+        return ZonedDateTime.of(
+            dateArray[0],
+            dateArray[1],
+            dateArray[2],
+            timeArray[0],
+            timeArray[1],
+            0,
+            0,
+            ZoneId.of("GMT+1")
+        ).toInstant().toEpochMilli()
+    }
+
+    override fun convertStringToMillis(value: String): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun convertMillisToHumanFormat(value: Long): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun getZonedDateTimeNow(): ZonedDateTime {
+        TODO("Not yet implemented")
+    }
+
+    override fun getNowInMillis(): Long {
+        TODO("Not yet implemented")
+    }
+
+    override fun getZoneId(): ZoneId {
+        TODO("Not yet implemented")
+    }
+
 }

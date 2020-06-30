@@ -249,3 +249,15 @@ data class DepartureDetailsModel(
     val isFavourite: Boolean,
     val waitTime: String
 )
+
+//TODO handle cancellations
+data class DepartureDetailsUiModel(
+    val timestamp: Long,
+    val nextDeparture: String,
+    val waitTime: String,
+    val lineName: String,
+    val operatorName: String,
+    val direction: String,
+    val atcocode: String,
+    val isFavourite: Boolean
+)
