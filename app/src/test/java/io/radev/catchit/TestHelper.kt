@@ -4,6 +4,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.liveData
+import com.squareup.moshi.Moshi
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
 import io.radev.catchit.network.*
@@ -14,7 +15,9 @@ import org.mockito.Mockito
  * radev.io 2020.
  */
 
-class TestHelper {
+open class TestHelper {
+    private val moshi = Moshi.Builder().build();
+
     companion object {
         fun <T> any(): T {
             Mockito.any<T>()
@@ -59,47 +62,181 @@ class TestHelper {
             )
         )
 
-        val departureResponse = DepartureResponse(
-            atcocode = "450012351",
-            smsCode = "45012351",
-            requestTime = "2020-06-26T11:09:25+01:00",
-            name = "Green Rd Green View",
-            stopName = "Green Rd Green View",
-            bearing = "NW",
-            indicator = "",
-            locality = "Meanwood, Leeds",
-            location = StopLocationDetails(
-                type = "Point",
-                coordinates = listOf(
-                    -1.56837,
-                    53.8297
-                )
-            ),
-            departures = mapOf(
-                Pair(
-                    "all", listOf(
-                        DepartureDetails(
-                            mode = "bus",
-                            line = "51",
-                            lineName = "51",
-                            direction = "Moortown, Leeds",
-                            operator = "FLDS",
-                            operatorName = "First Leeds",
-                            date = "2020-06-26",
-                            aimedDepartureTime = "11:17",
-                            expectedDepartureTime = null,
-                            expectedDepartureDate = null,
-                            bestDepartureEstimate = "11:17",
-                            dir = "inbound",
-                            id = "https://transportapi.com/v3/uk/bus/route/FLDS/51/inbound/450012351/2020-06-26/11:17/timetable.json?app_id=68755067&app_key=1f81945ff77187126de7f9f93c5fab44",
-                            source = "tnds timetable (nextbuses disabled)",
-                            status = null
-                        )
-                    )
-                )
-            )
-        )
     }
+
+    private val departureResponse = """
+    {
+        "atcocode": "450013965",
+        "smscode": "45013965",
+        "request_time": "2020-06-30T12:49:05+01:00",
+        "name": "Compton Road Compton Centre",
+        "stop_name": "Compton Road Compton Centre",
+        "bearing": "SW",
+        "indicator": "opp",
+        "locality": "Harehills, Leeds",
+        "location": {
+        "type": "Point",
+        "coordinates": [-1.50967, 53.80841]
+    },
+        "departures": {
+        "all": [{
+        "mode": "bus",
+        "line": "42",
+        "line_name": "42",
+        "direction": "Farnley, Leeds",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "12:50",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "12:50",
+        "dir": "inbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/42/inbound/450013965/2020-06-30/12:50/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "4",
+        "line_name": "4",
+        "direction": "Pudsey",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "12:54",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "12:54",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/4/outbound/450013965/2020-06-30/12:54/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "16",
+        "line_name": "16",
+        "direction": "Pudsey",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "12:57",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "12:57",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/16/outbound/450013965/2020-06-30/12:57/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "61",
+        "line_name": "61",
+        "direction": "St James's Hospital, Leeds",
+        "operator": "CTPL",
+        "operator_name": "CT Plus (Yorkshire)",
+        "date": "2020-06-30",
+        "aimed_departure_time": "12:57",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "12:57",
+        "dir": "inbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/CTPL/61/inbound/450013965/2020-06-30/12:57/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "42",
+        "line_name": "42",
+        "direction": "Farnley, Leeds",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:02",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "13:02",
+        "dir": "inbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/42/inbound/450013965/2020-06-30/13:02/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "4",
+        "line_name": "4",
+        "direction": "Pudsey",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:06",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "13:06",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/4/outbound/450013965/2020-06-30/13:06/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "16",
+        "line_name": "16",
+        "direction": "Pudsey",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:09",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "13:09",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/16/outbound/450013965/2020-06-30/13:09/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "42",
+        "line_name": "42",
+        "direction": "Farnley, Leeds",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:14",
+        "expected_departure_date": null,
+        "eted_departure_time ": null,
+        "best_departure_estimate ": "13: 14 ",
+        "dir": "inbound ",
+        "id ": "https: //transportapi.com/v3/uk/bus/route/FLDS/42/inbound/450013965/2020-06-30/13:14/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "4",
+        "line_name": "4",
+        "direction": "Pudsey",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:18",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "13:18",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/4/outbound/450013965/2020-06-30/13:18/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }, {
+        "mode": "bus",
+        "line": "16",
+        "line_name": "16",
+        "direction": "Pudsey",
+        "operator": "FLDS",
+        "operator_name": "First Leeds",
+        "date": "2020-06-30",
+        "aimed_departure_time": "13:21",
+        "expected_departure_date": null,
+        "expected_departure_time": null,
+        "best_departure_estimate": "13:21",
+        "dir": "outbound",
+        "id": "https://transportapi.com/v3/uk/bus/route/FLDS/16/outbound/450013965/2020-06-30/13:21/timetable.json?app_id=68755067\u0026app_key=1f81945ff77187126de7f9f93c5fab44",
+        "source": "tnds timetable (nextbuses disabled)"
+    }]
+    }
+    }
+    """
+
+    fun getDepartureResponse(): DepartureResponse =
+        moshi.adapter<DepartureResponse>(DepartureResponse::class.java)
+            .fromJson(departureResponse)!!
 }
 
 class LifeCycleTestOwner : LifecycleOwner {

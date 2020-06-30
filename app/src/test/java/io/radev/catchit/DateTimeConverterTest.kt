@@ -15,13 +15,13 @@ import org.threeten.bp.ZoneId
 
 class DateTimeConverterTest {
     @Spy
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
     private val zoneId = ZoneId.of("GMT+1")
     private val nowInMillis = 1592052660000
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
-        converter = Mockito.spy(DateTimeConverter())
+        converter = Mockito.spy(DateTimeConverterImpl())
         Mockito.`when`(converter.getZoneId()).thenReturn(zoneId)
         Mockito.`when`(converter.getNowInMillis()).thenReturn(nowInMillis)
     }

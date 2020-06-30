@@ -1,6 +1,5 @@
 package io.radev.catchit
 
-import com.squareup.moshi.Json
 import io.radev.catchit.network.DepartureDetails
 import io.radev.catchit.network.DepartureStatus
 import io.radev.catchit.network.toSingleBusNotificationModel
@@ -20,7 +19,7 @@ import org.threeten.bp.ZoneId
 class SingleBusNotificationModelTest {
 
     @Mock
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
 
     @Before
     fun setup(){

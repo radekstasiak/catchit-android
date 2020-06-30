@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 //https://medium.com/@harmittaa/retrofit-2-6-0-with-koin-and-coroutines-testing-your-layers-42d2a71566f1
 class DashboardViewModel @ViewModelInject constructor(
     private val dataRepository: DataRepository,
-    private val converter: DateTimeConverter,
+    private val converter: DateTimeConverterImpl,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -246,5 +246,6 @@ data class DepartureDetailsModel(
     val operator: String,
     val mode: String,
     val atcocode: String,
-    val isFavourite: Boolean
+    val isFavourite: Boolean,
+    val waitTime: String
 )

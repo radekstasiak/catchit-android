@@ -11,24 +11,24 @@ import javax.inject.Inject
  * radev.io 2020.
  */
 
-class DateTimeConverter @Inject constructor() {
+class DateTimeConverterImpl @Inject constructor() : DateTimeConverter {
 
-    fun getZoneId(): ZoneId {
+    override fun getZoneId(): ZoneId {
         return ZoneId.systemDefault()
     }
 
-    fun getNowInMillis(): Long {
+    override fun getNowInMillis(): Long {
         return getZonedDateTimeNow().toInstant().toEpochMilli()
     }
 
-    private fun getZonedDateTimeNow(): ZonedDateTime {
+    override fun getZonedDateTimeNow(): ZonedDateTime {
         return ZonedDateTime.now(getZoneId())
     }
 
-    fun convertStringToMillis(value: String): Long =
+    override fun convertStringToMillis(value: String): Long =
         ZonedDateTime.parse(value).toInstant().toEpochMilli()
 
-    fun convertDateAndTimeToMillis(date: String, time: String): Long {
+    override fun convertDateAndTimeToMillis(date: String, time: String): Long {
         val dateArray = date.split("-").map { it.toInt() }
         val timeArray = time.split(":").map { it.toInt() }
         return ZonedDateTime.of(
@@ -43,10 +43,20 @@ class DateTimeConverter @Inject constructor() {
         ).toInstant().toEpochMilli()
     }
 
-    fun getWaitTime(startTime: Long, endTime: Long): Long {
+    override fun getWaitTime(startTime: Long, endTime: Long): Long {
         val nowZonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(startTime), getZoneId())
         val expectedZoneDateTime =
             ZonedDateTime.ofInstant(Instant.ofEpochMilli(endTime), getZoneId())
         return Duration.between(nowZonedDateTime, expectedZoneDateTime).toMinutes()
     }
 }
+
+interface DateTimeConverter {
+    fun getWaitTime(startTime: Long, endTime: Long): Long
+    fun convertDateAndTimeToMillis(date: String, time: String): Long
+    fun convertStringToMillis(value: String): Long
+    fun getZonedDateTimeNow(): ZonedDateTime
+    fun getNowInMillis(): Long
+    fun getZoneId(): ZoneId
+}
+

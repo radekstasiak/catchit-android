@@ -27,7 +27,7 @@ import org.mockito.MockitoAnnotations
  * radev.io 2020.
  */
 
-class DashboardViewModelTest() {
+class DashboardViewModelTest : TestHelper() {
     private val mainThreadSurrogate = TestCoroutineDispatcher()
 
     lateinit var viewModel: DashboardViewModel
@@ -41,7 +41,7 @@ class DashboardViewModelTest() {
     lateinit var dataRepository: DataRepository
 
     @Mock
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
 
     @Mock
     lateinit var savedStateHandle: SavedStateHandle
@@ -89,7 +89,7 @@ class DashboardViewModelTest() {
         lifeCycleTestOwner.onResume()
         viewModel.atcocode.value = "450012351"
 
-        val result = NetworkResponse.Success<DepartureResponse>(body = TestHelper.departureResponse)
+        val result = NetworkResponse.Success<DepartureResponse>(body = getDepartureResponse())
 
         Mockito.`when`(dataRepository.getLiveTimetable(atcocode = "450012351"))
             .thenReturn(result)
@@ -154,10 +154,13 @@ class DashboardViewModelTest() {
     @Test
     fun updateFavouriteLine_removes_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
-        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351",lineName = "51")
+        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351", lineName = "51")
         runBlocking {
             launch {
-                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(
+                    atcocode = "450012351",
+                    lineName = "51"
+                )
             }
         }
     }
