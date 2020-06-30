@@ -47,7 +47,7 @@ class DashboardViewModelTest() {
     lateinit var savedStateHandle: SavedStateHandle
 
     @Mock
-    lateinit var placeMemberModelObserver: Observer<List<PlaceMemberModel>>
+    lateinit var placeMemberModelObserver: Observer<DepartureMapModel>
 
     @Mock
     lateinit var departureDetailsObserver: Observer<List<DepartureDetailsModel>>
