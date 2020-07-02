@@ -96,3 +96,4 @@ abstract class ApplicationModule {
         dateTimeConverterImpl: DateTimeConverterImpl
     ): DateTimeConverter
 }
+

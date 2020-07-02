@@ -26,6 +26,7 @@ class DashboardViewModel @ViewModelInject constructor(
     private val getDeparturesUseCase: GetDeparturesUseCase,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     //todo update to private
     val _postCodeMember = MutableLiveData<PostCodeMember>()
     val postCodeMember = Transformations.map(_postCodeMember) { postCodeMember ->
