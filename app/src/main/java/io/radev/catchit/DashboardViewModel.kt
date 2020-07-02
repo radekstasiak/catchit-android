@@ -8,6 +8,9 @@ import com.google.android.gms.maps.model.LatLngBounds
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
+import io.radev.catchit.domain.DeparturesState
+import io.radev.catchit.domain.GetDeparturesInteractor
+import io.radev.catchit.domain.toDepartureDetailsUiModel
 import io.radev.catchit.network.*
 import kotlinx.coroutines.launch
 
@@ -22,6 +25,9 @@ class DashboardViewModel @ViewModelInject constructor(
     private val converter: DateTimeConverterImpl,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    //todo make a dependecy injection
+    private val getDeparturesUseCase =
+        GetDeparturesInteractor(dataRepository = dataRepository, dateTimeConverter = converter)
 
     //todo update to private
     val _postCodeMember = MutableLiveData<PostCodeMember>()
@@ -38,13 +44,15 @@ class DashboardViewModel @ViewModelInject constructor(
     val placeMemberModelList = MediatorLiveData<DepartureMapModel>()
 
     private val _favouriteLineList = dataRepository.getAllFavouriteLines()
-    private val _departureDetails = MutableLiveData<List<DepartureDetails>>()
-    val departureDetailsModelList = MediatorLiveData<List<DepartureDetailsModel>>()
+    private val _departureDetails = MutableLiveData<List<DepartureDetailsUiModel>>()
+    val departureDetailsModelList = MediatorLiveData<List<DepartureDetailsUiModel>>()
 
     val atcocode = MutableLiveData<String>()
     private val _stopHeaderText = MutableLiveData<String>()
 
     init {
+
+
         placeMemberModelList.addSource(_favouriteStopList) { _ ->
             placeMemberModelList.value =
                 combineFavouriteStopData(_favouriteStopList, _placeMemberList)
@@ -84,9 +92,9 @@ class DashboardViewModel @ViewModelInject constructor(
     private fun combineFavouriteLineData(
         atcocode: String,
         dbFavouriteLineResult: LiveData<List<FavouriteLine>>,
-        apiDepartureDetailsResult: LiveData<List<DepartureDetails>>
-    ): List<DepartureDetailsModel> {
-        val result = arrayListOf<DepartureDetailsModel>()
+        apiDepartureDetailsResult: LiveData<List<DepartureDetailsUiModel>>
+    ): List<DepartureDetailsUiModel> {
+        val result = arrayListOf<DepartureDetailsUiModel>()
         if (apiDepartureDetailsResult.value != null) {
             val dbFavouriteLineList =
                 if (dbFavouriteLineResult.value != null) dbFavouriteLineResult.value else arrayListOf()
@@ -94,9 +102,8 @@ class DashboardViewModel @ViewModelInject constructor(
                 val isFavourite =
                     dbFavouriteLineList!!.find { it.atcocode == atcocode && it.lineName == item.lineName }
                 result.add(
-                    item.toDepartureDetailsModel(
-                        atcocode = atcocode,
-                        favourite = isFavourite != null
+                    item.copy(
+                        isFavourite = isFavourite != null
                     )
                 )
             }
@@ -155,17 +162,25 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getLiveTimetable() {
         viewModelScope.launch {
-            when (val result = dataRepository.getLiveTimetable(atcocode = atcocode.value!!)) {
-                is NetworkResponse.Success -> {
-                    _departureDetails.value = result.body.departures?.getValue("all")
-                    _stopHeaderText.value = "${result.body.name} - ${result.body.atcocode}"
+            when (val result =
+                getDeparturesUseCase.getDepartureState(atcocode = atcocode.value!!)) {
+                is DeparturesState.Success -> {
+                    _departureDetails.value = result.data.departures.toDepartureDetailsUiModel(
+                        atcocode = result.data.atcocode,
+                        dateTimeConverter = converter
+                    )
+                    _stopHeaderText.value = "${result.data.name} - ${result.data.atcocode}"
                 }
-                is NetworkResponse.ApiError -> TODO()
-                is NetworkResponse.NetworkError -> TODO()
-                is NetworkResponse.UnknownError -> TODO()
+                is DeparturesState.ApiError -> {
+                    //todo maybe keep live data as State type
+                }
+                DeparturesState.NetworkError -> {
+                }
+                is DeparturesState.UnknownError -> {
+                }
             }
-
         }
+
     }
 
 
@@ -249,6 +264,7 @@ data class DepartureDetailsModel(
     val isFavourite: Boolean,
     val waitTime: String
 )
+
 
 //TODO handle cancellations
 data class DepartureDetailsUiModel(

@@ -10,14 +10,10 @@ import io.radev.catchit.DepartureDetailsUiModel
 
 data class DepartureDomainModel(
     val atcocode: String,
-    val smsCode: String,
-    val requestTime: String,
     val name: String,
-    val stopName: String,
     val bearing: String,
     val indicator: String,
     val locality: String,
-    val location: Pair<Double, Double>,
     val departures: List<DepartureDetailsDomainModel>
 )
 
@@ -35,6 +31,7 @@ data class DepartureDetailsDomainModel(
     val operatorName: String,
     val id: String
 )
+
 
 fun List<DepartureDetailsDomainModel>.toDepartureDetailsUiModel(
     atcocode: String,
@@ -57,6 +54,7 @@ fun List<DepartureDetailsDomainModel>.toDepartureDetailsUiModel(
                 isFavourite = false
             )
         }
+
 
 
 

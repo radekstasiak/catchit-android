@@ -12,6 +12,8 @@ import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.DatabaseConstants
+import io.radev.catchit.domain.GetDeparturesInteractor
+import io.radev.catchit.domain.GetDeparturesUseCase
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.errorhandling.NetworkResponseAdapterFactory
@@ -75,3 +77,13 @@ abstract class DataRepositoryModule {
         dataRepositoryImpl: DataRepositoryImpl
     ): DataRepository
 }
+
+//@Module
+//@InstallIn(ApplicationComponent::class)
+//abstract class UseCaseModule {
+//
+//    @Binds
+//    abstract fun bindGetDeparturesUseCase(
+//        getDeparturesInteractorTest: GetDeparturesInteractor
+//    ): GetDeparturesUseCase
+//}

@@ -17,4 +17,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="fav_title">Favourites</string>
     <string name="search_title">Search</string>
+
+    <!-- Next Departures -->
+    <string name="departure_wait_time">%1s in %2s towards %3s </string>
+    <string name="expected_arrival">Expected arrival: %1s</string>
+    <string name="operator_name">Operator name: %1s</string>
 </resources>
