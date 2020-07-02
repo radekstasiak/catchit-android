@@ -45,7 +45,7 @@ class DepartureListDialogFragment : BottomSheetDialogFragment(), SelectDeparture
         model.getLiveTimetable()
         model.departureDetailsModelList.observe(
             viewLifecycleOwner,
-            Observer<List<DepartureDetailsModel>> {
+            Observer<List<DepartureDetailsUiModel>> {
                 itemAdapter.setData(it)
             })
         model.stopHeaderText.observe(viewLifecycleOwner, Observer<String> {
@@ -66,7 +66,7 @@ class DepartureListAdapter(
     private val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var data = arrayListOf<DepartureDetailsModel>()
+    var data = arrayListOf<DepartureDetailsUiModel>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         DepartureListViewHolder(
@@ -77,7 +77,7 @@ class DepartureListAdapter(
             )
         )
 
-    fun setData(list: List<DepartureDetailsModel>) {
+    fun setData(list: List<DepartureDetailsUiModel>) {
         data = ArrayList(list)
         notifyDataSetChanged()
     }
@@ -87,11 +87,16 @@ class DepartureListAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vh = holder as DepartureListViewHolder
         val item = data[position]
-        vh.departureDate.text = "${item.departureTime} (${item.departureDate})"
-        vh.line.text = item.lineName
-        vh.direction.text = item.direction
-        vh.operator.text = item.operator
-        vh.mode.text = item.mode
+        vh.nextDeparture.text = String.format(
+            context.getString(R.string.departure_wait_time),
+            item.lineName,
+            item.waitTime,
+            item.direction
+        )
+        vh.expectedArrival.text =
+            String.format(context.getString(R.string.expected_arrival), item.nextDeparture)
+        vh.operator.text =
+            String.format(context.getString(R.string.operator_name), item.operatorName)
         vh.favIv.setImageDrawable(
             if (item.isFavourite) ContextCompat.getDrawable(
                 context,
@@ -110,19 +115,15 @@ class DepartureListAdapter(
 }
 
 class DepartureListViewHolder : RecyclerView.ViewHolder {
-    val departureDate: TextView
-    val line: TextView
-    val direction: TextView
+    val nextDeparture: TextView
+    val expectedArrival: TextView
     val operator: TextView
-    val mode: TextView
     val favIv: ImageView
 
     constructor(view: View) : super(view) {
-        departureDate = view.findViewById(R.id.tv_departure_date)
-        line = view.findViewById(R.id.tv_line)
-        direction = view.findViewById(R.id.tv_direction)
+        nextDeparture = view.findViewById(R.id.next_departure)
+        expectedArrival = view.findViewById(R.id.expected_arrival)
         operator = view.findViewById(R.id.tv_operator)
-        mode = view.findViewById(R.id.tv_mode)
         favIv = view.findViewById(R.id.fav_iv)
     }
 }

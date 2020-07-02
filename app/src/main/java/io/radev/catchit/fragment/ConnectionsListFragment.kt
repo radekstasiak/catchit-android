@@ -51,7 +51,7 @@ class ConnectionsListFragment : Fragment(), SelectDepartureListener {
 
         model.departureDetailsModelList.observe(
             viewLifecycleOwner,
-            Observer<List<DepartureDetailsModel>> {
+            Observer<List<DepartureDetailsUiModel>> {
                 if (swiperefresh != null) swiperefresh.isRefreshing = false
                 itemAdapter.setData(it)
             })

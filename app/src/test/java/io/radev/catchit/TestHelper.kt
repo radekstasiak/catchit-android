@@ -244,6 +244,15 @@ open class TestHelper {
             .fromJson(departureResponse)!!
 
     fun getDepartureDomainModel(): DepartureDomainModel = getDepartureResponse().toDomainModel(dateTimeConverter)
+
+    fun getTestDepartureDomainModel(): DepartureDomainModel = DepartureDomainModel(
+        atcocode = "",
+        name = "",
+        bearing = "",
+        indicator = "",
+        locality = "",
+        departures = listOf()
+    )
 }
 
 class LifeCycleTestOwner : LifecycleOwner {

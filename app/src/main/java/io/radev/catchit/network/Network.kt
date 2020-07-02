@@ -134,22 +134,13 @@ data class DepartureDetails(
 fun DepartureResponse.toDomainModel(dateTimeConverter: DateTimeConverter): DepartureDomainModel =
     DepartureDomainModel(
         atcocode = this.atcocode ?: "",
-        smsCode = this.smsCode ?: "",
-        requestTime = this.requestTime ?: "",
         name = this.name ?: "",
-        stopName = this.stopName ?: "",
         bearing = this.bearing ?: "",
         indicator = this.indicator ?: "",
         locality = this.locality ?: "",
-        location = if (this.location != null && this.location.coordinates != null && this.location.coordinates.size > 1) Pair(
-            location.coordinates[0],
-            location.coordinates[1]
-        ) else Pair(
-            0.0,
-            0.0
-        ),
-        departures = if (departures != null && departures.containsKey("all")) (this.departures["all"]
-            ?: listOf()).toDepartureDetailsDomainModelList(dateTimeConverter = dateTimeConverter) else listOf()
+        departures = if (departures != null && this.departures.containsKey("all")) this.departures["all"]!!.toDepartureDetailsDomainModelList(
+            dateTimeConverter = dateTimeConverter
+        ) else listOf()
     )
 
 fun List<DepartureDetails>.toDepartureDetailsDomainModelList(dateTimeConverter: DateTimeConverter): List<DepartureDetailsDomainModel> =
