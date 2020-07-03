@@ -236,7 +236,7 @@ class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
         searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {model.getPostCodeDetails(query)
+                if (query != null) {model.getNearbyStopsWithPostcode(query)
                     searchView.setQuery("", false);
                     searchView.clearFocus();
                     searchView.setIconified(true);

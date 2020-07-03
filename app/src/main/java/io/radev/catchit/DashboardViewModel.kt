@@ -30,11 +30,7 @@ class DashboardViewModel @ViewModelInject constructor(
 ) : ViewModel() {
 
     //todo update with initial values
-    val _postCodeMember = MutableLiveData<LatitudeLongitude>()
-    val postCodeMember = Transformations.map(_postCodeMember) { postCodeMember ->
-        postCodeMember
-    }
-
+    val _userLatLang = MutableLiveData<LatitudeLongitude>()
     private val _favouriteStopList = dataRepository.getAllFavouriteStops()
 
     val favouriteStopList = Transformations.map(_favouriteStopList) { favouriteStopList ->
@@ -128,10 +124,10 @@ class DashboardViewModel @ViewModelInject constructor(
         }
 
         return result.toDeparturesMap(
-            if (_postCodeMember.value != null) {
+            if (_userLatLang.value != null) {
                 LatLng(
-                    _postCodeMember.value!!.latitude,
-                    _postCodeMember.value!!.longitude
+                    _userLatLang.value!!.latitude,
+                    _userLatLang.value!!.longitude
                 )
             } else {
                 LatLng(0.0, 0.0)
@@ -145,12 +141,12 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getNearbyPlaces(longitude: Double? = null, latitude: Double? = null) {
         if (longitude != null && latitude != null) {
-            _postCodeMember.value = LatitudeLongitude(latitude = latitude, longitude = longitude)
+            _userLatLang.value = LatitudeLongitude(latitude = latitude, longitude = longitude)
         }
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
-                longitude = longitude ?: _postCodeMember.value!!.longitude,
-                latitude = latitude ?: _postCodeMember.value!!.latitude
+                longitude = longitude ?: _userLatLang.value!!.longitude,
+                latitude = latitude ?: _userLatLang.value!!.latitude
             )) {
                 is NetworkResponse.Success -> _placeMemberList.value = result.body.memberList
                 is NetworkResponse.ApiError -> TODO()
@@ -186,12 +182,12 @@ class DashboardViewModel @ViewModelInject constructor(
     }
 
 
-    fun getPostCodeDetails(postCode: String) {
+    fun getNearbyStopsWithPostcode(postCode: String) {
         viewModelScope.launch {
             when (val result =
                 getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops(postCode = postCode)) {
                 is PlaceMembersState.Success -> {
-                    _postCodeMember.value =
+                    _userLatLang.value =
                         LatitudeLongitude(latitude = result.latitude, longitude = result.longitude)
                     _placeMemberList.value = result.data
                 }

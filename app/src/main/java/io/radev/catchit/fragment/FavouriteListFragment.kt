@@ -1,23 +1,21 @@
 package io.radev.catchit.fragment
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.FavouriteListRecyclerViewAdapter
 import io.radev.catchit.R
 import io.radev.catchit.db.FavouriteStop
-import kotlinx.android.synthetic.main.fragment_first.recycler_view
+import kotlinx.android.synthetic.main.fragment_favourite_list.*
 
-/**
- * A fragment representing a list of Items.
- */
+
 class FavouriteListFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var favourListAdapter: FavouriteListRecyclerViewAdapter
@@ -47,7 +45,6 @@ class FavouriteListFragment : Fragment() {
             favourListAdapter.setData(it)
         })
     }
-
 
 
 }

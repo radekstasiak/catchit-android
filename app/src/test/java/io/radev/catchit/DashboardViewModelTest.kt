@@ -5,15 +5,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateHandle
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
 import io.mockk.mockkStatic
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.domain.*
 import io.radev.catchit.network.DepartureResponse
 import io.radev.catchit.network.NetworkResponse
-import io.radev.catchit.network.PostCodeMember
-import io.radev.catchit.network.toDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -132,28 +129,29 @@ class DashboardViewModelTest : TestHelper() {
 
     }
 
-//    @Test
-//    fun getPostCodeDetailsTest_onSuccess() = runBlocking {
-//        Mockito.`when`(getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops("LS71HT")).thenReturn(PlaceMembersState.Success(longitude = 1.0, latitude = 42.0, data = placesResponse.memberList))
-//        val response = NetworkResponse.Success(TestHelper.postCodeDetailsResponse)
-//        viewModel.postCodeMember.observe(lifeCycleTestOwner, postCodeMemberObserver)
-//        lifeCycleTestOwner.onResume()
+    @Test
+    fun getPostCodeDetailsTest_onSuccess() = runBlocking {
+        Mockito.`when`(getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops("LS71HT")).thenReturn(PlaceMembersState.Success(longitude = 1.0, latitude = 42.0, data = placesResponse.memberList))
+        val response = NetworkResponse.Success(TestHelper.postCodeDetailsResponse)
+        viewModel._userLatLang.observe(lifeCycleTestOwner, postCodeMemberObserver)
+        viewModel.placeMemberModelList.observe(lifeCycleTestOwner,placeMemberModelObserver)
+        lifeCycleTestOwner.onResume()
 //        Mockito.`when`(dataRepository.getPostCodeDetails(postCode = "LS71HT")).thenReturn(response)
-//        viewModel.getPostCodeDetails(postCode = "LS71HT")
-////        Mockito.verify(postCodeMemberObserver).onChanged(response.body.memberList[0])
-////        Mockito.verify(postCodeMemberObserver).onChanged(response.body.memberList[0])
-//    }
+        viewModel.getNearbyStopsWithPostcode(postCode = "LS71HT")
+        Mockito.verify(postCodeMemberObserver).onChanged(any())
+        Mockito.verify(placeMemberModelObserver).onChanged(any())
+    }
 
     @Test
     fun getNearbyPlacesTest_onSuccess() = runBlocking {
         viewModel.placeMemberModelList.observe(lifeCycleTestOwner, placeMemberModelObserver)
         lifeCycleTestOwner.onResume()
-        viewModel._postCodeMember.value = LatitudeLongitude(latitude = 1.0,longitude = 53.0)
+        viewModel._userLatLang.value = LatitudeLongitude(latitude = 1.0,longitude = 53.0)
         val response = NetworkResponse.Success(TestHelper.placesResponse)
         Mockito.`when`(
             dataRepository.getNearbyPlaces(
-                longitude = viewModel._postCodeMember.value!!.longitude,
-                latitude = viewModel._postCodeMember.value!!.latitude
+                longitude = viewModel._userLatLang.value!!.longitude,
+                latitude = viewModel._userLatLang.value!!.latitude
             )
         ).thenReturn(response)
         viewModel.getNearbyPlaces()
