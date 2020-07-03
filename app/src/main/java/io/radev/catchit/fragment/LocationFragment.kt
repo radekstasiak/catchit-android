@@ -55,7 +55,7 @@ class LocationFragment : Fragment() {
 
     private fun navigateToNearbyPlaces() {
         val action =
-            LocationFragmentDirections.actionLocationFragmentToNearbyPlacesFragment()
+            LocationFragmentDirections.actionLocationFragmentToDeparturesMap()
         findNavController().navigate(action)
     }
 

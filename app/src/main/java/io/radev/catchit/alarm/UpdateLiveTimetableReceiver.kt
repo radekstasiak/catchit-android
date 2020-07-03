@@ -7,7 +7,7 @@ import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.internal.managers.BroadcastReceiverComponentManager
 import dagger.hilt.internal.UnsafeCasts
-import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.DateTimeConverterImpl
 import io.radev.catchit.NotificationController
 import io.radev.catchit.SingleBusNotificationModel
 import io.radev.catchit.data.DataRepository
@@ -34,7 +34,7 @@ class UpdateLiveTimetableReceiver : BroadcastReceiver() {
     lateinit var dataRepository: DataRepository
 
     @Inject
-    lateinit var dateTimeConverter: DateTimeConverter
+    lateinit var dateTimeConverter: DateTimeConverterImpl
 
     @Inject
     lateinit var notificationController: NotificationController

@@ -3,10 +3,17 @@ package io.radev.catchit
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateHandle
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.mockkStatic
 import io.radev.catchit.data.DataRepository
+import io.radev.catchit.domain.*
 import io.radev.catchit.network.DepartureResponse
 import io.radev.catchit.network.NetworkResponse
 import io.radev.catchit.network.PostCodeMember
+import io.radev.catchit.network.toDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -27,7 +34,7 @@ import org.mockito.MockitoAnnotations
  * radev.io 2020.
  */
 
-class DashboardViewModelTest() {
+class DashboardViewModelTest : TestHelper() {
     private val mainThreadSurrogate = TestCoroutineDispatcher()
 
     lateinit var viewModel: DashboardViewModel
@@ -41,22 +48,35 @@ class DashboardViewModelTest() {
     lateinit var dataRepository: DataRepository
 
     @Mock
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
 
     @Mock
     lateinit var savedStateHandle: SavedStateHandle
 
     @Mock
-    lateinit var placeMemberModelObserver: Observer<List<PlaceMemberModel>>
+    lateinit var placeMemberModelObserver: Observer<DepartureMapModel>
 
     @Mock
-    lateinit var departureDetailsObserver: Observer<List<DepartureDetailsModel>>
+    lateinit var departureDetailsObserver: Observer<List<DepartureDetailsUiModel>>
 
     @Mock
     lateinit var postCodeMemberObserver: Observer<PostCodeMember>
 
+    @Mock
+    lateinit var getDeparturesUseCase: GetDeparturesUseCase
+
+    @RelaxedMockK
+    lateinit var departureDomainModelMock: DepartureDomainModel
+
+    @RelaxedMockK
+    lateinit var departureDetailsDomainList: List<DepartureDetailsDomainModel>
+
+    @RelaxedMockK
+    lateinit var departureDetailsUiList: List<DepartureDetailsUiModel>
     @Before
     fun setup() {
+        MockKAnnotations.init(this)
+        //TODO migrate to mockk from mockito
         MockitoAnnotations.initMocks(this)
         Dispatchers.setMain(mainThreadSurrogate)
 
@@ -72,25 +92,34 @@ class DashboardViewModelTest() {
         viewModel = DashboardViewModel(
             dataRepository = dataRepository,
             converter = converter,
-            savedStateHandle = savedStateHandle
+            savedStateHandle = savedStateHandle,
+            getDeparturesUseCase = getDeparturesUseCase
         )
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
-        mainThreadSurrogate.cleanupTestCoroutines()
         lifeCycleTestOwner.onDestroy()
+        mainThreadSurrogate.cleanupTestCoroutines()
+        Dispatchers.resetMain()
     }
 
     @Test
     fun getLiveTimetableTest_onSuccess() = runBlocking {
+        //todo clean mess in this test (mockito and mockk)
+        mockkStatic("io.radev.catchit.domain.ModelKt")
+        every { departureDomainModelMock.departures } returns departureDetailsDomainList
+        every {departureDetailsDomainList.toDepartureDetailsUiModel(atcocode = "450012351", dateTimeConverter = converter)} returns departureDetailsUiList
+
         viewModel.departureDetailsModelList.observe(lifeCycleTestOwner, departureDetailsObserver)
         lifeCycleTestOwner.onResume()
         viewModel.atcocode.value = "450012351"
 
-        val result = NetworkResponse.Success<DepartureResponse>(body = TestHelper.departureResponse)
+        val result = NetworkResponse.Success<DepartureResponse>(body = getDepartureResponse())
 
+        val departureState = DeparturesState.Success(data = departureDomainModelMock)
+        Mockito.`when`(getDeparturesUseCase.getDepartureState(atcocode ="450012351" )).thenReturn(departureState)
         Mockito.`when`(dataRepository.getLiveTimetable(atcocode = "450012351"))
             .thenReturn(result)
         viewModel.getLiveTimetable()
@@ -154,10 +183,13 @@ class DashboardViewModelTest() {
     @Test
     fun updateFavouriteLine_removes_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
-        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351",lineName = "51")
+        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351", lineName = "51")
         runBlocking {
             launch {
-                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(
+                    atcocode = "450012351",
+                    lineName = "51"
+                )
             }
         }
     }

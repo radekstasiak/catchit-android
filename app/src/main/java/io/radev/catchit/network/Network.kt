@@ -1,11 +1,12 @@
 package io.radev.catchit.network
 
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import io.radev.catchit.DateTimeConverter
-import io.radev.catchit.DepartureDetailsModel
-import io.radev.catchit.PlaceMemberModel
-import io.radev.catchit.SingleBusNotificationModel
+import io.radev.catchit.*
+import io.radev.catchit.domain.DepartureDetailsDomainModel
+import io.radev.catchit.domain.DepartureDomainModel
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -111,27 +112,6 @@ data class DepartureResponse(
     @Json(name = "departures") val departures: Map<String, List<DepartureDetails>>?
 )
 
-// EXAMPLE DATA
-//"mode": "bus",
-//"line": "7",
-//"line_name": "7",
-//"direction": "Primley Park",
-//"operator": "FLDS",
-//"date": "2020-05-28",
-//"expected_departure_date": "2020-05-28",
-//"aimed_departure_time": "15:20",
-//"expected_departure_time": "15:20",
-//"best_departure_estimate": "15:20",
-//"status": {
-//    "cancellation": {
-//        "value": false,
-//        "reason": null
-//    }
-//},
-//"source": "FirstTicketer",
-//"dir": "outbound",
-//"operator_name": "First Leeds",
-//"id": "https://transportapi.com/v3/uk/bus/route/FLDS/7/outbound/450010687/2020-05-28/15:20/timetable.json?app_id=68755067&app_key=1f81945ff77187126de7f9f93c5fab44"
 @JsonClass(generateAdapter = true)
 data class DepartureDetails(
     @Json(name = "mode") val mode: String?,
@@ -151,6 +131,37 @@ data class DepartureDetails(
     @Json(name = "id") val id: String?
 )
 
+fun DepartureResponse.toDomainModel(dateTimeConverter: DateTimeConverter): DepartureDomainModel =
+    DepartureDomainModel(
+        atcocode = this.atcocode ?: "",
+        name = this.name ?: "",
+        bearing = this.bearing ?: "",
+        indicator = this.indicator ?: "",
+        locality = this.locality ?: "",
+        departures = if (departures != null && this.departures.containsKey("all")) this.departures["all"]!!.toDepartureDetailsDomainModelList(
+            dateTimeConverter = dateTimeConverter
+        ) else listOf()
+    )
+
+fun List<DepartureDetails>.toDepartureDetailsDomainModelList(dateTimeConverter: DateTimeConverter): List<DepartureDetailsDomainModel> =
+    this.map {
+        DepartureDetailsDomainModel(
+            mode = it.mode ?: "",
+            line = it.line ?: "",
+            lineName = it.lineName ?: "",
+            direction = it.direction ?: "",
+            operator = it.operator ?: "",
+            bestDepartureEstimate = if (it.date != null && it.bestDepartureEstimate != null) dateTimeConverter.convertDateAndTimeToMillis(
+                date = it.date,
+                time = it.bestDepartureEstimate
+            ) else 0L,
+            source = it.source ?: "",
+            dir = it.dir ?: "",
+            operatorName = it.operatorName ?: "",
+            id = it.id ?: ""
+        )
+    }
+
 fun DepartureDetails.toDepartureDetailsModel(atcocode: String, favourite: Boolean) =
     DepartureDetailsModel(
         departureTime = this.expectedDepartureTime ?: this.aimedDepartureTime!!,
@@ -160,10 +171,11 @@ fun DepartureDetails.toDepartureDetailsModel(atcocode: String, favourite: Boolea
         operator = this.operator ?: "",
         mode = this.mode ?: "",
         atcocode = atcocode,
-        isFavourite = favourite
+        isFavourite = favourite,
+        waitTime = ""
     )
 
-fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeConverter): SingleBusNotificationModel {
+fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeConverterImpl): SingleBusNotificationModel {
     val waitTime = dateTimeConverter.getWaitTime(
         startTime = dateTimeConverter.getNowInMillis(),
         endTime = dateTimeConverter.convertDateAndTimeToMillis(
@@ -174,7 +186,7 @@ fun DepartureDetails.toSingleBusNotificationModel(dateTimeConverter: DateTimeCon
     return SingleBusNotificationModel(
         line = this.line ?: "",
         direction = this.direction ?: "",
-        waitTime = if (waitTime > 0) "${waitTime}m" else "DUE"
+        waitTime = waitTime
     )
 }
 
@@ -225,7 +237,25 @@ fun PlaceMember.toPlaceMemberModel(favourite: Boolean): PlaceMemberModel {
         atcocode = this.atcocode,
         description = this.description,
         distance = this.distance.toString(),
-        isFavourite = favourite
+        isFavourite = favourite,
+        longitude = this.longitude,
+        latitude = this.latitude
+    )
+}
+
+fun List<PlaceMemberModel>.toDeparturesMap(userLatLng: LatLng): DepartureMapModel {
+    val latList = this.map { it.latitude }
+    val lngList = this.map { it.longitude }
+
+    val latLngMax =
+        LatLng(latList.min() ?: userLatLng.latitude, lngList.min() ?: userLatLng.longitude)
+    val latLngMin =
+        LatLng(latList.max() ?: userLatLng.latitude, lngList.max() ?: userLatLng.longitude)
+
+    return DepartureMapModel(
+        departuresList = this,
+        userLatLng = userLatLng, //select the one with highest accuracy
+        latLngBounds = LatLngBounds(latLngMax, latLngMin)
     )
 
 }
