@@ -26,4 +26,5 @@
     <string name="location_permission_dialog">"This app uses location permission to display stops nearby your location.\nIf You decline use your postcode to get nearby stops"</string>
     <string name="allow">Allow</string>
     <string name="cancel">Cancel</string>
+    <string name="search_hint">Postcode</string>
 </resources>

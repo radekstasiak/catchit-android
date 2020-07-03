@@ -197,7 +197,10 @@ class DashboardViewModel @ViewModelInject constructor(
     fun getPostCodeDetails(postCode: String) {
         viewModelScope.launch {
             when (val result = dataRepository.getPostCodeDetails(postCode = postCode)) {
-                is NetworkResponse.Success -> _postCodeMember.value = result.body.memberList[0]
+                is NetworkResponse.Success ->{
+                    _postCodeMember.value = result.body.memberList[0]
+                    getNearbyPlaces()
+                }
                 is NetworkResponse.ApiError -> TODO()
                 is NetworkResponse.NetworkError -> TODO()
                 is NetworkResponse.UnknownError -> TODO()

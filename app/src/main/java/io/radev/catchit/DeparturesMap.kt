@@ -7,10 +7,9 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -150,6 +149,7 @@ class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
 //        model.getNearbyPlaces()
@@ -226,6 +226,36 @@ class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
     }
 
     override fun onMarkerDrag(p0: Marker?) {
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.options_menu, menu)
+        val searchView = (menu.findItem(R.id.search).actionView as SearchView)
+        searchView.queryHint = getString(R.string.search_hint)
+        searchView.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (query != null) {model.getPostCodeDetails(query)
+                    searchView.setQuery("", false);
+                    searchView.clearFocus();
+                    searchView.setIconified(true);
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return true
+            }
+        }
+        )
+        // Associate searchable configuration with the SearchView
+//        val searchManager = requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
+//        (menu.findItem(R.id.search).actionView as SearchView).apply {
+//            setSearchableInfo(searchManager.getSearchableInfo(componentName))
+//        }
+
+        super.onCreateOptionsMenu(menu, inflater)
 
     }
 
