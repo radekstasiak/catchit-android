@@ -49,10 +49,6 @@ class NearbyPlacesFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        tv_header.text = (String.format(
-            requireActivity().resources.getString(R.string.nearby_places_header),
-            model.postCodeMember.value!!.name
-        ))
         recyclerView = recycler_view
         itemAdapter = NearbyPlacesItemAdapter(
             context = requireActivity(),

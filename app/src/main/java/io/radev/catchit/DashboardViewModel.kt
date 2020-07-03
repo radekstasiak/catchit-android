@@ -8,10 +8,11 @@ import com.google.android.gms.maps.model.LatLngBounds
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
-import io.radev.catchit.domain.DeparturesState
-import io.radev.catchit.domain.GetDeparturesUseCase
-import io.radev.catchit.domain.toDepartureDetailsUiModel
-import io.radev.catchit.network.*
+import io.radev.catchit.domain.*
+import io.radev.catchit.network.NetworkResponse
+import io.radev.catchit.network.PlaceMember
+import io.radev.catchit.network.toDeparturesMap
+import io.radev.catchit.network.toPlaceMemberModel
 import kotlinx.coroutines.launch
 
 /*
@@ -24,11 +25,12 @@ class DashboardViewModel @ViewModelInject constructor(
     private val dataRepository: DataRepository,
     private val converter: DateTimeConverter,
     private val getDeparturesUseCase: GetDeparturesUseCase,
+    private val getNearbyStopsForSelectedPostcodeUseCase: GetNearbyStopsForSelectedPostcodeUseCase,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    //todo update to private
-    val _postCodeMember = MutableLiveData<PostCodeMember>()
+    //todo update with initial values
+    val _postCodeMember = MutableLiveData<LatitudeLongitude>()
     val postCodeMember = Transformations.map(_postCodeMember) { postCodeMember ->
         postCodeMember
     }
@@ -143,15 +145,7 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getNearbyPlaces(longitude: Double? = null, latitude: Double? = null) {
         if (longitude != null && latitude != null) {
-            //to do this needs to be handled better
-            val member = PostCodeMember(
-                type = "type",
-                name = "name",
-                latitude = latitude,
-                longitude = longitude,
-                accuracy = 100
-            )
-            _postCodeMember.value = member
+            _postCodeMember.value = LatitudeLongitude(latitude = latitude, longitude = longitude)
         }
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
@@ -191,19 +185,24 @@ class DashboardViewModel @ViewModelInject constructor(
 
     }
 
-    //todo
-    //from this one get latLang and pass it to post code member
-    // update postcode member data type
+
     fun getPostCodeDetails(postCode: String) {
         viewModelScope.launch {
-            when (val result = dataRepository.getPostCodeDetails(postCode = postCode)) {
-                is NetworkResponse.Success ->{
-                    _postCodeMember.value = result.body.memberList[0]
-                    getNearbyPlaces()
+            when (val result =
+                getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops(postCode = postCode)) {
+                is PlaceMembersState.Success -> {
+                    _postCodeMember.value =
+                        LatitudeLongitude(latitude = result.latitude, longitude = result.longitude)
+                    _placeMemberList.value = result.data
                 }
-                is NetworkResponse.ApiError -> TODO()
-                is NetworkResponse.NetworkError -> TODO()
-                is NetworkResponse.UnknownError -> TODO()
+                PlaceMembersState.PostCodeNotFound -> {
+                }
+                is PlaceMembersState.ApiError -> {
+                }
+                PlaceMembersState.NetworkError -> {
+                }
+                is PlaceMembersState.UnknownError -> {
+                }
             }
         }
     }
@@ -289,4 +288,9 @@ data class DepartureDetailsUiModel(
     val direction: String,
     val atcocode: String,
     val isFavourite: Boolean
+)
+
+data class LatitudeLongitude(
+    val latitude: Double,
+    val longitude: Double
 )

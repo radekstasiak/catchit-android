@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.DashboardViewModel
+import io.radev.catchit.LatitudeLongitude
 import io.radev.catchit.R
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.PostCodeMember
@@ -47,7 +48,7 @@ class LocationFragment : Fragment() {
             false
         }
 
-        model.postCodeMember.observe(viewLifecycleOwner, Observer<PostCodeMember> {
+        model.postCodeMember.observe(viewLifecycleOwner, Observer<LatitudeLongitude> {
             navigateToNearbyPlaces()
         })
 
