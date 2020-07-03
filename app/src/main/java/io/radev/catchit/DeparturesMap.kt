@@ -1,13 +1,21 @@
 package io.radev.catchit
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -16,8 +24,26 @@ import com.google.android.gms.maps.model.*
 
 
 class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val model: DashboardViewModel by activityViewModels()
     val markerList = arrayListOf<Marker>()
+
+    val requestPermissionLauncher = requireActivity().registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted. Continue the action or workflow in your
+                // app.
+                getLastLocation()
+            } else {
+                // Explain to the user that the feature is unavailable because the
+                // features requires a permission that the user has denied. At the
+                // same time, respect the user's decision. Don't link to system
+                // settings in an effort to convince the user to change their
+                // decision.
+            }
+        }
+
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -115,9 +141,49 @@ class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
-        model.getNearbyPlaces()
+//        model.getNearbyPlaces()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        checkForLocationPermission()
     }
 
+    private fun checkForLocationPermission() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+                getLastLocation()
+
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected. In this UI,
+                // include a "cancel" or "no thanks" button that allows the user to
+                // continue using your app without granting the permission.
+//            showInContextUI(...)
+            }
+            else -> {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                requestPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+        }
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation(){
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                if (location != null) model.getNearbyPlaces(
+                    longitude = location.longitude,
+                    latitude = location.latitude
+                )
+            }
+    }
     override fun onMarkerDragEnd(marker: Marker?) {
         if (marker != null && marker.tag == "user") model.getNearbyPlaces(
             longitude = marker.position.longitude,
