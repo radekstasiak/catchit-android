@@ -1,17 +1,19 @@
-package io.radev.catchit
+package io.radev.catchit.viewmodel
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import io.radev.catchit.DateTimeConverter
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
-import io.radev.catchit.domain.DeparturesState
-import io.radev.catchit.domain.GetDeparturesUseCase
-import io.radev.catchit.domain.toDepartureDetailsUiModel
-import io.radev.catchit.network.*
+import io.radev.catchit.domain.*
+import io.radev.catchit.network.NetworkResponse
+import io.radev.catchit.network.PlaceMember
+import io.radev.catchit.network.toDeparturesMap
+import io.radev.catchit.network.toPlaceMemberModel
 import kotlinx.coroutines.launch
 
 /*
@@ -24,15 +26,12 @@ class DashboardViewModel @ViewModelInject constructor(
     private val dataRepository: DataRepository,
     private val converter: DateTimeConverter,
     private val getDeparturesUseCase: GetDeparturesUseCase,
+    private val getNearbyStopsForSelectedPostcodeUseCase: GetNearbyStopsForSelectedPostcodeUseCase,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    //todo update to private
-    val _postCodeMember = MutableLiveData<PostCodeMember>()
-    val postCodeMember = Transformations.map(_postCodeMember) { postCodeMember ->
-        postCodeMember
-    }
-
+    //todo update with initial values
+    val _userLatLang = MutableLiveData<LatitudeLongitude>()
     private val _favouriteStopList = dataRepository.getAllFavouriteStops()
 
     val favouriteStopList = Transformations.map(_favouriteStopList) { favouriteStopList ->
@@ -126,10 +125,14 @@ class DashboardViewModel @ViewModelInject constructor(
         }
 
         return result.toDeparturesMap(
-            LatLng(
-                _postCodeMember.value!!.latitude,
-                _postCodeMember.value!!.longitude
-            )
+            if (_userLatLang.value != null) {
+                LatLng(
+                    _userLatLang.value!!.latitude,
+                    _userLatLang.value!!.longitude
+                )
+            } else {
+                LatLng(0.0, 0.0)
+            }
         )
     }
 
@@ -139,14 +142,15 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getNearbyPlaces(longitude: Double? = null, latitude: Double? = null) {
         if (longitude != null && latitude != null) {
-            val updatedPostCodemember =
-                _postCodeMember.value!!.copy(longitude = longitude, latitude = latitude)
-            _postCodeMember.value = updatedPostCodemember
+            _userLatLang.value = LatitudeLongitude(
+                latitude = latitude,
+                longitude = longitude
+            )
         }
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
-                longitude = longitude ?: _postCodeMember.value!!.longitude,
-                latitude = latitude ?: _postCodeMember.value!!.latitude
+                longitude = longitude ?: _userLatLang.value!!.longitude,
+                latitude = latitude ?: _userLatLang.value!!.latitude
             )) {
                 is NetworkResponse.Success -> _placeMemberList.value = result.body.memberList
                 is NetworkResponse.ApiError -> TODO()
@@ -182,13 +186,26 @@ class DashboardViewModel @ViewModelInject constructor(
     }
 
 
-    fun getPostCodeDetails(postCode: String) {
+    fun getNearbyStopsWithPostcode(postCode: String) {
         viewModelScope.launch {
-            when (val result = dataRepository.getPostCodeDetails(postCode = postCode)) {
-                is NetworkResponse.Success -> _postCodeMember.value = result.body.memberList[0]
-                is NetworkResponse.ApiError -> TODO()
-                is NetworkResponse.NetworkError -> TODO()
-                is NetworkResponse.UnknownError -> TODO()
+            when (val result =
+                getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops(postCode = postCode)) {
+                is PlaceMembersState.Success -> {
+                    _userLatLang.value =
+                        LatitudeLongitude(
+                            latitude = result.latitude,
+                            longitude = result.longitude
+                        )
+                    _placeMemberList.value = result.data
+                }
+                PlaceMembersState.PostCodeNotFound -> {
+                }
+                is PlaceMembersState.ApiError -> {
+                }
+                PlaceMembersState.NetworkError -> {
+                }
+                is PlaceMembersState.UnknownError -> {
+                }
             }
         }
     }
@@ -274,4 +291,9 @@ data class DepartureDetailsUiModel(
     val direction: String,
     val atcocode: String,
     val isFavourite: Boolean
+)
+
+data class LatitudeLongitude(
+    val latitude: Double,
+    val longitude: Double
 )

@@ -1,7 +1,7 @@
 package io.radev.catchit.domain
 
 import io.radev.catchit.DateTimeConverter
-import io.radev.catchit.DepartureDetailsUiModel
+import io.radev.catchit.viewmodel.DepartureDetailsUiModel
 
 /*
  * Created by radoslaw on 30/06/2020.

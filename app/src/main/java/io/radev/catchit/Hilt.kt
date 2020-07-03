@@ -14,6 +14,8 @@ import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.DatabaseConstants
 import io.radev.catchit.domain.GetDeparturesInteractor
 import io.radev.catchit.domain.GetDeparturesUseCase
+import io.radev.catchit.domain.GetNearbyStopsForSelectedPostcodeInteractor
+import io.radev.catchit.domain.GetNearbyStopsForSelectedPostcodeUseCase
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.errorhandling.NetworkResponseAdapterFactory
@@ -26,8 +28,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
  * Created by radoslaw on 14/06/2020.
  * radev.io 2020.
  */
-
-
 
 @Module
 @InstallIn(ApplicationComponent::class)
@@ -86,6 +86,11 @@ abstract class UseCaseModule {
     abstract fun bindGetDeparturesUseCase(
         getDeparturesInteractor: GetDeparturesInteractor
     ): GetDeparturesUseCase
+
+    @Binds
+    abstract fun bindGetNearbyStopsForSelectedPostcodeInteractor(
+        getNearbyStopsForSelectedPostcodeInteractor: GetNearbyStopsForSelectedPostcodeInteractor
+    ): GetNearbyStopsForSelectedPostcodeUseCase
 }
 
 @Module

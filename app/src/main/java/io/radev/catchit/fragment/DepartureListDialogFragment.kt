@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.fragment
 
 
 import android.content.Context
@@ -15,12 +15,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.viewmodel.DepartureDetailsUiModel
+import io.radev.catchit.R
 import io.radev.catchit.alarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.fragment_item_list_dialog_list_dialog.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DepartureListDialogFragment : BottomSheetDialogFragment(), SelectDepartureListener {
+class DepartureListDialogFragment : BottomSheetDialogFragment(),
+    SelectDepartureListener {
     lateinit var itemAdapter: DepartureListAdapter
     lateinit var recyclerView: RecyclerView
 
@@ -39,7 +43,10 @@ class DepartureListDialogFragment : BottomSheetDialogFragment(), SelectDeparture
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         recyclerView = recycler_view
-        itemAdapter = DepartureListAdapter(this, requireActivity())
+        itemAdapter = DepartureListAdapter(
+            this,
+            requireActivity()
+        )
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.adapter = itemAdapter
         model.getLiveTimetable()
@@ -101,7 +108,9 @@ class DepartureListAdapter(
             if (item.isFavourite) ContextCompat.getDrawable(
                 context,
                 R.drawable.baseline_favorite_24
-            ) else ContextCompat.getDrawable(context, R.drawable.baseline_favorite_border_24)
+            ) else ContextCompat.getDrawable(context,
+                R.drawable.baseline_favorite_border_24
+            )
         )
         vh.favIv.setOnClickListener {
             if (item.lineName != null) listener.updateFavouriteStop(

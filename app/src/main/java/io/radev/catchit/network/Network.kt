@@ -7,6 +7,10 @@ import com.squareup.moshi.JsonClass
 import io.radev.catchit.*
 import io.radev.catchit.domain.DepartureDetailsDomainModel
 import io.radev.catchit.domain.DepartureDomainModel
+import io.radev.catchit.notification.SingleBusNotificationModel
+import io.radev.catchit.viewmodel.DepartureDetailsModel
+import io.radev.catchit.viewmodel.DepartureMapModel
+import io.radev.catchit.viewmodel.PlaceMemberModel
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
