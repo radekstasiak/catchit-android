@@ -48,9 +48,6 @@
         android:label="fragment_departures_map"
         tools:layout="@layout/fragment_departures_map" >
         <action
-            android:id="@+id/action_departuresMap_to_locationFragment"
-            app:destination="@id/locationFragment" />
-        <action
             android:id="@+id/action_departuresMap_to_departureListDialogFragment"
             app:destination="@id/departureListDialogFragment" />
     </fragment>

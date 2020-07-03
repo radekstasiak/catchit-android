@@ -22,4 +22,8 @@
     <string name="departure_wait_time">%1s in %2s towards %3s </string>
     <string name="expected_arrival">Expected arrival: %1s</string>
     <string name="operator_name">Operator name: %1s</string>
+    <string name="location_permission_required">Location permission required</string>
+    <string name="location_permission_dialog">"This app uses location permission to display stops nearby your location.\nIf You decline use your postcode to get nearby stops"</string>
+    <string name="allow">Allow</string>
+    <string name="cancel">Cancel</string>
 </resources>

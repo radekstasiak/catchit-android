@@ -126,10 +126,14 @@ class DashboardViewModel @ViewModelInject constructor(
         }
 
         return result.toDeparturesMap(
-            LatLng(
-                _postCodeMember.value!!.latitude,
-                _postCodeMember.value!!.longitude
-            )
+            if (_postCodeMember.value != null) {
+                LatLng(
+                    _postCodeMember.value!!.latitude,
+                    _postCodeMember.value!!.longitude
+                )
+            } else {
+                LatLng(0.0, 0.0)
+            }
         )
     }
 
@@ -139,9 +143,15 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getNearbyPlaces(longitude: Double? = null, latitude: Double? = null) {
         if (longitude != null && latitude != null) {
-            val updatedPostCodemember =
-                _postCodeMember.value!!.copy(longitude = longitude, latitude = latitude)
-            _postCodeMember.value = updatedPostCodemember
+            //to do this needs to be handled better
+            val member = PostCodeMember(
+                type = "type",
+                name = "name",
+                latitude = latitude,
+                longitude = longitude,
+                accuracy = 100
+            )
+            _postCodeMember.value = member
         }
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
@@ -181,7 +191,9 @@ class DashboardViewModel @ViewModelInject constructor(
 
     }
 
-
+    //todo
+    //from this one get latLang and pass it to post code member
+    // update postcode member data type
     fun getPostCodeDetails(postCode: String) {
         viewModelScope.launch {
             when (val result = dataRepository.getPostCodeDetails(postCode = postCode)) {
