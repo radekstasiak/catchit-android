@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.DashboardViewModel
+import io.radev.catchit.DepartureMapModel
 import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.R
 import io.radev.catchit.alarm.UpdateTimetableAlarmManager
@@ -67,9 +68,9 @@ class NearbyPlacesFragment : Fragment(),
         if (swiperefresh != null) swiperefresh.isRefreshing = true
         model.getNearbyPlaces()
 
-        model.placeMemberModelList.observe(viewLifecycleOwner, Observer<List<PlaceMemberModel>> {
+        model.placeMemberModelList.observe(viewLifecycleOwner, Observer<DepartureMapModel> {
             if (swiperefresh != null) swiperefresh.isRefreshing = false
-            itemAdapter.setData(it)
+            itemAdapter.setData(it.departuresList)
         })
     }
 

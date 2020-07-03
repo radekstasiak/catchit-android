@@ -15,13 +15,13 @@ import org.threeten.bp.ZoneId
 
 class DateTimeConverterTest {
     @Spy
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
     private val zoneId = ZoneId.of("GMT+1")
     private val nowInMillis = 1592052660000
     @Before
     fun setup() {
         MockitoAnnotations.initMocks(this)
-        converter = Mockito.spy(DateTimeConverter())
+        converter = Mockito.spy(DateTimeConverterImpl())
         Mockito.`when`(converter.getZoneId()).thenReturn(zoneId)
         Mockito.`when`(converter.getNowInMillis()).thenReturn(nowInMillis)
     }
@@ -45,6 +45,13 @@ class DateTimeConverterTest {
     fun getWaitingTimeTest(){
         val expectedTime = 1592052900000
         val result = converter.getWaitTime(startTime = nowInMillis, endTime = expectedTime)
-        Assert.assertEquals(4,result)
+        Assert.assertEquals("4m",result)
+    }
+
+    @Test
+    fun convertMillisToHumanFormatTest(){
+        val timestamp = 1593518220000
+        val result = converter.convertMillisToHumanFormat(1593518220000)
+        Assert.assertEquals("12:57",result)
     }
 }

@@ -1,6 +1,5 @@
 package io.radev.catchit
 
-import com.squareup.moshi.Json
 import io.radev.catchit.network.DepartureDetails
 import io.radev.catchit.network.DepartureStatus
 import io.radev.catchit.network.toSingleBusNotificationModel
@@ -20,7 +19,7 @@ import org.threeten.bp.ZoneId
 class SingleBusNotificationModelTest {
 
     @Mock
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
 
     @Before
     fun setup(){
@@ -49,7 +48,7 @@ class SingleBusNotificationModelTest {
             operatorName = "First Leeds",
             id = "https://transportapi.com/v3/uk/bus/route/FLDS/51/outbound/450010441/2020-06-13/13:55/timetable.json?app_id=68755067\\u0026app_key=1f81945ff77187126de7f9f93c5fab44"
         )
-        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn(4L)
+        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn("4m")
         val result = departure.toSingleBusNotificationModel(dateTimeConverter = converter)
         Assert.assertTrue(result is SingleBusNotificationModel)
         Assert.assertTrue(result.line == "51")
@@ -76,7 +75,7 @@ class SingleBusNotificationModelTest {
             operatorName = "First Leeds",
             id = "https://transportapi.com/v3/uk/bus/route/FLDS/51/outbound/450010441/2020-06-13/13:55/timetable.json?app_id=68755067\\u0026app_key=1f81945ff77187126de7f9f93c5fab44"
         )
-        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn(0)
+        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn("DUE")
         val result = departure.toSingleBusNotificationModel(dateTimeConverter = converter)
         Assert.assertTrue(result is SingleBusNotificationModel)
         Assert.assertTrue(result.line == "51")
@@ -103,7 +102,7 @@ class SingleBusNotificationModelTest {
             operatorName = "First Leeds",
             id = "https://transportapi.com/v3/uk/bus/route/FLDS/51/outbound/450010441/2020-06-13/13:55/timetable.json?app_id=68755067\\u0026app_key=1f81945ff77187126de7f9f93c5fab44"
         )
-        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn(4L)
+        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn("4m")
         val result = departure.toSingleBusNotificationModel(dateTimeConverter = converter)
         Assert.assertTrue(result is SingleBusNotificationModel)
         Assert.assertTrue(result.line == "51")
@@ -130,7 +129,7 @@ class SingleBusNotificationModelTest {
             operatorName = "First Leeds",
             id = "https://transportapi.com/v3/uk/bus/route/FLDS/51/outbound/450010441/2020-06-13/13:55/timetable.json?app_id=68755067\\u0026app_key=1f81945ff77187126de7f9f93c5fab44"
         )
-        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn(4L)
+        Mockito.`when`(converter.getWaitTime(startTime = 1592052660000,endTime = 1592052900000)).thenReturn("4m")
         val result = departure.toSingleBusNotificationModel(dateTimeConverter = converter)
         Assert.assertTrue(result is SingleBusNotificationModel)
         Assert.assertTrue(result.line == "51")

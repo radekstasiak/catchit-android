@@ -34,12 +34,29 @@
         android:label="fragment_location"
         tools:layout="@layout/fragment_location" >
         <action
-            android:id="@+id/action_locationFragment_to_NearbyPlacesFragment"
-            app:destination="@id/NearbyPlacesFragment" />
+            android:id="@+id/action_locationFragment_to_departuresMap"
+            app:destination="@id/departuresMap" />
     </fragment>
     <fragment
         android:id="@+id/favouriteListFragment"
         android:name="io.radev.catchit.fragment.FavouriteListFragment"
         android:label="fragment_favourite_list"
         tools:layout="@layout/fragment_favourite_list" />
+    <fragment
+        android:id="@+id/departuresMap"
+        android:name="io.radev.catchit.DeparturesMap"
+        android:label="fragment_departures_map"
+        tools:layout="@layout/fragment_departures_map" >
+        <action
+            android:id="@+id/action_departuresMap_to_locationFragment"
+            app:destination="@id/locationFragment" />
+        <action
+            android:id="@+id/action_departuresMap_to_departureListDialogFragment"
+            app:destination="@id/departureListDialogFragment" />
+    </fragment>
+    <dialog
+        android:id="@+id/departureListDialogFragment"
+        android:name="io.radev.catchit.DepartureListDialogFragment"
+        android:label="fragment_item_list_dialog_list_dialog"
+        tools:layout="@layout/fragment_item_list_dialog_list_dialog" />
 </navigation>
