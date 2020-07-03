@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_favourite_list" />
     <fragment
         android:id="@+id/departuresMap"
-        android:name="io.radev.catchit.DeparturesMap"
+        android:name="io.radev.catchit.fragment.DeparturesMap"
         android:label="fragment_departures_map"
         tools:layout="@layout/fragment_departures_map" >
         <action
@@ -21,7 +21,7 @@
     </fragment>
     <dialog
         android:id="@+id/departureListDialogFragment"
-        android:name="io.radev.catchit.DepartureListDialogFragment"
+        android:name="io.radev.catchit.fragment.DepartureListDialogFragment"
         android:label="fragment_item_list_dialog_list_dialog"
         tools:layout="@layout/fragment_item_list_dialog_list_dialog" />
 </navigation>

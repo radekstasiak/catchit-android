@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.network
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,8 +9,8 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.qualifiers.ApplicationContext
+import io.radev.catchit.R
+import io.radev.catchit.notification.SingleBusNotificationModel
 import io.radev.catchit.activity.MainActivity
 import javax.inject.Inject
 
@@ -41,7 +41,7 @@ class NotificationController @Inject constructor() {
         }
     }
 
-    fun displayNotification(data:SingleBusNotificationModel, context: Context) {
+    fun displayNotification(data: SingleBusNotificationModel, context: Context) {
         // Create an explicit intent for an Activity in your app
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

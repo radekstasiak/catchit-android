@@ -1,5 +1,6 @@
 package io.radev.catchit
 
+import io.radev.catchit.viewmodel.PlaceMemberModel
 import org.junit.Test
 
 /*
@@ -59,12 +60,14 @@ class ExtensionsTest{
         )
     )
 
-    private fun getPlaceMemberModel():PlaceMemberModel = PlaceMemberModel(name = "Green Rd Green View - SE-bound",
-    atcocode = "450010441",
-    description = "Meanwood, Leeds",
-    distance = "142.0",
-    isFavourite = true,
-    latitude = 53.82968,
-    longitude = -1.56852
-    )
+    private fun getPlaceMemberModel(): PlaceMemberModel =
+        PlaceMemberModel(
+            name = "Green Rd Green View - SE-bound",
+            atcocode = "450010441",
+            description = "Meanwood, Leeds",
+            distance = "142.0",
+            isFavourite = true,
+            latitude = 53.82968,
+            longitude = -1.56852
+        )
 }

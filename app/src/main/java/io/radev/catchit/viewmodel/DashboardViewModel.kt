@@ -1,10 +1,11 @@
-package io.radev.catchit
+package io.radev.catchit.viewmodel
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import io.radev.catchit.DateTimeConverter
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.db.FavouriteLine
 import io.radev.catchit.db.FavouriteStop
@@ -141,7 +142,10 @@ class DashboardViewModel @ViewModelInject constructor(
 
     fun getNearbyPlaces(longitude: Double? = null, latitude: Double? = null) {
         if (longitude != null && latitude != null) {
-            _userLatLang.value = LatitudeLongitude(latitude = latitude, longitude = longitude)
+            _userLatLang.value = LatitudeLongitude(
+                latitude = latitude,
+                longitude = longitude
+            )
         }
         viewModelScope.launch {
             when (val result = dataRepository.getNearbyPlaces(
@@ -188,7 +192,10 @@ class DashboardViewModel @ViewModelInject constructor(
                 getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops(postCode = postCode)) {
                 is PlaceMembersState.Success -> {
                     _userLatLang.value =
-                        LatitudeLongitude(latitude = result.latitude, longitude = result.longitude)
+                        LatitudeLongitude(
+                            latitude = result.latitude,
+                            longitude = result.longitude
+                        )
                     _placeMemberList.value = result.data
                 }
                 PlaceMembersState.PostCodeNotFound -> {

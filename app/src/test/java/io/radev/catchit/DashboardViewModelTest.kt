@@ -11,6 +11,10 @@ import io.radev.catchit.data.DataRepository
 import io.radev.catchit.domain.*
 import io.radev.catchit.network.DepartureResponse
 import io.radev.catchit.network.NetworkResponse
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.viewmodel.DepartureDetailsUiModel
+import io.radev.catchit.viewmodel.DepartureMapModel
+import io.radev.catchit.viewmodel.LatitudeLongitude
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -146,7 +150,11 @@ class DashboardViewModelTest : TestHelper() {
     fun getNearbyPlacesTest_onSuccess() = runBlocking {
         viewModel.placeMemberModelList.observe(lifeCycleTestOwner, placeMemberModelObserver)
         lifeCycleTestOwner.onResume()
-        viewModel._userLatLang.value = LatitudeLongitude(latitude = 1.0,longitude = 53.0)
+        viewModel._userLatLang.value =
+            LatitudeLongitude(
+                latitude = 1.0,
+                longitude = 53.0
+            )
         val response = NetworkResponse.Success(TestHelper.placesResponse)
         Mockito.`when`(
             dataRepository.getNearbyPlaces(

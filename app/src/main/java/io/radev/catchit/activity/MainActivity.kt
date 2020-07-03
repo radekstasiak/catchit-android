@@ -1,21 +1,15 @@
 package io.radev.catchit.activity
 
-import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
-import io.radev.catchit.DashboardViewModel
-import io.radev.catchit.NotificationController
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.network.NotificationController
 import io.radev.catchit.R
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.experimental.LiveTimetableService

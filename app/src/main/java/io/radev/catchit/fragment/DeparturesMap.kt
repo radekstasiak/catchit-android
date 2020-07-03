@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -23,6 +23,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import io.radev.catchit.R
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.viewmodel.DepartureMapModel
 
 
 class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
@@ -134,7 +137,8 @@ class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
     }
 
     fun onPlaceSelected(atcocode: String) {
-        val action = DeparturesMapDirections.actionDeparturesMapToDepartureListDialogFragment()
+        val action =
+            DeparturesMapDirections.actionDeparturesMapToDepartureListDialogFragment()
         model.selectAtcocode(atcocode)
         findNavController().navigate(action)
     }
@@ -236,7 +240,8 @@ class DeparturesMap : Fragment(), GoogleMap.OnMarkerDragListener {
         searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (query != null) {model.getNearbyStopsWithPostcode(query)
+                if (query != null) {
+                    model.getNearbyStopsWithPostcode(query)
                     searchView.setQuery("", false);
                     searchView.clearFocus();
                     searchView.setIconified(true);

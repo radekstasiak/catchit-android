@@ -3,6 +3,7 @@ package io.radev.catchit
 import io.radev.catchit.network.DepartureDetails
 import io.radev.catchit.network.DepartureStatus
 import io.radev.catchit.network.toSingleBusNotificationModel
+import io.radev.catchit.notification.SingleBusNotificationModel
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
