@@ -18,7 +18,7 @@
             android:name=".experimental.LiveTimetableService"
             android:exported="false" />
         <receiver
-            android:name=".updateTimetableAlarm.UpdateLiveTimetableReceiver"
+            android:name=".alarm.UpdateLiveTimetableReceiver"
             android:enabled="true" />
         <activity
             android:name=".activity.MainActivity"

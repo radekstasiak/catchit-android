@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.radev.catchit.DashboardViewModel
 import io.radev.catchit.PlaceMemberModel
 import io.radev.catchit.R
-import io.radev.catchit.updateTimetableAlarm.UpdateTimetableAlarmManager
+import io.radev.catchit.alarm.UpdateTimetableAlarmManager
 import kotlinx.android.synthetic.main.fragment_first.*
 import javax.inject.Inject
 
