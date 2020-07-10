@@ -1,17 +1,13 @@
 package io.radev.catchit
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.*
 import io.radev.catchit.network.ApiService
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import org.junit.*
-import org.junit.rules.TestRule
+import org.junit.Assert
+import org.junit.Before
+import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
@@ -44,7 +40,6 @@ class DataRepositoryTest {
         Mockito.`when`(db.favouriteLineDao()).thenReturn(favouriteLineDao)
         Mockito.`when`(db.favouriteStopDao()).thenReturn(favouriteStopDao)
     }
-
 
 
     @Test
@@ -87,15 +82,15 @@ class DataRepositoryTest {
                 )
             )
         )
-        val result = repository.findFavouriteLineByAtcocode(atcocode = "450012351")
+        val result = repository.findFavouriteStopByAtcocode(atcocode = "450012351")
         Assert.assertEquals(1, result.size)
     }
 
     @Test
-    fun findFavouriteLineByAtcocode_result_not_exists_test() = runBlocking {
+    fun findFavouriteStopByAtcocode_result_not_exists_test() = runBlocking {
         Mockito.`when`(db.favouriteStopDao().findByAtcocode(atcocode = "450012351"))
             .thenReturn(emptyList())
-        val result = repository.findFavouriteLineByAtcocode(atcocode = "450012351")
+        val result = repository.findFavouriteStopByAtcocode(atcocode = "450012351")
         Assert.assertEquals(0, result.size)
     }
 
@@ -116,6 +111,15 @@ class DataRepositoryTest {
     fun getAllFavouriteLines_test() {
         repository.getAllFavouriteLines()
         Mockito.verify(favouriteLineDao).getAll()
+    }
+
+
+    @Test
+    fun `get favourite lines by atcocode test`() {
+        runBlocking {
+            repository.getFavouriteLinesByAtcocode(atcocode = "450012351")
+            Mockito.verify(favouriteLineDao).getByAtcocode(atcocode = "450012351")
+        }
     }
 
     @Test

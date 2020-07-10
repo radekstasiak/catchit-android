@@ -12,10 +12,7 @@ import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.DatabaseConstants
-import io.radev.catchit.domain.GetDeparturesInteractor
-import io.radev.catchit.domain.GetDeparturesUseCase
-import io.radev.catchit.domain.GetNearbyStopsForSelectedPostcodeInteractor
-import io.radev.catchit.domain.GetNearbyStopsForSelectedPostcodeUseCase
+import io.radev.catchit.domain.*
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.errorhandling.NetworkResponseAdapterFactory
@@ -91,6 +88,11 @@ abstract class UseCaseModule {
     abstract fun bindGetNearbyStopsForSelectedPostcodeInteractor(
         getNearbyStopsForSelectedPostcodeInteractor: GetNearbyStopsForSelectedPostcodeInteractor
     ): GetNearbyStopsForSelectedPostcodeUseCase
+
+    @Binds
+    abstract fun bindUpdateFavouriteDeparturesAlertUseCase(
+        getUpdateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertInteractor
+    ): UpdateFavouriteDeparturesAlertUseCase
 }
 
 @Module

@@ -1,22 +1,25 @@
 package io.radev.catchit.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.radev.catchit.viewmodel.DashboardViewModel
 import io.radev.catchit.R
-import io.radev.catchit.db.FavouriteStop
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.viewmodel.FavouriteDepartureAlert
 import kotlinx.android.synthetic.main.fragment_favourite_list.*
 
 
-class FavouriteListFragment : Fragment() {
+class FavouriteListFragment : Fragment(), SelectDepartureListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var favourListAdapter: FavouriteListRecyclerViewAdapter
 
@@ -36,31 +39,47 @@ class FavouriteListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         recyclerView = recycler_view
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-        favourListAdapter = FavouriteListRecyclerViewAdapter()
+        favourListAdapter =
+            FavouriteListRecyclerViewAdapter(context = requireContext(), listener = this)
         recyclerView.adapter = favourListAdapter
-        model.favouriteStopList.observe(viewLifecycleOwner, Observer<List<FavouriteStop>> {
-            favourListAdapter.setData(it)
-        })
+        model.favouriteDeparturesAlertList.observe(
+            viewLifecycleOwner,
+            Observer<List<FavouriteDepartureAlert>> {
+                swipe_refresh.isRefreshing = false
+                favourListAdapter.setData(it)
+            })
+
+        swipe_refresh.setOnRefreshListener {
+            swipe_refresh.isRefreshing = true
+            model.updateFavouriteDeparturesList()
+        }
+    }
+
+    override fun updateFavouriteStop(atcocode: String, lineName: String, favourite: Boolean) {
+        model.updateFavouriteLine(atcocode = atcocode, lineName = lineName, favourite = favourite)
     }
 
 
 }
 
-class FavouriteListRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var data = arrayListOf<FavouriteStop>()
+class FavouriteListRecyclerViewAdapter(
+    private val context: Context,
+    val listener: SelectDepartureListener
+) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    var data = arrayListOf<FavouriteDepartureAlert>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         FavouriteItemViewHolder(
             LayoutInflater.from(parent.context).inflate(
-                R.layout.favourite_item,
+                R.layout.item_connection_item,
                 parent,
                 false
             )
         )
 
-    fun setData(list: List<FavouriteStop>) {
+    fun setData(list: List<FavouriteDepartureAlert>) {
         data = ArrayList(list)
         notifyDataSetChanged()
     }
@@ -72,18 +91,45 @@ class FavouriteListRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         val vh = holder as FavouriteItemViewHolder
         val item = data[position]
         vh.atcocode.text = item.atcocode
-        vh.timestamp.text = item.createdAt.toString()
+        vh.nextDeparture.text = String.format(
+            context.getString(R.string.departure_wait_time),
+            item.lineName,
+            item.waitTime,
+            item.direction
+        )
+
+        vh.favIv.setImageDrawable(
+            ContextCompat.getDrawable(
+                context,
+                R.drawable.baseline_favorite_24
+            )
+        )
+        vh.expectedArrival.text =
+            String.format(context.getString(R.string.expected_arrival), item.nextDeparture)
+
+        //todo update the list in reactive manner
+        vh.favIv.setOnClickListener {
+            if (item.lineName != null) listener.updateFavouriteStop(
+                atcocode = item.atcocode,
+                lineName = item.lineName,
+                favourite = false
+            )
+
+        }
     }
 }
 
 class FavouriteItemViewHolder : RecyclerView.ViewHolder {
-
+    val nextDeparture: TextView
+    val expectedArrival: TextView
     val atcocode: TextView
-    val timestamp: TextView
+    val favIv: ImageView
 
     constructor(view: View) : super(view) {
+        expectedArrival = view.findViewById(R.id.expected_arrival)
+        nextDeparture = view.findViewById(R.id.next_departure)
+        atcocode = view.findViewById(R.id.tv_operator)
+        favIv = view.findViewById(R.id.fav_iv)
 
-        atcocode = view.findViewById(R.id.tv_atcocode)
-        timestamp = view.findViewById(R.id.tv_timestamp)
     }
 }

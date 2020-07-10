@@ -130,6 +130,29 @@ class CatchItDatabaseTest {
         Assert.assertEquals(2,updatedResult.size)
     }
 
+    @Test
+    @Throws(Exception::class)
+    fun getFavouriteLines_byAtcocode_result_exists_test()=runBlocking{
+        populatedDb()
+        val entity1 = FavouriteLine(
+            createdAt = 1L,
+            modifiedAt = 1L,
+            atcocode = "450012351",
+            lineName = "16"
+        )
+
+        val entity2 = FavouriteLine(
+            createdAt = 1L,
+            modifiedAt = 1L,
+            atcocode = "450012351",
+            lineName = "4"
+        )
+
+        db.favouriteLineDao().insertAll(entity1, entity2)
+        val result = db.favouriteLineDao().getByAtcocode(atcocode="450012351")
+        Assert.assertEquals(3, result.size)
+    }
+
     //FavouriteStopDao test
     @Test
     @Throws(Exception::class)

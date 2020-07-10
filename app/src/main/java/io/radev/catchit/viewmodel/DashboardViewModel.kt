@@ -1,5 +1,6 @@
 package io.radev.catchit.viewmodel
 
+import android.util.Log
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
@@ -26,14 +27,25 @@ class DashboardViewModel @ViewModelInject constructor(
     private val dataRepository: DataRepository,
     private val converter: DateTimeConverter,
     private val getDeparturesUseCase: GetDeparturesUseCase,
+    private val updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase,
     private val getNearbyStopsForSelectedPostcodeUseCase: GetNearbyStopsForSelectedPostcodeUseCase,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+    val TAG = "DashboardViewModel"
 
     //todo update with initial values
     val _userLatLang = MutableLiveData<LatitudeLongitude>()
+
+    private val _favouriteDeparturesAlertList = MutableLiveData<List<FavouriteDepartureAlert>>()
+    val favouriteDeparturesAlertList =
+        Transformations.map(_favouriteDeparturesAlertList) { favouriteDeparturesAlertList ->
+            favouriteDeparturesAlertList
+        }
+
+
     private val _favouriteStopList = dataRepository.getAllFavouriteStops()
 
+    //TODO this one can be probably removed
     val favouriteStopList = Transformations.map(_favouriteStopList) { favouriteStopList ->
         favouriteStopList
     }
@@ -246,6 +258,36 @@ class DashboardViewModel @ViewModelInject constructor(
                     lineName = lineName
                 )
             }
+        }
+    }
+
+    //TODO test this one and scope out from view model
+    fun updateFavouriteDeparturesList() {
+        viewModelScope.launch {
+            val result = updateFavouriteDeparturesAlertUseCase.getFavouriteDeparturesUpdate()
+            val alertList = arrayListOf<FavouriteDepartureAlert>()
+            for (item in result) {
+                when (item) {
+                    is FavouriteDepartureUpdateState.Success -> {
+                        alertList.addAll(
+                            updateFavouriteDeparturesAlertUseCase.filterFavouriteLines(
+                                item.data
+                            )
+                        )
+                    }
+                    is FavouriteDepartureUpdateState.ApiError -> Log.d(
+                        TAG,
+                        "api error ${item.code}"
+                    )
+                    FavouriteDepartureUpdateState.NetworkError -> Log.d(TAG, "network error}")
+                    is FavouriteDepartureUpdateState.UnknownError -> Log.d(
+                        TAG,
+                        "unknown error ${item.error.message}"
+                    )
+                }
+            }
+            _favouriteDeparturesAlertList.value = alertList.sortedBy { it.timestamp }
+
         }
     }
 

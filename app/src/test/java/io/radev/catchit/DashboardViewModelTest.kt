@@ -70,6 +70,9 @@ class DashboardViewModelTest : TestHelper() {
     lateinit var getNearbyStopsForSelectedPostcodeUseCase: GetNearbyStopsForSelectedPostcodeUseCase
 
     @RelaxedMockK
+    lateinit var updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase
+
+    @RelaxedMockK
     lateinit var departureDomainModelMock: DepartureDomainModel
 
     @RelaxedMockK
@@ -77,6 +80,7 @@ class DashboardViewModelTest : TestHelper() {
 
     @RelaxedMockK
     lateinit var departureDetailsUiList: List<DepartureDetailsUiModel>
+
     @Before
     fun setup() {
         MockKAnnotations.init(this)
@@ -98,7 +102,8 @@ class DashboardViewModelTest : TestHelper() {
             converter = converter,
             savedStateHandle = savedStateHandle,
             getDeparturesUseCase = getDeparturesUseCase,
-            getNearbyStopsForSelectedPostcodeUseCase = getNearbyStopsForSelectedPostcodeUseCase
+            getNearbyStopsForSelectedPostcodeUseCase = getNearbyStopsForSelectedPostcodeUseCase,
+            updateFavouriteDeparturesAlertUseCase = updateFavouriteDeparturesAlertUseCase
         )
     }
 
@@ -115,7 +120,12 @@ class DashboardViewModelTest : TestHelper() {
         //todo clean mess in this test (mockito and mockk)
         mockkStatic("io.radev.catchit.domain.ModelKt")
         every { departureDomainModelMock.departures } returns departureDetailsDomainList
-        every {departureDetailsDomainList.toDepartureDetailsUiModel(atcocode = "450012351", dateTimeConverter = converter)} returns departureDetailsUiList
+        every {
+            departureDetailsDomainList.toDepartureDetailsUiModel(
+                atcocode = "450012351",
+                dateTimeConverter = converter
+            )
+        } returns departureDetailsUiList
 
         viewModel.departureDetailsModelList.observe(lifeCycleTestOwner, departureDetailsObserver)
         lifeCycleTestOwner.onResume()
@@ -124,7 +134,8 @@ class DashboardViewModelTest : TestHelper() {
         val result = NetworkResponse.Success<DepartureResponse>(body = getDepartureResponse())
 
         val departureState = DeparturesState.Success(data = departureDomainModelMock)
-        Mockito.`when`(getDeparturesUseCase.getDepartureState(atcocode ="450012351" )).thenReturn(departureState)
+        Mockito.`when`(getDeparturesUseCase.getDepartureState(atcocode = "450012351"))
+            .thenReturn(departureState)
         Mockito.`when`(dataRepository.getLiveTimetable(atcocode = "450012351"))
             .thenReturn(result)
         viewModel.getLiveTimetable()
@@ -135,10 +146,17 @@ class DashboardViewModelTest : TestHelper() {
 
     @Test
     fun getPostCodeDetailsTest_onSuccess() = runBlocking {
-        Mockito.`when`(getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops("LS71HT")).thenReturn(PlaceMembersState.Success(longitude = 1.0, latitude = 42.0, data = placesResponse.memberList))
+        Mockito.`when`(getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops("LS71HT"))
+            .thenReturn(
+                PlaceMembersState.Success(
+                    longitude = 1.0,
+                    latitude = 42.0,
+                    data = placesResponse.memberList
+                )
+            )
         val response = NetworkResponse.Success(TestHelper.postCodeDetailsResponse)
         viewModel._userLatLang.observe(lifeCycleTestOwner, postCodeMemberObserver)
-        viewModel.placeMemberModelList.observe(lifeCycleTestOwner,placeMemberModelObserver)
+        viewModel.placeMemberModelList.observe(lifeCycleTestOwner, placeMemberModelObserver)
         lifeCycleTestOwner.onResume()
 //        Mockito.`when`(dataRepository.getPostCodeDetails(postCode = "LS71HT")).thenReturn(response)
         viewModel.getNearbyStopsWithPostcode(postCode = "LS71HT")

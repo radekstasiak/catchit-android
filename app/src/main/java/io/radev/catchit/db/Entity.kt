@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
 //TODO make a realtion between Favourite Line Name and Favourite Stop
 @Entity(tableName = DatabaseConstants.FAVOURITE_LINE)
 data class FavouriteLine(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long=0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long = 0,
     @ColumnInfo(name = DatabaseConstants.CREATED_AT) val createdAt: Long,
     @ColumnInfo(name = DatabaseConstants.MODIFIED_AT) val modifiedAt: Long,
     @ColumnInfo(name = DatabaseConstants.LINE_NAME) val lineName: String,
@@ -27,9 +27,15 @@ data class FavouriteLine(
     ]
 )
 data class FavouriteStop(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long=0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long = 0,
     @ColumnInfo(name = DatabaseConstants.CREATED_AT) val createdAt: Long,
     @ColumnInfo(name = DatabaseConstants.MODIFIED_AT) val modifiedAt: Long,
     @ColumnInfo(name = DatabaseConstants.ATCOCODE) val atcocode: String
 )
+
+
+fun List<FavouriteLine>.toUniqueAtcocodeList(): List<String> =
+    this.distinctBy { it.atcocode }.map { it.atcocode }
+
+//fun List<FavouriteLine>.toUnique
 
