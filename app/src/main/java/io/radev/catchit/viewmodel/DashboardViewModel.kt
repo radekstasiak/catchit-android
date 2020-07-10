@@ -280,6 +280,15 @@ data class DepartureDetailsModel(
     val waitTime: String
 )
 
+data class FavouriteDepartureAlert(
+    val atcocode: String,
+    val lineName: String,
+    val waitTime: String,
+    val nextDeparture: String,
+    val direction: String,
+    val timestamp: Long,
+    val stopName: String
+)
 
 //TODO handle cancellations
 data class DepartureDetailsUiModel(

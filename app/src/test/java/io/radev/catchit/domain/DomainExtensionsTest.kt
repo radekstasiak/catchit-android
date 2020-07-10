@@ -1,8 +1,14 @@
 package io.radev.catchit.domain
 
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
+import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.mockk
 import io.radev.catchit.DateTimeConverter
 import io.radev.catchit.DateTimeConverterImpl
 import io.radev.catchit.TestHelper
+import io.radev.catchit.viewmodel.FavouriteDepartureAlert
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -17,15 +23,16 @@ import org.mockito.MockitoAnnotations
 
 class DomainExtensionsTest : TestHelper() {
 
-    @Mock
+    @RelaxedMockK
     lateinit var dateTimeConverter: DateTimeConverterImpl
 
     @Before
     fun setup() {
-        MockitoAnnotations.initMocks(this)
-        Mockito.`when`(dateTimeConverter.getNowInMillis()).thenReturn(0L)
-        Mockito.`when`(dateTimeConverter.getWaitTime(Mockito.anyLong(),Mockito.anyLong())).thenReturn("1m")
-        Mockito.`when`(dateTimeConverter.convertMillisToHumanFormat(Mockito.anyLong())).thenReturn("12:57")
+        MockKAnnotations.init(this)
+
+        every { dateTimeConverter.getNowInMillis() } returns 0L
+        every { dateTimeConverter.getWaitTime(any(),any()) } returns "1m"
+        every { dateTimeConverter.convertMillisToHumanFormat(any()) } returns "12:57"
     }
 
     @Test
@@ -56,5 +63,33 @@ class DomainExtensionsTest : TestHelper() {
         Assert.assertEquals(1593518220000,result[2].timestamp)
         Assert.assertEquals("61",result[3].lineName)
         Assert.assertEquals(1593518220000,result[3].timestamp)
+    }
+
+    @Test
+    fun `test create list of FavouriteDepartureAlert from DepartureDetailsDomainModel and FavouriteLine list`(){
+        val departureDomainModel = getDepartureDomainModel()
+        val result = departureDomainModel.toFavouriteDepartureAlert(favLineList = listOf("4","61","42"),
+        dateTimeConverter = dateTimeConverter
+            )
+        departureDomainModel.departures.sortedBy { it.bestDepartureEstimate }
+
+        Assert.assertEquals(3, result.size)
+
+        Assert.assertEquals("450013965",result[0].atcocode)
+        Assert.assertEquals("42",result[0].lineName)
+        Assert.assertEquals("Compton Road Compton Centre",result[0].stopName)
+        Assert.assertEquals(1593517800000,result[0].timestamp)
+
+        Assert.assertEquals("450013965",result[1].atcocode)
+        Assert.assertEquals("4",result[1].lineName)
+        Assert.assertEquals("Compton Road Compton Centre",result[1].stopName)
+        Assert.assertEquals(1593518040000,result[1].timestamp)
+
+        Assert.assertEquals("450013965",result[2].atcocode)
+        Assert.assertEquals("61",result[2].lineName)
+        Assert.assertEquals("Compton Road Compton Centre",result[2].stopName)
+        Assert.assertEquals(1593518220000,result[2].timestamp)
+
+
     }
 }

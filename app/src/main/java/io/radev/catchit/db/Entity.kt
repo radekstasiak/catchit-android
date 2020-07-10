@@ -10,6 +10,7 @@ import androidx.room.PrimaryKey
  * radev.io 2020.
  */
 
+//TODO make a realtion between Favourite Line Name and Favourite Stop
 @Entity(tableName = DatabaseConstants.FAVOURITE_LINE)
 data class FavouriteLine(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = DatabaseConstants.ID) val id: Long=0,
