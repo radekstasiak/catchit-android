@@ -52,9 +52,14 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
             })
 
         swipe_refresh.setOnRefreshListener {
-            swipe_refresh.isRefreshing = true
-            model.updateFavouriteDeparturesList()
+            updateData()
         }
+        updateData()
+    }
+
+    private fun updateData(){
+        swipe_refresh.isRefreshing = true
+        model.updateFavouriteDeparturesList()
     }
 
     override fun updateFavouriteStop(atcocode: String, lineName: String, favourite: Boolean) {
@@ -90,7 +95,7 @@ class FavouriteListRecyclerViewAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val vh = holder as FavouriteItemViewHolder
         val item = data[position]
-        vh.atcocode.text = item.atcocode
+        vh.atcocode.text = "${item.stopName} (${item.atcocode})"
         vh.nextDeparture.text = String.format(
             context.getString(R.string.departure_wait_time),
             item.lineName,

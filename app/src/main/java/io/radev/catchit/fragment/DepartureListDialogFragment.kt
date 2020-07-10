@@ -121,7 +121,7 @@ class DepartureListAdapter(
                 lineName = item.lineName,
                 favourite = !item.isFavourite
             )
-            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+//            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
 
 
         }
