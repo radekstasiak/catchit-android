@@ -15,10 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
-import io.radev.catchit.viewmodel.DashboardViewModel
-import io.radev.catchit.viewmodel.DepartureDetailsUiModel
 import io.radev.catchit.R
 import io.radev.catchit.alarm.UpdateTimetableAlarmManager
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.viewmodel.DepartureDetailsUiModel
 import kotlinx.android.synthetic.main.fragment_item_list_dialog_list_dialog.*
 import javax.inject.Inject
 
@@ -45,6 +45,7 @@ class DepartureListDialogFragment : BottomSheetDialogFragment(),
         recyclerView = recycler_view
         itemAdapter = DepartureListAdapter(
             this,
+            updateTimetableAlarmManager,
             requireActivity()
         )
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -70,6 +71,7 @@ class DepartureListDialogFragment : BottomSheetDialogFragment(),
 
 class DepartureListAdapter(
     val listener: SelectDepartureListener,
+    private val updateTimetableAlarmManager: UpdateTimetableAlarmManager,
     private val context: Context
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -108,7 +110,8 @@ class DepartureListAdapter(
             if (item.isFavourite) ContextCompat.getDrawable(
                 context,
                 R.drawable.baseline_favorite_24
-            ) else ContextCompat.getDrawable(context,
+            ) else ContextCompat.getDrawable(
+                context,
                 R.drawable.baseline_favorite_border_24
             )
         )
@@ -118,6 +121,9 @@ class DepartureListAdapter(
                 lineName = item.lineName,
                 favourite = !item.isFavourite
             )
+            updateTimetableAlarmManager.startTimetableUpdates(item.atcocode)
+
+
         }
     }
 
