@@ -67,7 +67,7 @@ fun DepartureDomainModel.toFavouriteDepartureAlert(
         //TODO when want to display more then just next departure of favourite line - remove distinctBy
         //TODO update to display an info for the favourite lines which are not embedded in the DepartureDomainModel object
         .distinctBy { Pair(it.lineName, it.direction) }
-        .mapNotNull { it ->
+        .mapNotNull {
             if (favLineList.contains(it.lineName)) {
                 FavouriteDepartureAlert(
                     atcocode = this.atcocode,
