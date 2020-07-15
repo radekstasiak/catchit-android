@@ -37,18 +37,13 @@ class DashboardViewModel @ViewModelInject constructor(
     val _userLatLang = MutableLiveData<LatitudeLongitude>()
 
     private val _favouriteDeparturesAlertList = MutableLiveData<List<FavouriteDepartureAlert>>()
-    val favouriteDeparturesAlertList =
-        Transformations.map(_favouriteDeparturesAlertList) { favouriteDeparturesAlertList ->
-            favouriteDeparturesAlertList
-        }
-
+    val favouriteDeparturesAlertList = MediatorLiveData<List<FavouriteDepartureAlert>>()
+//        Transformations.map(_favouriteDeparturesAlertList) { favouriteDeparturesAlertList ->
+//            favouriteDeparturesAlertList
+//        }
 
     private val _favouriteStopList = dataRepository.getAllFavouriteStops()
 
-    //TODO this one can be probably removed
-    val favouriteStopList = Transformations.map(_favouriteStopList) { favouriteStopList ->
-        favouriteStopList
-    }
     private val _placeMemberList = MutableLiveData<List<PlaceMember>>()
     val placeMemberModelList = MediatorLiveData<DepartureMapModel>()
 
@@ -61,7 +56,22 @@ class DashboardViewModel @ViewModelInject constructor(
 
     init {
 
+        favouriteDeparturesAlertList.addSource(_favouriteLineList) {
+            if (favouriteDeparturesAlertList.value != null && _favouriteLineList.value != null) {
+                val result = arrayListOf<FavouriteDepartureAlert>()
 
+                for (alert in favouriteDeparturesAlertList.value!!) {
+                    if (_favouriteLineList.value!!.find { it.atcocode == alert.atcocode && it.lineName == alert.lineName } != null) result.add(
+                        alert
+                    )
+                }
+                favouriteDeparturesAlertList.value = result
+            }
+        }
+
+        favouriteDeparturesAlertList.addSource(_favouriteDeparturesAlertList) {
+            favouriteDeparturesAlertList.value = _favouriteDeparturesAlertList.value
+        }
         placeMemberModelList.addSource(_favouriteStopList) { _ ->
             placeMemberModelList.value =
                 combineFavouriteStopData(_favouriteStopList, _placeMemberList)
@@ -91,6 +101,7 @@ class DashboardViewModel @ViewModelInject constructor(
                 )
             }
         }
+
 
     }
 
@@ -269,7 +280,7 @@ class DashboardViewModel @ViewModelInject constructor(
             for (item in result) {
                 when (item) {
                     is FavouriteDepartureUpdateState.Success -> {
-                        for(departureAlert in item.list){
+                        for (departureAlert in item.list) {
                             alertList.add(departureAlert.toUiModel())
                         }
 //                        alertList.addAll(
