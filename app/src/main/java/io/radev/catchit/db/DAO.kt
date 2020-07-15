@@ -64,7 +64,7 @@ interface FavouriteLineDao {
         LIMIT 1
     """
     )
-    suspend fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
+    suspend fun findByAtcocodeAndLine(atcocode: String, lineName: String): List<FavouriteLine>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg favouriteLines: FavouriteLine)

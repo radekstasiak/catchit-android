@@ -269,11 +269,14 @@ class DashboardViewModel @ViewModelInject constructor(
             for (item in result) {
                 when (item) {
                     is FavouriteDepartureUpdateState.Success -> {
-                        alertList.addAll(
-                            updateFavouriteDeparturesAlertUseCase.filterFavouriteLines(
-                                item.data
-                            )
-                        )
+                        for(departureAlert in item.list){
+                            alertList.add(departureAlert.toUiModel())
+                        }
+//                        alertList.addAll(
+//                            updateFavouriteDeparturesAlertUseCase.filterFavouriteLines(
+//                                item.data
+//                            )
+//                        )
                     }
                     is FavouriteDepartureUpdateState.ApiError -> Log.d(
                         TAG,

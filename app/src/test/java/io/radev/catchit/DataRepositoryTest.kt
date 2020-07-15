@@ -123,6 +123,14 @@ class DataRepositoryTest {
     }
 
     @Test
+    fun `get favourite lines by atcocode and line name test`() {
+        runBlocking {
+            repository.getFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "52")
+            Mockito.verify(favouriteLineDao).findByAtcocodeAndLine(atcocode = "450012351", lineName = "52")
+        }
+    }
+
+    @Test
     fun getPostCodeDetails_test() {
         runBlocking {
             repository.getPostCodeDetails(postCode = "LS71HT")

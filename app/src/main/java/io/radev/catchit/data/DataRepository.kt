@@ -46,11 +46,19 @@ class DataRepositoryImpl @Inject constructor(
     override fun getAllFavouriteLines(): LiveData<List<FavouriteLine>> =
         db.favouriteLineDao().getAll()
 
-    override suspend fun getAllFavouriteLinesSync(): List<FavouriteLine> = db.favouriteLineDao().getAllSync()
+    override suspend fun getAllFavouriteLinesSync(): List<FavouriteLine> =
+        db.favouriteLineDao().getAllSync()
 
 
     override suspend fun getFavouriteLinesByAtcocode(atcocode: String): List<FavouriteLine> =
         db.favouriteLineDao().getByAtcocode(atcocode = atcocode)
+
+    override suspend fun getFavouriteLineByAtcocodeAndLineName(
+        atcocode: String,
+        lineName: String
+    ): List<FavouriteLine> =
+        db.favouriteLineDao().findByAtcocodeAndLine(atcocode = atcocode, lineName = lineName)
+
 
     //Retrofit takes care of the main-safety - no need to switch between threads
     //https://proandroiddev.com/do-i-need-to-call-suspend-functions-of-retrofit-and-room-on-a-background-thread-26650dac762d
@@ -94,4 +102,8 @@ interface DataRepository {
     //TODO add tests
     suspend fun getAllFavouriteLinesSync(): List<FavouriteLine>
     suspend fun getFavouriteLinesByAtcocode(atcocode: String): List<FavouriteLine>
+    suspend fun getFavouriteLineByAtcocodeAndLineName(
+        atcocode: String,
+        lineName: String
+    ): List<FavouriteLine>
 }

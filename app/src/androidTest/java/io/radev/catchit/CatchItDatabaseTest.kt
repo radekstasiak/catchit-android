@@ -97,7 +97,7 @@ class CatchItDatabaseTest {
     fun findByAtcocodeAndLine_no_result_test_test() = runBlocking {
         populatedDb()
         val result = db.favouriteLineDao().findByAtcocodeAndLine("4500104319", "52")
-        Assert.assertEquals(null, result)
+        Assert.assertEquals(0, result.size)
     }
 
     @Test
@@ -105,7 +105,8 @@ class CatchItDatabaseTest {
     fun findByAtcocodeAndLine_result_exist_test() = runBlocking {
         populatedDb()
         val result = db.favouriteLineDao().findByAtcocodeAndLine("450010439", "52")
-        Assert.assertEquals(result.atcocode, "450010439")
+        Assert.assertEquals(result.size, 1)
+        Assert.assertEquals(result[0].atcocode, "450010439")
     }
 
     @Test

@@ -21,7 +21,7 @@ interface UpdateFavouriteDeparturesAlertUseCase {
 
     suspend fun getNextDepartures(atcocode: List<String>): List<String>
     suspend fun getFavouriteDeparturesUpdate(): List<FavouriteDepartureUpdateState>
-    suspend fun filterFavouriteLines(domainModel: DepartureDomainModel): List<FavouriteDepartureAlert>
+//    suspend fun filterFavouriteLines(domainModel: DepartureDomainModel): List<FavouriteDepartureAlert>
 }
 
 class UpdateFavouriteDeparturesAlertInteractor @Inject constructor(
@@ -48,14 +48,11 @@ class UpdateFavouriteDeparturesAlertInteractor @Inject constructor(
             atcocodeList.map { atcocode ->
                 async { dataRepository.getLiveTimetable(atcocode) }
             }.map {
-                //todo validate if requests are done in parallel if not separate into two maps
                 when (val result = it.await()) {
                     is Success -> {
-                        FavouriteDepartureUpdateState.Success(
-                            result.body.toDomainModel(
-                                dateTimeConverter = dateTimeConverter
-                            )
-                        )
+                        val domainModel =  result.body.toDomainModel(dateTimeConverter = dateTimeConverter)
+                        val departureAlertList =domainModel.toFavouriteDepartureAlert(dataRepository=dataRepository,dateTimeConverter = dateTimeConverter)
+                        FavouriteDepartureUpdateState.Success(list = departureAlertList)
                     }
                     is NetworkResponse.ApiError -> FavouriteDepartureUpdateState.ApiError(code = result.code)
                     is NetworkResponse.NetworkError -> FavouriteDepartureUpdateState.NetworkError
@@ -68,23 +65,35 @@ class UpdateFavouriteDeparturesAlertInteractor @Inject constructor(
 
     }
 
-    //todo update method above to return this
-    override suspend fun filterFavouriteLines(domainModel: DepartureDomainModel): List<FavouriteDepartureAlert> {
-        val favouriteLines = dataRepository.getFavouriteLinesByAtcocode(atcocode = domainModel.atcocode)
-        val list = favouriteLines.map { it.lineName }
-        return domainModel.toFavouriteDepartureAlert(
-            favLineList = list,
-            dateTimeConverter = dateTimeConverter
-        )
-    }
 
     private fun mapToDepartureResultList(list: List<NetworkResponse.Success<DepartureResponse>>): List<String> =
         list.map { it.body.atcocode ?: "" }
 
 }
 
+data class FavouriteDeparturesAlertDomainModel(
+    val atcocode: String,
+    val lineName: String,
+    val waitTime: String,
+    val nextDeparture: String,
+    val direction: String,
+    val timestamp: Long,
+    val stopName: String
+)
+
+fun FavouriteDeparturesAlertDomainModel.toUiModel(): FavouriteDepartureAlert =
+    FavouriteDepartureAlert(
+        atcocode = this.atcocode,
+        lineName = this.lineName,
+        waitTime = this.waitTime,
+        nextDeparture = this.nextDeparture,
+        direction = this.direction,
+        timestamp = this.timestamp,
+        stopName = this.stopName
+    )
+
 sealed class FavouriteDepartureUpdateState() {
-    data class Success(val data: DepartureDomainModel) : FavouriteDepartureUpdateState()
+    data class Success(val list: List<FavouriteDeparturesAlertDomainModel>) : FavouriteDepartureUpdateState()
     data class ApiError(val code: Int) : FavouriteDepartureUpdateState()
     object NetworkError : FavouriteDepartureUpdateState()
     data class UnknownError(val error: Throwable) : FavouriteDepartureUpdateState()

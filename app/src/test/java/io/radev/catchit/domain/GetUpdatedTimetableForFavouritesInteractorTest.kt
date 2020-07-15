@@ -90,7 +90,15 @@ class GetUpdatedTimetableForFavouritesInteractorTest {
             mockk<NetworkResponse.Success<DepartureResponse>>(relaxed = true)
             {
                 every { body } returns mockk {
-                    every { toDomainModel(dateTimeConverter) } returns mockk {}
+                    every { toDomainModel(dateTimeConverter) } returns mockk {
+                        coEvery {
+                            toFavouriteDepartureAlert(
+                                dataRepository,
+                                dateTimeConverter
+                            )
+                        } returns listOf()
+                        every { departures } returns listOf()
+                    }
                 }
             },
             mockk<NetworkResponse.ApiError<ErrorResponse>>(relaxed = true)
@@ -101,7 +109,15 @@ class GetUpdatedTimetableForFavouritesInteractorTest {
             mockk<NetworkResponse.Success<DepartureResponse>>(relaxed = true)
             {
                 every { body } returns mockk {
-                    every { toDomainModel(dateTimeConverter) } returns mockk {}
+                    every { toDomainModel(dateTimeConverter) } returns mockk {
+                        coEvery {
+                            toFavouriteDepartureAlert(
+                                dataRepository,
+                                dateTimeConverter
+                            )
+                        } returns listOf()
+                        every { departures } returns listOf()
+                    }
                 }
             },
             mockk<NetworkResponse.UnknownError>(relaxed = true)

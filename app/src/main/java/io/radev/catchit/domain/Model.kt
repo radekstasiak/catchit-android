@@ -1,8 +1,8 @@
 package io.radev.catchit.domain
 
 import io.radev.catchit.DateTimeConverter
+import io.radev.catchit.data.DataRepository
 import io.radev.catchit.viewmodel.DepartureDetailsUiModel
-import io.radev.catchit.viewmodel.FavouriteDepartureAlert
 
 /*
  * Created by radoslaw on 30/06/2020.
@@ -58,18 +58,22 @@ fun List<DepartureDetailsDomainModel>.toDepartureDetailsUiModel(
             )
         }
 
-fun DepartureDomainModel.toFavouriteDepartureAlert(
-    favLineList: List<String>,
+suspend fun DepartureDomainModel.toFavouriteDepartureAlert(
+    dataRepository: DataRepository,
     dateTimeConverter: DateTimeConverter
-): List<FavouriteDepartureAlert> =
+): List<FavouriteDeparturesAlertDomainModel> =
     //        .takeIf { favLineList.contains(it.lineName }
     this.departures.sortedBy { it.bestDepartureEstimate }
         //TODO when want to display more then just next departure of favourite line - remove distinctBy
         //TODO update to display an info for the favourite lines which are not embedded in the DepartureDomainModel object
         .distinctBy { Pair(it.lineName, it.direction) }
         .mapNotNull {
-            if (favLineList.contains(it.lineName)) {
-                FavouriteDepartureAlert(
+            if (dataRepository.getFavouriteLineByAtcocodeAndLineName(
+                    atcocode = this.atcocode,
+                    lineName = it.lineName
+                ).isNotEmpty()
+            ) {
+                FavouriteDeparturesAlertDomainModel(
                     atcocode = this.atcocode,
                     lineName = it.lineName,
                     waitTime = dateTimeConverter.getWaitTime(
