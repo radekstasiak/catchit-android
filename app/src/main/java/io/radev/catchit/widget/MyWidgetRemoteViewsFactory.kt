@@ -17,24 +17,27 @@ import kotlinx.coroutines.launch
  * Created by radoslaw on 25/07/2020.
  * radev.io 2020.
  */
-
+//https://stackoverflow.com/questions/51580982/widget-listview-not-refreshing-when-ondatasetchanged-method-contains-async-netwo
 class FavoDepRemoteViewsFactory(
     val context: Context,
     val intent: Intent?,
     private val updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase
 ) :
     RemoteViewsService.RemoteViewsFactory {
-    private val data: ArrayList<FavouriteDepartureAlert> = arrayListOf()
+    private var data: ArrayList<FavouriteDepartureAlert> = arrayListOf(FavouriteDepartureAlert(atcocode = "",lineName = "",waitTime = "",nextDeparture = "test",direction = "",timestamp = 1L,stopName = ""))
+//    private val data: ArrayList<FavouriteDepartureAlert> = arrayListOf()
     private val TAG = "FavoDepRemoteViewsFact"
 
     override fun onCreate() {
-        updateFavouriteDeparturesList()
+//        updateFavouriteDeparturesList()
     }
 
-    override fun getLoadingView(): RemoteViews = RemoteViews(
-        context.packageName,
-        R.layout.item_connection_item
-    )
+    override fun getLoadingView(): RemoteViews? = null
+
+//    override fun getLoadingView(): RemoteViews = RemoteViews(
+//        context.packageName,
+//        R.layout.item_connection_item
+//    )
 
     override fun getItemId(p0: Int): Long = p0.toLong()
 
@@ -49,7 +52,7 @@ class FavoDepRemoteViewsFactory(
         val item = data[position]
         val view = RemoteViews(
             context.packageName,
-            R.layout.item_connection_item
+            R.layout.item_widget_row
         )
         val nextDeparture = String.format(
             context.getString(R.string.departure_wait_time),
@@ -59,9 +62,9 @@ class FavoDepRemoteViewsFactory(
         )
         val expectedArrival =
             String.format(context.getString(R.string.expected_arrival), item.nextDeparture)
-        view.setTextViewText(R.id.tv_operator, item.atcocode)
-        view.setTextViewText(R.id.next_departure, nextDeparture)
-        view.setTextViewText(R.id.expected_arrival, expectedArrival)
+//        view.setTextViewText(R.id.tv_operator, item.atcocode)
+//        view.setTextViewText(R.id.next_departure, nextDeparture)
+        view.setTextViewText(R.id.expected_arrival, item.nextDeparture)
 
         return view;
     }
@@ -103,8 +106,8 @@ class FavoDepRemoteViewsFactory(
                     )
                 }
             }
-            data.clear()
-            data.addAll(alertList)
+//            data.clear()
+            data =alertList
         }
     }
 
