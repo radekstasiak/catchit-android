@@ -102,8 +102,5 @@ interface DataRepository {
     //TODO add tests
     suspend fun getAllFavouriteLinesSync(): List<FavouriteLine>
     suspend fun getFavouriteLinesByAtcocode(atcocode: String): List<FavouriteLine>
-    suspend fun getFavouriteLineByAtcocodeAndLineName(
-        atcocode: String,
-        lineName: String
-    ): List<FavouriteLine>
+    suspend fun getFavouriteLineByAtcocodeAndLineName(atcocode: String, lineName: String): List<FavouriteLine>
 }
