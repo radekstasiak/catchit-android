@@ -12,6 +12,7 @@ import io.radev.catchit.data.DataRepository
 import io.radev.catchit.data.DataRepositoryImpl
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.db.DatabaseConstants
+import io.radev.catchit.domain.*
 import io.radev.catchit.network.ApiConstants
 import io.radev.catchit.network.ApiService
 import io.radev.catchit.network.errorhandling.NetworkResponseAdapterFactory
@@ -24,8 +25,6 @@ import retrofit2.converter.moshi.MoshiConverterFactory
  * Created by radoslaw on 14/06/2020.
  * radev.io 2020.
  */
-
-
 
 @Module
 @InstallIn(ApplicationComponent::class)
@@ -75,3 +74,33 @@ abstract class DataRepositoryModule {
         dataRepositoryImpl: DataRepositoryImpl
     ): DataRepository
 }
+
+@Module
+@InstallIn(ApplicationComponent::class)
+abstract class UseCaseModule {
+
+    @Binds
+    abstract fun bindGetDeparturesUseCase(
+        getDeparturesInteractor: GetDeparturesInteractor
+    ): GetDeparturesUseCase
+
+    @Binds
+    abstract fun bindGetNearbyStopsForSelectedPostcodeInteractor(
+        getNearbyStopsForSelectedPostcodeInteractor: GetNearbyStopsForSelectedPostcodeInteractor
+    ): GetNearbyStopsForSelectedPostcodeUseCase
+
+    @Binds
+    abstract fun bindUpdateFavouriteDeparturesAlertUseCase(
+        getUpdateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertInteractor
+    ): UpdateFavouriteDeparturesAlertUseCase
+}
+
+@Module
+@InstallIn(ApplicationComponent::class)
+abstract class ApplicationModule {
+    @Binds
+    abstract fun bindDateTimeConverter(
+        dateTimeConverterImpl: DateTimeConverterImpl
+    ): DateTimeConverter
+}
+

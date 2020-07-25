@@ -1,4 +1,4 @@
-package io.radev.catchit
+package io.radev.catchit.notification
 
 import io.radev.catchit.network.DepartureDetails
 

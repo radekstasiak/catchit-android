@@ -3,10 +3,18 @@ package io.radev.catchit
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateHandle
+import io.mockk.MockKAnnotations
+import io.mockk.every
+import io.mockk.impl.annotations.RelaxedMockK
+import io.mockk.mockkStatic
 import io.radev.catchit.data.DataRepository
+import io.radev.catchit.domain.*
 import io.radev.catchit.network.DepartureResponse
 import io.radev.catchit.network.NetworkResponse
-import io.radev.catchit.network.PostCodeMember
+import io.radev.catchit.viewmodel.DashboardViewModel
+import io.radev.catchit.viewmodel.DepartureDetailsUiModel
+import io.radev.catchit.viewmodel.DepartureMapModel
+import io.radev.catchit.viewmodel.LatitudeLongitude
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -27,7 +35,7 @@ import org.mockito.MockitoAnnotations
  * radev.io 2020.
  */
 
-class DashboardViewModelTest() {
+class DashboardViewModelTest : TestHelper() {
     private val mainThreadSurrogate = TestCoroutineDispatcher()
 
     lateinit var viewModel: DashboardViewModel
@@ -41,22 +49,42 @@ class DashboardViewModelTest() {
     lateinit var dataRepository: DataRepository
 
     @Mock
-    lateinit var converter: DateTimeConverter
+    lateinit var converter: DateTimeConverterImpl
 
     @Mock
     lateinit var savedStateHandle: SavedStateHandle
 
     @Mock
-    lateinit var placeMemberModelObserver: Observer<List<PlaceMemberModel>>
+    lateinit var placeMemberModelObserver: Observer<DepartureMapModel>
 
     @Mock
-    lateinit var departureDetailsObserver: Observer<List<DepartureDetailsModel>>
+    lateinit var departureDetailsObserver: Observer<List<DepartureDetailsUiModel>>
 
     @Mock
-    lateinit var postCodeMemberObserver: Observer<PostCodeMember>
+    lateinit var postCodeMemberObserver: Observer<LatitudeLongitude>
+
+    @Mock
+    lateinit var getDeparturesUseCase: GetDeparturesUseCase
+
+    @Mock
+    lateinit var getNearbyStopsForSelectedPostcodeUseCase: GetNearbyStopsForSelectedPostcodeUseCase
+
+    @RelaxedMockK
+    lateinit var updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase
+
+    @RelaxedMockK
+    lateinit var departureDomainModelMock: DepartureDomainModel
+
+    @RelaxedMockK
+    lateinit var departureDetailsDomainList: List<DepartureDetailsDomainModel>
+
+    @RelaxedMockK
+    lateinit var departureDetailsUiList: List<DepartureDetailsUiModel>
 
     @Before
     fun setup() {
+        MockKAnnotations.init(this)
+        //TODO migrate to mockk from mockito
         MockitoAnnotations.initMocks(this)
         Dispatchers.setMain(mainThreadSurrogate)
 
@@ -72,25 +100,42 @@ class DashboardViewModelTest() {
         viewModel = DashboardViewModel(
             dataRepository = dataRepository,
             converter = converter,
-            savedStateHandle = savedStateHandle
+            savedStateHandle = savedStateHandle,
+            getDeparturesUseCase = getDeparturesUseCase,
+            getNearbyStopsForSelectedPostcodeUseCase = getNearbyStopsForSelectedPostcodeUseCase,
+            updateFavouriteDeparturesAlertUseCase = updateFavouriteDeparturesAlertUseCase
         )
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain() // reset main dispatcher to the original Main dispatcher
-        mainThreadSurrogate.cleanupTestCoroutines()
         lifeCycleTestOwner.onDestroy()
+        mainThreadSurrogate.cleanupTestCoroutines()
+        Dispatchers.resetMain()
     }
 
     @Test
     fun getLiveTimetableTest_onSuccess() = runBlocking {
+        //todo clean mess in this test (mockito and mockk)
+        mockkStatic("io.radev.catchit.domain.ModelKt")
+        every { departureDomainModelMock.departures } returns departureDetailsDomainList
+        every {
+            departureDetailsDomainList.toDepartureDetailsUiModel(
+                atcocode = "450012351",
+                dateTimeConverter = converter
+            )
+        } returns departureDetailsUiList
+
         viewModel.departureDetailsModelList.observe(lifeCycleTestOwner, departureDetailsObserver)
         lifeCycleTestOwner.onResume()
         viewModel.atcocode.value = "450012351"
 
-        val result = NetworkResponse.Success<DepartureResponse>(body = TestHelper.departureResponse)
+        val result = NetworkResponse.Success<DepartureResponse>(body = getDepartureResponse())
 
+        val departureState = DeparturesState.Success(data = departureDomainModelMock)
+        Mockito.`when`(getDeparturesUseCase.getDepartureState(atcocode = "450012351"))
+            .thenReturn(departureState)
         Mockito.`when`(dataRepository.getLiveTimetable(atcocode = "450012351"))
             .thenReturn(result)
         viewModel.getLiveTimetable()
@@ -101,24 +146,38 @@ class DashboardViewModelTest() {
 
     @Test
     fun getPostCodeDetailsTest_onSuccess() = runBlocking {
+        Mockito.`when`(getNearbyStopsForSelectedPostcodeUseCase.getNearbyStops("LS71HT"))
+            .thenReturn(
+                PlaceMembersState.Success(
+                    longitude = 1.0,
+                    latitude = 42.0,
+                    data = placesResponse.memberList
+                )
+            )
         val response = NetworkResponse.Success(TestHelper.postCodeDetailsResponse)
-        viewModel.postCodeMember.observe(lifeCycleTestOwner, postCodeMemberObserver)
+        viewModel._userLatLang.observe(lifeCycleTestOwner, postCodeMemberObserver)
+        viewModel.placeMemberModelList.observe(lifeCycleTestOwner, placeMemberModelObserver)
         lifeCycleTestOwner.onResume()
-        Mockito.`when`(dataRepository.getPostCodeDetails(postCode = "LS71HT")).thenReturn(response)
-        viewModel.getPostCodeDetails(postCode = "LS71HT")
-        Mockito.verify(postCodeMemberObserver).onChanged(response.body.memberList[0])
+//        Mockito.`when`(dataRepository.getPostCodeDetails(postCode = "LS71HT")).thenReturn(response)
+        viewModel.getNearbyStopsWithPostcode(postCode = "LS71HT")
+        Mockito.verify(postCodeMemberObserver).onChanged(any())
+        Mockito.verify(placeMemberModelObserver).onChanged(any())
     }
 
     @Test
     fun getNearbyPlacesTest_onSuccess() = runBlocking {
         viewModel.placeMemberModelList.observe(lifeCycleTestOwner, placeMemberModelObserver)
         lifeCycleTestOwner.onResume()
-        viewModel._postCodeMember.value = TestHelper.postCodeMember
+        viewModel._userLatLang.value =
+            LatitudeLongitude(
+                latitude = 1.0,
+                longitude = 53.0
+            )
         val response = NetworkResponse.Success(TestHelper.placesResponse)
         Mockito.`when`(
             dataRepository.getNearbyPlaces(
-                longitude = viewModel._postCodeMember.value!!.longitude,
-                latitude = viewModel._postCodeMember.value!!.latitude
+                longitude = viewModel._userLatLang.value!!.longitude,
+                latitude = viewModel._userLatLang.value!!.latitude
             )
         ).thenReturn(response)
         viewModel.getNearbyPlaces()
@@ -154,10 +213,13 @@ class DashboardViewModelTest() {
     @Test
     fun updateFavouriteLine_removes_favourite_stop_test() {
         Mockito.`when`(converter.getNowInMillis()).thenReturn(1L)
-        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351",lineName = "51")
+        viewModel.updateFavouriteLine(favourite = false, atcocode = "450012351", lineName = "51")
         runBlocking {
             launch {
-                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(atcocode = "450012351", lineName = "51")
+                Mockito.verify(dataRepository).removeFavouriteLineByAtcocodeAndLineName(
+                    atcocode = "450012351",
+                    lineName = "51"
+                )
             }
         }
     }

@@ -15,6 +15,7 @@ import androidx.room.*
 interface FavouriteStopDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_STOP}")
     fun getAll(): LiveData<List<FavouriteStop>>
+
     //https://stackoverflow.com/questions/44167111/android-room-simple-select-query-cannot-access-database-on-the-main-thread
     //Asynchronous queries (queries that return LiveData or RxJava Flowable) are exempt from this rule since they asynchronously run the query on a background thread when needed
     @Query(
@@ -51,6 +52,10 @@ interface FavouriteLineDao {
     @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_LINE}")
     fun getAll(): LiveData<List<FavouriteLine>>
 
+
+    @Query("SELECT * FROM ${DatabaseConstants.FAVOURITE_LINE}")
+    suspend fun getAllSync(): List<FavouriteLine>
+
     @Query(
         """
         SELECT * FROM  ${DatabaseConstants.FAVOURITE_LINE} 
@@ -59,7 +64,7 @@ interface FavouriteLineDao {
         LIMIT 1
     """
     )
-    suspend fun findByAtcocodeAndLine(atcocode: String, lineName: String): FavouriteLine
+    suspend fun findByAtcocodeAndLine(atcocode: String, lineName: String): List<FavouriteLine>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg favouriteLines: FavouriteLine)
@@ -75,6 +80,14 @@ interface FavouriteLineDao {
     """
     )
     suspend fun deleteByAtcocodeAndLineName(atcocode: String, lineName: String)
+
+    @Query(
+        """
+        SELECT * FROM  ${DatabaseConstants.FAVOURITE_LINE} 
+        WHERE ${DatabaseConstants.ATCOCODE}=:atcocode
+    """
+    )
+    suspend fun getByAtcocode(atcocode: String): List<FavouriteLine>
 
 
 }
