@@ -2,6 +2,7 @@ package io.radev.catchit.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import io.radev.catchit.R
 import io.radev.catchit.db.CatchItDatabase
 import io.radev.catchit.experimental.LiveTimetableService
 import io.radev.catchit.alarm.UpdateTimetableAlarmManager
+import io.radev.catchit.widget.WIDGET_TAG
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import javax.inject.Inject
@@ -36,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     //    @Inject lateinit var apiService: ApiService
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(WIDGET_TAG, "MainActivity onCreate")
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         notificationController.createNotificationChannel(this)
