@@ -21,7 +21,6 @@ class FavouriteDepartureAppWidgetProvider : AppWidgetProvider() {
 
     private val TAG = "FavDepAppWidgetProv"
 
-
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -48,7 +47,7 @@ class FavouriteDepartureAppWidgetProvider : AppWidgetProvider() {
                 context.packageName,
                 R.layout.favourite_departure_appwidget
             ).apply {
-                setOnClickPendingIntent(R.id.refresh_btn, pendingIntent2)
+//                setOnClickPendingIntent(R.id.refresh_btn, pendingIntent2)
                 setRemoteAdapter(R.id.fav_dep_appwidget_lv, widgetServiceIntent)
             }
 

@@ -10,14 +10,12 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/refresh_btn"/>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/refresh_btn"
         android:layout_margin="8dp"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:backgroundTint="@color/colorAccent"
-        app:icon="@drawable/baseline_search_24"
-        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:text="Refresh"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         />
