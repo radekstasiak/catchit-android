@@ -3,6 +3,7 @@ package io.radev.catchit.fragment
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
+import io.radev.catchit.data.DataRepository
 import io.radev.catchit.domain.FavouriteDepartureUpdateState
 import io.radev.catchit.domain.UpdateFavouriteDeparturesAlertUseCase
 import io.radev.catchit.domain.toUiModel
@@ -33,6 +34,7 @@ class FavouriteListViewModel @ViewModelInject constructor(private val dispatcher
                         list = result.list
                     )
                 }
+                is FavouriteStopListResult.RemoveFavouriteLine -> viewState.copy(list = result.list)
                 null -> viewState.copy()
             }
             viewState
@@ -45,15 +47,29 @@ class FavouriteListViewModel @ViewModelInject constructor(private val dispatcher
                 is FavouriteStopListIntent.LoadFavourites -> {
                     dispatcher.dispatchAction(FavouriteStopListAction.LoadFavourites)
                 }
+                is FavouriteStopListIntent.RemoveFavouriteLine -> {
+                    dispatcher.dispatchAction(
+                        FavouriteStopListAction.RemoveFavouriteLine(
+                            atcocode = intent.atcocode,
+                            lineName = intent.lineName,
+                            list = viewState.list
+                        )
+                    )
+                }
             }
         }
     }
 
 }
 
-class FavouriteStopActionProcessor @Inject constructor(private val updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase) {
+class FavouriteStopActionProcessor @Inject constructor(
+    private val updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase,
+    private val dataRepository: DataRepository
+) {
 
     val result = MutableLiveData<FavouriteStopListResult>()
+
+    @Suppress("IMPLICIT_CAST_TO_ANY")
     suspend fun dispatchAction(action: FavouriteStopListAction) =
         when (action) {
             FavouriteStopListAction.LoadFavourites -> {
@@ -62,6 +78,11 @@ class FavouriteStopActionProcessor @Inject constructor(private val updateFavouri
                 Log.d(TAG, "emitting Result")
                 result.value = getFavouriteStopDepartures()
             }
+            is FavouriteStopListAction.RemoveFavouriteLine -> result.value = removeFavouriteLine(
+                atcocode = action.atcocode,
+                lineName = action.lineName,
+                alertList = action.list
+            )
         }
 
     private suspend fun getFavouriteStopDepartures(): FavouriteStopListResult {
@@ -80,24 +101,50 @@ class FavouriteStopActionProcessor @Inject constructor(private val updateFavouri
         return FavouriteStopListResult.LoadFavouritesSuccess(list = alertList)
     }
 
+    private suspend fun removeFavouriteLine(
+        alertList: List<FavouriteDepartureAlert>,
+        atcocode: String,
+        lineName: String
+    ): FavouriteStopListResult {
+        dataRepository.removeFavouriteLineByAtcocodeAndLineName(
+            atcocode = atcocode,
+            lineName = lineName
+        )
+        val result =
+            (alertList as ArrayList).filterNot { it.atcocode == atcocode && it.lineName == lineName }
+        return FavouriteStopListResult.RemoveFavouriteLine(list = result)
+    }
+
 
 }
 
-interface Intent {}
-interface Action {}
-interface Result {}
+interface Intent
+interface Action
+interface Result
 
 sealed class FavouriteStopListIntent : Intent {
     object LoadFavourites : FavouriteStopListIntent()
+    data class RemoveFavouriteLine(
+        val atcocode: String,
+        val lineName: String
+    ) : FavouriteStopListIntent()
 }
 
 sealed class FavouriteStopListAction : Action {
     object LoadFavourites : FavouriteStopListAction()
+    data class RemoveFavouriteLine(
+        val list: List<FavouriteDepartureAlert>,
+        val atcocode: String,
+        val lineName: String
+    ) : FavouriteStopListAction()
 }
 
 sealed class FavouriteStopListResult : Result {
     object LoadFavouritesInProgress : FavouriteStopListResult()
     data class LoadFavouritesSuccess(val list: List<FavouriteDepartureAlert>) :
+        FavouriteStopListResult()
+
+    data class RemoveFavouriteLine(val list: List<FavouriteDepartureAlert>) :
         FavouriteStopListResult()
 }
 

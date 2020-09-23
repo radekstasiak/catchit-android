@@ -69,7 +69,12 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
 //    }
 
     override fun updateFavouriteStop(atcocode: String, lineName: String, favourite: Boolean) {
-//        model.updateFavouriteLine(atcocode = atcocode, lineName = lineName, favourite = favourite)
+        model.processIntents(
+            FavouriteStopListIntent.RemoveFavouriteLine(
+                atcocode = atcocode,
+                lineName = lineName
+            )
+        )
     }
 
 
