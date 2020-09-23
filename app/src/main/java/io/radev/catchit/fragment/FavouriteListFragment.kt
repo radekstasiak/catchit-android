@@ -53,6 +53,8 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
         swipe_refresh.setOnRefreshListener {
             model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
         }
+
+        model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
     }
 
 

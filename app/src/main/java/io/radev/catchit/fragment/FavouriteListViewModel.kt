@@ -7,6 +7,7 @@ import io.radev.catchit.domain.FavouriteDepartureUpdateState
 import io.radev.catchit.domain.UpdateFavouriteDeparturesAlertUseCase
 import io.radev.catchit.domain.toUiModel
 import io.radev.catchit.viewmodel.FavouriteDepartureAlert
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 const val TAG = "mviTest"
@@ -15,37 +16,12 @@ class FavouriteListViewModel @ViewModelInject constructor(private val dispatcher
     ViewModel() {
 
 
-    private val viewState = FavouriteDepartureViewState.init()
-
-    private val _favouriteStopAction =
-        MutableLiveData<FavouriteStopListAction>(FavouriteStopListAction.LoadFavourites)
-
-//    val favouriteStopState: LiveData<FavouriteDepartureViewState> =
-//        Transformations.map(_favouriteStopAction) {
-//            Log.d(TAG, "new action ${it.toString()}")
-//            Transformations.map(dispatcher.dispatchAction(it)) { result ->
-//                when (result) {
-//                    FavouriteStopListResult.LoadFavouritesInProgress -> {
-//                        Log.d(TAG, result.toString())
-//                        viewState.copy(isLoading = true)
-//                    }
-//                    is FavouriteStopListResult.LoadFavouritesSuccess -> {
-//                        Log.d(TAG, result.toString())
-//                        viewState.copy(
-//                            isLoading = false,
-//                            list = result.list
-//                        )
-//                    }
-//                    null -> viewState.copy()
-//                }
-//            }
-//
-//        }
+    private var viewState = FavouriteDepartureViewState.init()
 
     val favouriteStopState: LiveData<FavouriteDepartureViewState> =
-        Transformations.map(dispatcher.dispatchAction(FavouriteStopListAction.LoadFavourites)) { result ->
+        Transformations.map(dispatcher.result) { result ->
             Log.d(TAG, "new action ${result.toString()}")
-            when (result) {
+            viewState = when (result) {
                 FavouriteStopListResult.LoadFavouritesInProgress -> {
                     Log.d(TAG, result.toString())
                     viewState.copy(isLoading = true)
@@ -59,28 +35,32 @@ class FavouriteListViewModel @ViewModelInject constructor(private val dispatcher
                 }
                 null -> viewState.copy()
             }
+            viewState
         }
 
 
     fun processIntents(intent: FavouriteStopListIntent) {
-        _favouriteStopAction.value = when (intent) {
-            is FavouriteStopListIntent.LoadFavourites -> FavouriteStopListAction.LoadFavourites
+        viewModelScope.launch {
+            when (intent) {
+                is FavouriteStopListIntent.LoadFavourites -> {
+                    dispatcher.dispatchAction(FavouriteStopListAction.LoadFavourites)
+                }
+            }
         }
-
     }
 
 }
 
 class FavouriteStopActionProcessor @Inject constructor(private val updateFavouriteDeparturesAlertUseCase: UpdateFavouriteDeparturesAlertUseCase) {
 
-
-    fun dispatchAction(action: FavouriteStopListAction) =
+    val result = MutableLiveData<FavouriteStopListResult>()
+    suspend fun dispatchAction(action: FavouriteStopListAction) =
         when (action) {
-            FavouriteStopListAction.LoadFavourites -> liveData {
+            FavouriteStopListAction.LoadFavourites -> {
                 Log.d(TAG, "emitting in Progress")
-                emit(FavouriteStopListResult.LoadFavouritesInProgress)
+                result.value = FavouriteStopListResult.LoadFavouritesInProgress
                 Log.d(TAG, "emitting Result")
-                emit(getFavouriteStopDepartures())
+                result.value = getFavouriteStopDepartures()
             }
         }
 
@@ -93,11 +73,9 @@ class FavouriteStopActionProcessor @Inject constructor(private val updateFavouri
                     for (departureAlert in item.list) {
                         alertList.add(departureAlert.toUiModel())
                     }
-
                 }
             }
         }
-
         Log.d(TAG, alertList.size.toString())
         return FavouriteStopListResult.LoadFavouritesSuccess(list = alertList)
     }
