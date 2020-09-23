@@ -305,7 +305,10 @@ class DashboardViewModel @ViewModelInject constructor(
         }
     }
 
+
 }
+
+
 
 data class DepartureMapModel(
     val departuresList: List<PlaceMemberModel>,
@@ -335,6 +338,7 @@ data class DepartureDetailsModel(
     val isFavourite: Boolean,
     val waitTime: String
 )
+
 
 data class FavouriteDepartureAlert(
     val atcocode: String,

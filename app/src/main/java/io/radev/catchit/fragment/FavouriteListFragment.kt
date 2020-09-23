@@ -14,7 +14,6 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.radev.catchit.R
-import io.radev.catchit.viewmodel.DashboardViewModel
 import io.radev.catchit.viewmodel.FavouriteDepartureAlert
 import kotlinx.android.synthetic.main.fragment_favourite_list.*
 
@@ -23,7 +22,8 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var favourListAdapter: FavouriteListRecyclerViewAdapter
 
-    private val model: DashboardViewModel by activityViewModels()
+    //    private val model: DashboardViewModel by activityViewModels()
+    private val model: FavouriteListViewModel by activityViewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -44,26 +44,30 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
         favourListAdapter =
             FavouriteListRecyclerViewAdapter(context = requireContext(), listener = this)
         recyclerView.adapter = favourListAdapter
-        model.favouriteDeparturesAlertList.observe(
+        model.favouriteStopState.observe(
             viewLifecycleOwner,
-            Observer<List<FavouriteDepartureAlert>> {
-                swipe_refresh.isRefreshing = false
-                favourListAdapter.setData(it)
+            Observer<FavouriteDepartureViewState> {
+                render(it)
             })
 
         swipe_refresh.setOnRefreshListener {
-            updateData()
+            model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
         }
-        updateData()
     }
 
-    private fun updateData(){
-        swipe_refresh.isRefreshing = true
-        model.updateFavouriteDeparturesList()
+
+    fun render(viewState: FavouriteDepartureViewState) {
+        swipe_refresh.isRefreshing = viewState.isLoading
+        favourListAdapter.setData(viewState.list)
     }
+
+//    private fun updateData() {
+//        swipe_refresh.isRefreshing = true
+//        model.updateFavouriteDeparturesList()
+//    }
 
     override fun updateFavouriteStop(atcocode: String, lineName: String, favourite: Boolean) {
-        model.updateFavouriteLine(atcocode = atcocode, lineName = lineName, favourite = favourite)
+//        model.updateFavouriteLine(atcocode = atcocode, lineName = lineName, favourite = favourite)
     }
 
 
