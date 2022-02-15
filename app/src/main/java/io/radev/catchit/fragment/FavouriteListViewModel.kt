@@ -8,13 +8,81 @@ import io.radev.catchit.domain.FavouriteDepartureUpdateState
 import io.radev.catchit.domain.UpdateFavouriteDeparturesAlertUseCase
 import io.radev.catchit.domain.toUiModel
 import io.radev.catchit.viewmodel.FavouriteDepartureAlert
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 const val TAG = "mviTest"
 
-class FavouriteListViewModel @ViewModelInject constructor(private val dispatcher: FavouriteStopActionProcessor) :
-    ViewModel() {
+class FavouriteListViewModel @ViewModelInject constructor(
+    private val dispatcher: FavouriteStopActionProcessor,
+    private val useCase: UpdateFavouriteDeparturesAlertUseCase
+) :
+    ViewModel(), Model<FavouriteDepartureViewState, FavouriteStopListIntent> {
+
+    override val intents: Channel<FavouriteStopListIntent>
+        get() = Channel(Channel.UNLIMITED)
+
+    private val _state = MutableLiveData<FavouriteDepartureViewState>().apply {
+        value = FavouriteDepartureViewState.init()
+    }
+    override val state: LiveData<FavouriteDepartureViewState>
+        get() = _state
+
+
+    init {
+        handlerIntent()
+    }
+
+
+    private fun handlerIntent() {
+        viewModelScope.launch {
+            intents.consumeAsFlow().collect { userIntent ->
+                when (userIntent) {
+                    FavouriteStopListIntent.LoadFavourites -> loadFavourites()
+                    FavouriteStopListIntent.RefreshFavourites -> loadFavourites()
+                }
+            }
+        }
+    }
+
+    private fun loadFavourites() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                updateState { it.copy(isLoading = true) }
+                updateState {
+                    it.copy(
+                        isLoading = false,
+                        list = getFavouriteList()
+                    )
+                }
+            } catch (e: Exception) {
+                updateState { it.copy(isLoading = false, errorMessage = e.message ?: "") }
+            }
+        }
+    }
+
+    private suspend fun getFavouriteList(): List<FavouriteDepartureAlert> {
+        val result = useCase.getFavouriteDeparturesUpdate()
+        val alertList = arrayListOf<FavouriteDepartureAlert>()
+        for (item in result) {
+            when (item) {
+                is FavouriteDepartureUpdateState.Success -> {
+                    for (departureAlert in item.list) {
+                        alertList.add(departureAlert.toUiModel())
+                    }
+                }
+            }
+        }
+        return alertList
+    }
+
+    private suspend fun updateState(handler: suspend (intent: FavouriteDepartureViewState) -> FavouriteDepartureViewState) {
+        _state.postValue(handler(state.value!!))
+    }
 
 
     private var viewState = FavouriteDepartureViewState.init()
@@ -59,6 +127,7 @@ class FavouriteListViewModel @ViewModelInject constructor(private val dispatcher
             }
         }
     }
+
 
 }
 
@@ -121,9 +190,19 @@ class FavouriteStopActionProcessor @Inject constructor(
 interface Intent
 interface Action
 interface Result
+interface ViewState
+interface IView<S : ViewState> {
+    fun render(state: S)
+}
+
+interface Model<S : ViewState, I : Intent> {
+    val intents: Channel<I>
+    val state: LiveData<S>
+}
 
 sealed class FavouriteStopListIntent : Intent {
     object LoadFavourites : FavouriteStopListIntent()
+    object RefreshFavourites : FavouriteStopListIntent()
     data class RemoveFavouriteLine(
         val atcocode: String,
         val lineName: String
@@ -150,11 +229,13 @@ sealed class FavouriteStopListResult : Result {
 
 data class FavouriteDepartureViewState(
     val isLoading: Boolean,
+    val errorMessage: String,
     val list: List<FavouriteDepartureAlert>
-) {
+) : ViewState {
     companion object {
         fun init() = FavouriteDepartureViewState(
             list = listOf(),
+            errorMessage = "",
             isLoading = true
         )
     }

@@ -11,14 +11,17 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.radev.catchit.R
 import io.radev.catchit.viewmodel.FavouriteDepartureAlert
 import kotlinx.android.synthetic.main.fragment_favourite_list.*
+import kotlinx.coroutines.launch
 
 
-class FavouriteListFragment : Fragment(), SelectDepartureListener {
+class FavouriteListFragment : Fragment(), SelectDepartureListener,
+    IView<FavouriteDepartureViewState> {
     private lateinit var recyclerView: RecyclerView
     private lateinit var favourListAdapter: FavouriteListRecyclerViewAdapter
 
@@ -44,24 +47,41 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
         favourListAdapter =
             FavouriteListRecyclerViewAdapter(context = requireContext(), listener = this)
         recyclerView.adapter = favourListAdapter
-        model.favouriteStopState.observe(
-            viewLifecycleOwner,
-            Observer<FavouriteDepartureViewState> {
-                render(it)
-            })
+//        model.favouriteStopState.observe(
+//            viewLifecycleOwner,
+//            Observer<FavouriteDepartureViewState> {
+//                render(it)
+//            })
 
-        swipe_refresh.setOnRefreshListener {
-            model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
+//        swipe_refresh.setOnRefreshListener {
+//            model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
+//        }
+//
+//        model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
+
+        // Observing the state
+        model.favouriteStopState.observe(viewLifecycleOwner, Observer {
+            render(it)
+        })
+
+        // Fetching data when the application launched
+        lifecycleScope.launch {
+            model.intents.send(FavouriteStopListIntent.LoadFavourites)
         }
 
-        model.processIntents(intent = FavouriteStopListIntent.LoadFavourites)
+        // Refresh data
+        swipe_refresh.setOnRefreshListener {
+            lifecycleScope.launch {
+                model.intents.send(FavouriteStopListIntent.RefreshFavourites)
+            }
+        }
     }
 
 
-    fun render(viewState: FavouriteDepartureViewState) {
-        swipe_refresh.isRefreshing = viewState.isLoading
-        favourListAdapter.setData(viewState.list)
-    }
+//    fun render(viewState: FavouriteDepartureViewState) {
+//        swipe_refresh.isRefreshing = viewState.isLoading
+//        favourListAdapter.setData(viewState.list)
+//    }
 
 //    private fun updateData() {
 //        swipe_refresh.isRefreshing = true
@@ -75,6 +95,11 @@ class FavouriteListFragment : Fragment(), SelectDepartureListener {
                 lineName = lineName
             )
         )
+    }
+
+    override fun render(state: FavouriteDepartureViewState) {
+        swipe_refresh.isRefreshing = state.isLoading
+        favourListAdapter.setData(state.list)
     }
 
 
